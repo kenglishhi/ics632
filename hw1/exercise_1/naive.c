@@ -153,10 +153,13 @@ int main(int argc,char *argv[])
     gettimeofday(&start,NULL);
 
     implementation = "k-j-i";
+    int total_multiplications = 0;
+
     for (k = 0; k < matrix_size; k++) {
 	for (j = 0; j < matrix_size; j++) {
 	    for (i = 0; i < matrix_size; i++) {
 		result[i][j] += a[i][k] * b[k][j];
+                total_multiplications++; 
 		if (debug)
 		    printf("\nresult[%d][%d] = %0.5f\n",i,j,result[i][j]);
 	    }
@@ -164,6 +167,8 @@ int main(int argc,char *argv[])
     }
     gettimeofday(&end,NULL);
     printf("Time difference for %s implementation %.5f seconds\n", implementation, getTimeDiff(&start, &end));
+    printf("Total Multiplications : %d\n", total_multiplications);
+
 
 
 
