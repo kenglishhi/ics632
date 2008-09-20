@@ -96,6 +96,42 @@ int multiply_matrices(double *result, double *a, double *b, int matrix_size) {
     }
     return 1;
 }
+int multiply_block(double *result, double *matrix1, double *matrix2, int block_size, int number_of_blocks, int i, int j, int k) {
+    double *current_result;
+    double *current_matrix1;
+    double *current_matrix2;
+    int a, b, c, result_location, matrix1_location, matrix2_location ;
+    int matrix_size = block_size * number_of_blocks; 
+    for (a = 0; a < block_size; a++) {
+	for (b = 0; b < block_size; b++) {
+            result_location = (a + i*block_size) + ( j*block_size*(matrix_size )) + b * matrix_size  ; 
+//             a_location = (row * block_size* matrix_size + i*matrix_size) + k + x * block_size;
+//		    b_location = (col*block_size + j) + k * matrix_size + x*block_size*matrix_size   ;
+//            printf("result(%d,%d) location %d  \n",  a, b, result_location  ) ;
+	    current_result = result + result_location; 
+//            *current_result += 1.0;
+	    for (c = 0; c < block_size; c++) {
+                  matrix1_location = (c + k*block_size) + ( j*block_size*(matrix_size )) + b * matrix_size  ; 
+                  matrix2_location = (a + i*block_size) + ( k*block_size*(matrix_size )) + c * matrix_size  ; 
+                  current_matrix1 = matrix1 + matrix1_location;
+		  current_matrix2 = matrix2 + matrix2_location ;
+//                  printf("result(%d,%d) = matrix1[%d,%d] * matrix2[%d,%d]    \n",  a, b, a, c, c, b) ;
+//                  printf("location[%d] == location[%d] *  location[%d] \n",result_location,  matrix1_location, matrix2_location  ) ;
+                  *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
+//                  printf("--result = %6.2f] \n",*current_result ) ;
+            } 
+
+//	    current_result = result + (i * block_size * matrix_size + i * matrix_size) + (col * block_size + j)    ;
+//	    current_a = a + i*matrix_size + k;
+//	    for (c = 0; c < matrix_size; c++) {
+//		current_result = result + i*matrix_size + j;
+//		current_b = b + k*matrix_size + j;
+//		*current_result += *current_a *  *current_b ;
+//	    }
+	}
+    }
+    return 1;
+}
 
 int calculate_block(double *result, double *a, double *b, int matrix_size, int block_size, int number_of_blocks, int row, int col) {
     int i, j, k, x  ;
@@ -155,7 +191,7 @@ int main(int argc,char *argv[])
     struct timeval start;
     struct timeval end;
 //    double time_elapsed;
-    int i,j;
+    int i, j, k ;
 
     int seed = 10000;
     srand(seed);
@@ -179,12 +215,30 @@ int main(int argc,char *argv[])
 
 //    print_matrices(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size);
 
-    gettimeofday(&start,NULL);
+/*    gettimeofday(&start,NULL);
     for (i = 0; i < number_of_blocks; i++)  {
 	for (j = 0; j < number_of_blocks; j++){
 	    calculate_block(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size,block_size,number_of_blocks, i, j);
 	}
     }
+
+*/    
+    gettimeofday(&start,NULL);
+    if (debug) { 
+        printf("calling  multiply_block(:number_of_blocks = > %d, :block_size => %d)\n", number_of_blocks, block_size); 
+    } 
+//    multiply_block(&result[0][0], &matrix1[0][0], &matrix2[0][0],block_size, number_of_blocks,1,1,1); 
+    for (i = 0; i < number_of_blocks; i++)  {
+	for (j = 0; j < number_of_blocks; j++){
+ 	    for (k = 0; k < number_of_blocks; k++){
+                 multiply_block(&result[0][0], &matrix1[0][0], &matrix2[0][0],block_size, number_of_blocks,i,j,k); 
+//                multiply_matrices(&result[i][j], &matrix1[i][k], &matrix2[k][j],block_size); 
+//                multiply_matrices(&result[i][j], &matrix1[i][k], &matrix2[k][j],block_size); 
+//	        calculate_block(&result[k][0],&matrix1[0][0], &matrix2[0][0],matrix_size,block_size,number_of_blocks, i, j);
+	     }
+	}
+    }
+
 
 //    calculate_block(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size,block_size,number_of_blocks, 1, 1);
     if (debug) {

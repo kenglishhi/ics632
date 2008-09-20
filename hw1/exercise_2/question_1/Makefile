@@ -1,4 +1,4 @@
 main: clean
-	gcc -O0 lgsearch.c -o ~/bin/lgsearch.exe
+	gcc -Wall -lm -o ~/bin/lgsearch.exe lgsearch.c mystery_function_800.o
 clean:
 	/bin/rm -f ~/bin/lgsearch.exe 
