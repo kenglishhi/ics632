@@ -2,6 +2,7 @@ main: clean timediff lgsearch
 	gcc -Wall lgsearch1.c  ../lib/mystery_function_800_v2.o ../lib/timediff.o lgsearch.o  -lm -o ~/bin/lgsearch1.exe 
 	gcc -Wall -fopenmp lgsearch2.c  ../lib/mystery_function_800_v2.o ../lib/timediff.o lgsearch.o  -lm -o ~/bin/lgsearch2.exe 
 	gcc -Wall -fopenmp lgsearch3.c  ../lib/mystery_function_800_v2.o ../lib/timediff.o lgsearch.o  -lm -o ~/bin/lgsearch3.exe 
+	gcc -Wall floatcompare.c -o ~/bin/floatcompare.exe
 clean:
 	/bin/rm -f ~/bin/lgsearch*.exe  ../lib/timediff.o lgsearch.o 
 timediff:
