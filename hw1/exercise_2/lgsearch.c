@@ -14,13 +14,11 @@ int lgsearch(double step_size ) {
 
 
     for (i=0; i < ARRAY_SIZE ; i++ ) {
-	x[i]  = 49.9  ;//  (double) (50.0*rand()/(RAND_MAX+1.0));
-        printf("x[i] = %f\n", x[i]) ; 
+	x[i]  = (double) (50.0*rand()/(RAND_MAX+1.0));
     }
 
     double *item;
-    *item = x[0]; 
-    printf("item  = %f\n", *item ) ; 
+    item = &x[0]; 
     
     gettimeofday(&start,NULL);
 
@@ -28,36 +26,43 @@ int lgsearch(double step_size ) {
     double cur_result = 0.0;
     i = 0;
     int reset = 1;
+    int var; 
     double threshold = 50.0; 
+    double next_value = 50.0; 
+    double difference;
+    int cur, prev;
     do {
+        next_value = *item + step_size; 
+        if (next_value >= threshold ) { 
+           // already at the highest value
+           item +=  1 ;
+           i++;
+           reset= 1;
+//           printf(" Too Big, going to new item, %f !\n", next_value )  ;
+           continue;   
+        }         
 	if (reset) {
 	    prev_result = mystery_function_800(&x[0]);
 	    reset = 0;
 	}
-        printf( " i=%d-- old value = %f, %f, %d \n", i, *item, (*item + step_size),  ((*item + step_size) < threshold ) ) ; 
 
-        if (! ((*item + step_size) < 50.0 )) { 
-            printf(" too big!")  ;
-	    item +=  1 ;
-            printf(" new item, %f !", *item )  ;
-            i++;
-	    continue ;
-        } 
-	*item +=  step_size;
-        printf( " i=%d-- new value = %.5f \n", i, *item) ; 
+	*item =  next_value;
 	cur_result = mystery_function_800(&x[0]);
-
-	if ((cur_result - prev_result) > 0.0 ) {
+//       printf(" cur_result %0.5f  > prev_result %0.5f=   \n", cur_result, prev_result )  ;
+        // NOTE: this compare does not work correctly  on some machines
+	if (cur_result   > prev_result ) {
+//            printf(" cur_result > prev_result \n" )  ;
 	    prev_result = cur_result;
 	}  else {
-	    x[i] -= step_size;
+//	    printf(" moving on %f\n" , *item);
+	    printf("." );
+	    item += 1 ; 
 	    i++;
 	    reset= 1;
-	    printf(".");
 	    fflush(stdout);
 	}
-    } while (i < 10) ;
-//    } while (i < ARRAY_SIZE) ;
+//    } while (i < 10) ;
+    } while (i < ARRAY_SIZE) ;
     printf("\n");
     gettimeofday(&end,NULL);
     printf("Time Spent %f seconds\n", get_time_diff(&start, &end));
