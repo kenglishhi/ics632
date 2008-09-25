@@ -55,13 +55,13 @@ int lgsearch(double step_size ) {
 	    prev_result = cur_result;
 	}  else {
 //	    printf(" moving on %f\n" , *item);
-	    printf("." );
+//	    printf("." );
 	    item += 1 ; 
 	    i++;
 	    reset= 1;
-	    fflush(stdout);
+//	    fflush(stdout);
 	}
-//    } while (i < 10) ;
+//    } while (i < ARRAY_SIZE) ;
     } while (i < ARRAY_SIZE) ;
     printf("\n");
     gettimeofday(&end,NULL);
