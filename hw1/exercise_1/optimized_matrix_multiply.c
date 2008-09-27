@@ -4,12 +4,12 @@
 #include <stdlib.h>
 
 
-static float getTimeDiff(struct timeval *s, struct timeval *e);
+static float get_time_diff(struct timeval *s, struct timeval *e);
 int get_block_begin(int block_size, int offset) ;
 int get_block_end(int block_size, int offset) ;
 int multiply_matrices(double *result, double *a, double *b, int matrix_size) ;
 
-static float getTimeDiff(struct timeval *s, struct timeval *e) {
+static float get_time_diff(struct timeval *s, struct timeval *e) {
     struct timeval diff_tv;
 
     diff_tv.tv_usec = e->tv_usec - s->tv_usec;
@@ -109,17 +109,53 @@ int multiply_block(double *result, double *matrix1, double *matrix2, int block_s
     for (a = 0; a < block_size; a++) {
 	for (b = 0; b < block_size; b++) {
 	    current_result = result +  a + i_block_offset + j_block_offset + b * matrix_size  ; 
+/*
 	    for (c = 0; c < block_size; c++) {
                   current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b * matrix_size ;
 		  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
                   *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
             } 
+*/
+            
+            c = 0; 
+            do { 
+//	    for (c = 0; c < block_size; c++) {
+                 // unroll the for loop      
+                  current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b * matrix_size ;
+		  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
+                  *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
+                  c++; 
+                  if (!(c < block_size) ) {
+                      break; 
+                  } 
+                  current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b * matrix_size ;
+		  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
+                  *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
+                  c++; 
+                  if (!(c < block_size) ) {
+                      break; 
+                  } 
+ 
+                  current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b * matrix_size ;
+		  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
+                  *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
+                  c++; 
+                  if (!(c < block_size) ) {
+                      break; 
+                  } 
+ 
+                  current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b * matrix_size ;
+		  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
+                  *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
+                  c++; 
+            } while (c < block_size) ; 
+
+           // } 
 	}
     }
     return 1;
 }
 
-//int multiple_matrix(int *result[], int *)
 int main(int argc,char *argv[])
 {
 
@@ -134,21 +170,12 @@ int main(int argc,char *argv[])
     int matrix_size = atoi(argv[1]);
     int block_size = atoi(argv[2]);
     int number_of_blocks = matrix_size / block_size;
-//    test_multiply_matrices();
-
-
-    printf("Matrix_size is  %d\n", matrix_size);
-    printf("Block Size %d\n", matrix_size);
-//    matrix_size = 4;
-//    block_size = 2;
-//    number_of_blocks = 2;
     double matrix1[matrix_size][matrix_size];
     double matrix2[matrix_size][matrix_size];
     double result[matrix_size][matrix_size];
 
     struct timeval start;
     struct timeval end;
-//    double time_elapsed;
     int i, j, k ;
 
     int seed = 10000;
@@ -169,40 +196,22 @@ int main(int argc,char *argv[])
 	}
     }
     printf("\n \n" ) ;
-//    multiply_matrices(&result[0][0], &matrix1[0][0], &matrix2[0][0], matrix_size ) ;
-
-//    print_matrices(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size);
-
-/*    gettimeofday(&start,NULL);
-    for (i = 0; i < number_of_blocks; i++)  {
-	for (j = 0; j < number_of_blocks; j++){
-	    calculate_block(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size,block_size,number_of_blocks, i, j);
-	}
-    }
-
-*/    
     gettimeofday(&start,NULL);
     if (debug) { 
         printf("calling  multiply_block(:number_of_blocks = > %d, :block_size => %d)\n", number_of_blocks, block_size); 
     } 
-//    multiply_block(&result[0][0], &matrix1[0][0], &matrix2[0][0],block_size, number_of_blocks,1,1,1); 
     for (i = 0; i < number_of_blocks; i++)  {
 	for (j = 0; j < number_of_blocks; j++){
  	    for (k = 0; k < number_of_blocks; k++){
                  multiply_block(&result[0][0], &matrix1[0][0], &matrix2[0][0],block_size, number_of_blocks,i,j,k); 
-//                multiply_matrices(&result[i][j], &matrix1[i][k], &matrix2[k][j],block_size); 
-//                multiply_matrices(&result[i][j], &matrix1[i][k], &matrix2[k][j],block_size); 
-//	        calculate_block(&result[k][0],&matrix1[0][0], &matrix2[0][0],matrix_size,block_size,number_of_blocks, i, j);
 	     }
 	}
     }
 
-
-//    calculate_block(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size,block_size,number_of_blocks, 1, 1);
     if (debug) {
 	print_matrices(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size);
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for block implementation  %.5f seconds\n",  getTimeDiff(&start, &end));
+    printf("Time difference for block implementation  %.5f seconds\n",  get_time_diff(&start, &end));
     return 1;
 }
