@@ -1,6 +1,6 @@
 #!/bin/sh
 ### VERSION 0.1
-PBS_O_WORKDIR='/home/kenglish/workspace/output'
+WORKDIR='/home/kenglish/workspace/output'
 
 
 ### Set the job name
@@ -8,8 +8,8 @@ PBS_O_WORKDIR='/home/kenglish/workspace/output'
 
 ### Optionally specifiy destinations for your myprogram's output
 ### Specify localhost and an NFS file system to prevent file copy errors.
-#PBS -e $PBS_O_WORKDIR/naive.err 
-#PBS -o $PBS_O_WORKDIR/naive.out 
+#PBS -e $WORKDIR/naive.err 
+#PBS -o $WORKDIR/naive.out 
 
 ### Set the queue to "default"
 #PBS -q default

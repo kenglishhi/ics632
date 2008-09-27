@@ -106,13 +106,15 @@ int multiply_block(double *result, double *matrix1, double *matrix2, int block_s
     int j_block_offset = j*block_size*matrix_size; 
     int k_block_offset_row =  k*block_size ; 
     int k_block_offset_col = k*block_size*matrix_size  ; 
+    int b_block_offset; 
     for (a = 0; a < block_size; a++) {
-	for (b = 0; b < block_size; b++) {
-	    current_result = result +  a + i_block_offset + j_block_offset + b * matrix_size  ; 
-	    for (c = 0; c < block_size; c++) {
-                  current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b * matrix_size ;
-		  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
-                  *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
+        for (b = 0; b < block_size; b++) {
+            current_result = result +  a + i_block_offset + j_block_offset + b * matrix_size  ; 
+            b_block_offset = b * matrix_size; 
+            for (c = 0; c < block_size; c++) {
+                  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
+                  current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b_block_offset;
+                  *current_result += *current_matrix1 * *current_matrix2;
             } 
 	}
     }

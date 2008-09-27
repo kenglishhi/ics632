@@ -28,7 +28,6 @@ void print_matrices(double *result, double *a, double *b, int matrix_size) {
     double *current_a;
     double *current_b;
     int i,j;
-
     printf("matrix_size = %d \n\n", matrix_size  );
     for (i = 0; i < matrix_size; i++) {
 	printf(" [" );
@@ -195,7 +194,6 @@ int main(int argc,char *argv[])
 	    result[i][j] = 0.0;
 	}
     }
-    printf("\n \n" ) ;
     gettimeofday(&start,NULL);
     if (debug) { 
         printf("calling  multiply_block(:number_of_blocks = > %d, :block_size => %d)\n", number_of_blocks, block_size); 
@@ -212,6 +210,10 @@ int main(int argc,char *argv[])
 	print_matrices(&result[0][0],&matrix1[0][0], &matrix2[0][0],matrix_size);
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for block implementation  %.5f seconds\n",  get_time_diff(&start, &end));
+    if (debug) { 
+       printf("Time difference for block implementation  %.5f seconds\n",  get_time_diff(&start, &end));
+    } else {
+       printf("%d,%d,%.5f\n", matrix_size, block_size, get_time_diff(&start, &end));
+    } 
     return 1;
 }
