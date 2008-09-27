@@ -1,6 +1,4 @@
 main: clean
-	gcc  -O0 -Wall matrix_multiply_with_blocks.c -o ~/bin/matrix_multiply.exe
-fun: 
-	gcc -O0 fun.c -o fun.exe
+	gcc  -O0 -Wall matrix_multiply_with_blocks.c -o ~/bin/matrix_multiply_with_blocks.exe
 clean:
-	/bin/rm -f *.exe
+	/bin/rm -f matrix_multiply_with_blocks.exe

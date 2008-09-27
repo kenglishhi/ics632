@@ -4,9 +4,9 @@
 #include <stdlib.h>
 
 
-static float getTimeDiff(struct timeval *s, struct timeval *e);
+static float get_time_diff(struct timeval *s, struct timeval *e);
 
-static float getTimeDiff(struct timeval *s, struct timeval *e) {
+static float get_time_diff(struct timeval *s, struct timeval *e) {
     struct timeval diff_tv;
 
     diff_tv.tv_usec = e->tv_usec - s->tv_usec;
@@ -91,7 +91,7 @@ int main(int argc,char *argv[])
 	}
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for %s implementation %.5f seconds\n", implementation, getTimeDiff(&start, &end));
+    printf("Time difference for %s implementation %.5f seconds\n", implementation, get_time_diff(&start, &end));
 
     /*
        // #2 : Do the MATRIX Multiplication i-k-j
@@ -109,7 +109,7 @@ int main(int argc,char *argv[])
 	}
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for %s implementation %.5f seconds\n", implementation, getTimeDiff(&start, &end));
+    printf("Time difference for %s implementation %.5f seconds\n", implementation, get_time_diff(&start, &end));
 
     /*
        // #3 : Do the MATRIX Multiplication j-i-k
@@ -127,7 +127,7 @@ int main(int argc,char *argv[])
 	}
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for %s implementation %.5f seconds\n", implementation, getTimeDiff(&start, &end));
+    printf("Time difference for %s implementation %.5f seconds\n", implementation, get_time_diff(&start, &end));
 
     /*
        // #4 : Do the MATRIX Multiplication j-k-i
@@ -145,7 +145,7 @@ int main(int argc,char *argv[])
 	}
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for %s implementation %.5f seconds\n", implementation, getTimeDiff(&start, &end));
+    printf("Time difference for %s implementation %.5f seconds\n", implementation, get_time_diff(&start, &end));
 
     /*
        // #5 : Do the MATRIX Multiplication k-i-j
@@ -163,7 +163,7 @@ int main(int argc,char *argv[])
 	}
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for %s implementation %.5f seconds\n", implementation, getTimeDiff(&start, &end));
+    printf("Time difference for %s implementation %.5f seconds\n", implementation, get_time_diff(&start, &end));
 
     /*
        // #6 : Do the MATRIX Multiplication k-j-i
@@ -184,12 +184,12 @@ int main(int argc,char *argv[])
 	}
     }
     gettimeofday(&end,NULL);
-    printf("Time difference for %s implementation %.5f seconds\n", implementation, getTimeDiff(&start, &end));
+    printf("Time difference for %s implementation %.5f seconds\n", implementation, get_time_diff(&start, &end));
 
     gettimeofday(&start,NULL);
     multiply_matrices(&result[0][0], &a[0][0] , &b[0][0], matrix_size ) ; 
     gettimeofday(&end,NULL);
-    printf("Time difference for optimal implementation %.5f seconds\n", getTimeDiff(&start, &end));
+    printf("Time difference for optimal implementation %.5f seconds\n", get_time_diff(&start, &end));
     printf("Total Multiplications : %d\n", total_multiplications);
 
 

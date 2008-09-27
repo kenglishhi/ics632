@@ -100,62 +100,20 @@ int multiply_block(double *result, double *matrix1, double *matrix2, int block_s
     double *current_result;
     double *current_matrix1;
     double *current_matrix2;
-    int a, b, c, result_location, matrix1_location, matrix2_location ;
+    int a, b, c; 
     int matrix_size = block_size * number_of_blocks; 
+    int i_block_offset = i*block_size; 
+    int j_block_offset = j*block_size*matrix_size; 
+    int k_block_offset_row =  k*block_size ; 
+    int k_block_offset_col = k*block_size*matrix_size  ; 
     for (a = 0; a < block_size; a++) {
 	for (b = 0; b < block_size; b++) {
-            result_location = (a + i*block_size) + ( j*block_size*(matrix_size )) + b * matrix_size  ; 
-//             a_location = (row * block_size* matrix_size + i*matrix_size) + k + x * block_size;
-//		    b_location = (col*block_size + j) + k * matrix_size + x*block_size*matrix_size   ;
-//            printf("result(%d,%d) location %d  \n",  a, b, result_location  ) ;
-	    current_result = result + result_location; 
-//            *current_result += 1.0;
+	    current_result = result +  a + i_block_offset + j_block_offset + b * matrix_size  ; 
 	    for (c = 0; c < block_size; c++) {
-                  matrix1_location = (c + k*block_size) + ( j*block_size*(matrix_size )) + b * matrix_size  ; 
-                  matrix2_location = (a + i*block_size) + ( k*block_size*(matrix_size )) + c * matrix_size  ; 
-                  current_matrix1 = matrix1 + matrix1_location;
-		  current_matrix2 = matrix2 + matrix2_location ;
-//                  printf("result(%d,%d) = matrix1[%d,%d] * matrix2[%d,%d]    \n",  a, b, a, c, c, b) ;
-//                  printf("location[%d] == location[%d] *  location[%d] \n",result_location,  matrix1_location, matrix2_location  ) ;
+                  current_matrix1 = matrix1 + c + k_block_offset_row + j_block_offset + b * matrix_size ;
+		  current_matrix2 = matrix2 + a + i_block_offset + k_block_offset_col + c * matrix_size ;
                   *current_result += (double)(*current_matrix1) * (double)(*current_matrix2);
-//                  printf("--result = %6.2f] \n",*current_result ) ;
             } 
-
-//	    current_result = result + (i * block_size * matrix_size + i * matrix_size) + (col * block_size + j)    ;
-//	    current_a = a + i*matrix_size + k;
-//	    for (c = 0; c < matrix_size; c++) {
-//		current_result = result + i*matrix_size + j;
-//		current_b = b + k*matrix_size + j;
-//		*current_result += *current_a *  *current_b ;
-//	    }
-	}
-    }
-    return 1;
-}
-
-int calculate_block(double *result, double *a, double *b, int matrix_size, int block_size, int number_of_blocks, int row, int col) {
-    int i, j, k, x  ;
-    double *current_result ;
-    int a_location, b_location;
-    double *current_a ;
-    double *current_b ;
-
-
-    for (i=0 ; i < block_size; i++ ) {
-	for (j=0 ; j < block_size; j++ ) {
-	    current_result = result + (row * block_size* matrix_size + i*matrix_size) + (col*block_size + j)    ;
-	    for (x= 0 ; x < number_of_blocks; x++) {
-		for (k=0; k < block_size; k++ ) {
-		    a_location = (row * block_size* matrix_size + i*matrix_size) + k + x * block_size;
-		    b_location = (col*block_size + j) + k * matrix_size + x*block_size*matrix_size   ;
-		    current_a = a + a_location;
-		    current_b = b + b_location ;
-
-//          printf("current location %d  \n",  (row * block_size* matrix_size + i*matrix_size) + (col*block_size + j) ) ;
-//          printf("-- location %d * location %d   \n", a_location, b_location ) ;
-		    *current_result += (double)(*current_a) * (double)(*current_b);
-		}
-	    }
 	}
     }
     return 1;
