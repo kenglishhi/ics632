@@ -1,8 +1,8 @@
 main: clean timediff 
-	gcc -Wall jacobi_sequential.c  ../lib/timediff.o  -lm -o ~/bin/jacobi_sequential.exe 
-	gcc -Wall gauss_seidel_sequential.c   ../lib/timediff.o  -lm -o ~/bin/gauss_seidel_sequential.exe 
-	gcc -Wall test.c  -o ~/bin/test2600.exe 
+	gcc -Wall jacobi.c  ../lib/timediff.o  -lm -o ~/bin/jacobi_sequential.exe 
+	gcc -Wall gseidel.c   ../lib/timediff.o  -lm -o ~/bin/gseidel_sequential.exe 
+	gcc -Wall -fopenmp jacobi_parallel.c   ../lib/timediff.o  -lm -o ~/bin/jacobi_parallel.exe 
 clean:
-	/bin/rm -f ~/bin/jacobi*.exe  ../lib/timediff.o  
+	/bin/rm -f ~/bin/jacobi*.exe ~/bin/gseidel*.exe   ../lib/timediff.o  
 timediff:
 	gcc -c ../lib/timediff.c  -o ../lib/timediff.o

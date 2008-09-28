@@ -34,13 +34,13 @@ int lgsearch(double step_size ) {
     do {
         next_value = *item + step_size; 
         if (next_value >= threshold ) { 
-           // already at the highest value
+           // if we are already at the past the threshold, go to the next item in the loop 
            item +=  1 ;
            i++;
            reset= 1;
-//           printf(" Too Big, going to new item, %f !\n", next_value )  ;
            continue;   
         }         
+
 	if (reset) {
 	    prev_result = mystery_function_800(&x[0]);
 	    reset = 0;
@@ -48,22 +48,14 @@ int lgsearch(double step_size ) {
 
 	*item =  next_value;
 	cur_result = mystery_function_800(&x[0]);
-//       printf(" cur_result %0.5f  > prev_result %0.5f=   \n", cur_result, prev_result )  ;
-        // NOTE: this compare does not work correctly on some machines
-	if (cur_result   > prev_result ) {
-//            printf(" cur_result > prev_result \n" )  ;
+	if (cur_result > prev_result ) {
 	    prev_result = cur_result;
 	}  else {
-//	    printf(" moving on %f\n" , *item);
-//	    printf("." );
 	    item += 1 ; 
 	    i++;
 	    reset= 1;
-//	    fflush(stdout);
 	}
-//    } while (i < ARRAY_SIZE) ;
     } while (i < ARRAY_SIZE) ;
-//    printf("\n");
     gettimeofday(&end,NULL);
     printf("Time Spent %f seconds\n", get_time_diff(&start, &end));
 
