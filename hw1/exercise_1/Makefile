@@ -4,6 +4,8 @@ main: clean
 	gcc -O0 -Wall  matrix_multiply_i_j_k.c -o ~/bin/matrix_multiply_i_j_k.exe
 	gcc -O0 -Wall matrix_multiply_with_blocks.c -o ~/bin/matrix_multiply_with_blocks.exe
 	gcc -O0 optimized_matrix_multiply.c -o ~/bin/optimized_matrix_multiply.exe
+	gcc -O0 matrix_multiply_openmp.c -o ~/bin/matrix_multiply_openmp.exe
+	ompicc matrix_multiply_openmp.c -o ~/bin/matrix_multiply_openmp.exe
 	cp simple_job_script.sh ~/bin/
 	chmod u+x simple_job_script.sh
 optimized: 

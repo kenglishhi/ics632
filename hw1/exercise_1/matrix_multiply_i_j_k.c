@@ -25,20 +25,16 @@ void i_j_k_matrix_multiply(double *result, double *a, double *b, int matrix_size
     double *current_a;
     double *current_b;
     int i,j,k;
-    int multiplications=0; 
     for (i = 0; i < matrix_size; i++) {
-        for (k = 0; k < matrix_size; k++) {
-            current_a = a + i*matrix_size + k; 
-            for (j = 0; j < matrix_size; j++) {
-                current_result = result + i*matrix_size + j;
+        for (j = 0; j < matrix_size; j++) {
+            current_result = result + i*matrix_size + j;
+            for (k = 0; k < matrix_size; k++) {
+                current_a = a + i*matrix_size + k; 
                 current_b = b + k*matrix_size + j; 
                 *current_result += *current_a *  *current_b ; 
-                multiplications++; 
             }
         }
     }
-    printf("multiplications : %d\n", multiplications);
-
 }
 
 int main(int argc,char *argv[])

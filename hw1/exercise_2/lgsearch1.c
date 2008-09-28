@@ -21,7 +21,7 @@ int main(int argc,char *argv[]) {
    int trials = atoi(argv[1]);
    double step_size = strtod(argv[2], NULL);
    int i ;
-   float time_spent; 
+   //float time_spent; 
    printf("trials,%d, step_size,%f\n",trials, step_size); 
    for (i = 0; i < trials; i++)  { 
       gettimeofday(&section_start,NULL);
