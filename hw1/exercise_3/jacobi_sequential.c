@@ -5,6 +5,8 @@
 #define INDEX(X,Y,SIZE) ((X)*(SIZE))+(Y)
 
 
+float get_time_diff(struct timeval *s, struct timeval *e) ;
+
 /*****************************
 ** jacobi iteration formula:
 **    n[i,j] = 0.25 * (m[i+1, j] +  m[i-1,j] + m[i,j+1] + m[i,j-1]
@@ -42,52 +44,47 @@ int main(int argc,char *argv[]) {
     int size = atoi(argv[1]);
     int number_of_iterations = atoi(argv[2]);
 
+    struct timeval section_start;
+    struct timeval section_end;
+
     double *output;
-    double *m;
-    output = (double *) malloc(size * size * sizeof(double));       
-    m = (double *) malloc((size+2) * (size+2) * sizeof(double));       
+    int output_size = size + 2;
+    output = (double *) malloc(size * (output_size) * sizeof(double));
+    printf("did malloc\n");
     int i, j;
-//    double term1, term2, term3, term4;
 
-    for (i=0; i<size; i++){
-	for (j=0; j<size; j++){
-	    output[ INDEX(i, j, size) ] = 0.0;
+    for (i=0; i < output_size ; i++){
+	output[ INDEX(i, 0, output_size) ] = 1.0;
+	for (j=1; j < output_size ; j++){
+	    output[  INDEX(i, j, output_size)   ] = 0.0;
 	}
     }
-
-    for (i=0; i < size+2; i++){
-	m[ INDEX(i, 0, size+2) ] = 1.0;
-	for (j=1; j<size+2; j++){
-	    m[  INDEX(i, j, size+2)   ] = 0.0;
-	}
-
+    printf("did array init\n");
+    if (debug) {
+	print_matrix(output, output_size);
     }
 
-    print_matrix(m, size+2);
+    gettimeofday(&section_start,NULL);
 
-    int a, b;
     int iteration =0 ;
+    int i_prev_offset, i_next_offset;
     while (iteration < number_of_iterations ) {
-	for (i=0; i < size; i++) {
-	    a = i + 1  ;
-	    for (j=0; j < size; j++) {
-		b = j+1;
-		output[INDEX(i, j, size) ] = 0.25 *  (m[INDEX(a+1, b, size+2)]  +  m[INDEX(a-1,b, size+2) ] + m[INDEX(a,b+1, size +2 ) ] + m[INDEX(a,b-1,size+2)]  ) ;
+	for (i=1; i <= size; i++) {
+	    i_prev_offset = i-1; i_next_offset = i+1;
+	    for (j=1; j <= size; j++) {
+		output[INDEX(i, j, output_size) ] = 0.25 *  (output[INDEX(i_prev_offset, j, output_size)]  +  output[INDEX(i_next_offset, j, output_size) ] + output[INDEX(i,j+1, output_size ) ] + output[INDEX(i,j-1,output_size )]  ) ;
 	    }
 	}
-
-/*	
- *	for (i=0; i < size; i++){
-	    a = i + 1  ;
-	    for (j=0; j < size; j++) {
-		b = j+1;
-                &m[INDEX(a, b, size+2)]  = &output[INDEX(i,j,size) ] ; 
-            } 
-        } 
-*/
-        iteration++; 
+	iteration++;
     }
+    gettimeofday(&section_end,NULL);
 
-    print_matrix(output, size);
+    if (debug) {
+	printf("output_size = %d\n", output_size);
+	print_matrix(output, output_size );
+    } else {
+	printf("Matrix Size, Iterations, Time Spent\n");
+	printf("%d,%d,%f\n", size, number_of_iterations, get_time_diff(&section_start, &section_end) );
+    }
     return 1;
 }
