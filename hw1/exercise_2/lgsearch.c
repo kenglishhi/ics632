@@ -18,28 +18,28 @@ int lgsearch(double step_size ) {
     }
 
     double *item;
-    item = &x[0]; 
-    
+    item = &x[0];
+
     gettimeofday(&start,NULL);
 
     double prev_result = 0.0;
     double cur_result = 0.0;
     i = 0;
     int reset = 1;
-    int var; 
-    double threshold = 50.0; 
-    double next_value = 50.0; 
+    int var;
+    double threshold = 50.0;
+    double next_value = 50.0;
     double difference;
     int cur, prev;
     do {
-        next_value = *item + step_size; 
-        if (next_value >= threshold ) { 
-           // if we are already at the past the threshold, go to the next item in the loop 
-           item +=  1 ;
-           i++;
-           reset= 1;
-           continue;   
-        }         
+	next_value = *item + step_size;
+	if (next_value >= threshold ) {
+	    // if we are already at the past the threshold, go to the next item in the loop
+	    item +=  1 ;
+	    i++;
+	    reset= 1;
+	    continue;
+	}
 
 	if (reset) {
 	    prev_result = mystery_function_800(&x[0]);
@@ -51,7 +51,7 @@ int lgsearch(double step_size ) {
 	if (cur_result > prev_result ) {
 	    prev_result = cur_result;
 	}  else {
-	    item += 1 ; 
+	    item += 1 ;
 	    i++;
 	    reset= 1;
 	}

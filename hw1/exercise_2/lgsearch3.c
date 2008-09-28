@@ -25,17 +25,17 @@ int main(int argc,char *argv[]) {
     int i;
     #pragma omp parallel shared(step_size,trials) private (i)
     {
-        #pragma omp for schedule(dynamic) 
-                for (i=0; i < trials; i++) { 
-                   printf("Trial %d\n", i); 
-                   struct timeval section_start;
-                   struct timeval section_end;
-                   gettimeofday(&section_start, NULL);
-                   lgsearch(step_size);
-                   gettimeofday(&section_end, NULL);
-                   float section_time_spent = get_time_diff(&section_start, &section_end) ;
-                   printf("\nTrial %d took %f seconds\n", i, section_time_spent );
-                } 
+	#pragma omp for schedule(dynamic)
+	for (i=0; i < trials; i++) {
+	    printf("Trial %d\n", i);
+	    struct timeval section_start;
+	    struct timeval section_end;
+	    gettimeofday(&section_start, NULL);
+	    lgsearch(step_size);
+	    gettimeofday(&section_end, NULL);
+	    float section_time_spent = get_time_diff(&section_start, &section_end) ;
+	    printf("\nTrial %d took %f seconds\n", i, section_time_spent );
+	}
     }
 
 

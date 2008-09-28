@@ -58,22 +58,22 @@ int main(int argc,char *argv[]) {
 	    }
 	}
     }
-    float section1_time_spent = get_time_diff(&section1_start, &section1_end) ;  
-    float section2_time_spent = get_time_diff(&section2_start, &section2_end) ; 
-    
+    float section1_time_spent = get_time_diff(&section1_start, &section1_end) ;
+    float section2_time_spent = get_time_diff(&section2_start, &section2_end) ;
+
     printf("Section 1 Time Spent, %5.5f\n", section1_time_spent );
     printf("Section 2 Time Spent, %5.5f\n", section2_time_spent );
-    float load_imbalance ; 
-    int faster_section ; 
-    if (section2_time_spent < section1_time_spent ) { 
-        faster_section  = 2; 
-        load_imbalance = (section1_time_spent - section2_time_spent ) /   section2_time_spent ; 
+    float load_imbalance ;
+    int faster_section ;
+    if (section2_time_spent < section1_time_spent ) {
+	faster_section  = 2;
+	load_imbalance = (section1_time_spent - section2_time_spent ) /   section2_time_spent ;
     }  else {
-        faster_section  = 1; 
-        load_imbalance = (section2_time_spent - section1_time_spent ) /   section1_time_spent ; 
-    } 
-    printf("Load imbalance: %.5f \n", load_imbalance ); 
-    printf("Faster Section %d \n", faster_section ); 
+	faster_section  = 1;
+	load_imbalance = (section2_time_spent - section1_time_spent ) /   section1_time_spent ;
+    }
+    printf("Load imbalance: %.5f \n", load_imbalance );
+    printf("Faster Section %d \n", faster_section );
 
     return 1;
 }
