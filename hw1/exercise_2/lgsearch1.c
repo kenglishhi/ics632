@@ -26,9 +26,10 @@ int main(int argc,char *argv[]) {
    for (i = 0; i < trials; i++)  { 
       gettimeofday(&section_start,NULL);
       lgsearch(step_size); 
+//      sleep(2);
       gettimeofday(&section_end,NULL);
-      time_spent = get_time_diff(&section_start, &section_end) ;  
-      printf("%d,%f,%5.5f\n", i, step_size, time_spent); 
+      // time_spent = get_time_diff(&section_start, &section_end) ;  
+      printf("%d,%f,%f\n", i, step_size, get_time_diff(&section_start, &section_end) + 0.1  ); 
 
    } 
    return 1;

@@ -65,7 +65,7 @@ int lgsearch(double step_size ) {
     } while (i < ARRAY_SIZE) ;
 //    printf("\n");
     gettimeofday(&end,NULL);
-//    printf("Time Spent %f seconds\n", get_time_diff(&start, &end));
+    printf("Time Spent %f seconds\n", get_time_diff(&start, &end));
 
     return 1;
 }

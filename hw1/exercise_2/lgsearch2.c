@@ -5,11 +5,11 @@
 #include <omp.h>
 
 
-void omp_set_num_threads(int number);
+void  omp_set_num_threads(int number);
 float get_time_diff(struct timeval *s, struct timeval *e) ;
 
 double mystery_function_800(double *x) ;
-int lgsearch(double step_size ) ;
+int    lgsearch(double step_size ) ;
 
 int main(int argc,char *argv[]) {
     srand(200000);
@@ -61,8 +61,8 @@ int main(int argc,char *argv[]) {
     float section1_time_spent = get_time_diff(&section1_start, &section1_end) ;  
     float section2_time_spent = get_time_diff(&section2_start, &section2_end) ; 
     
-    printf("Section 1 Time Spent %.5f seconds\n", section1_time_spent );
-    printf("Section 2 Time Spent %.5f seconds\n", section2_time_spent ); 
+    printf("Section 1 Time Spent, %5.5f\n", section1_time_spent );
+    printf("Section 2 Time Spent, %5.5f\n", section2_time_spent );
     float load_imbalance ; 
     int faster_section ; 
     if (section2_time_spent < section1_time_spent ) { 
