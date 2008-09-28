@@ -49,7 +49,7 @@ int lgsearch(double step_size ) {
 	*item =  next_value;
 	cur_result = mystery_function_800(&x[0]);
 //       printf(" cur_result %0.5f  > prev_result %0.5f=   \n", cur_result, prev_result )  ;
-        // NOTE: this compare does not work correctly  on some machines
+        // NOTE: this compare does not work correctly on some machines
 	if (cur_result   > prev_result ) {
 //            printf(" cur_result > prev_result \n" )  ;
 	    prev_result = cur_result;
@@ -63,9 +63,9 @@ int lgsearch(double step_size ) {
 	}
 //    } while (i < ARRAY_SIZE) ;
     } while (i < ARRAY_SIZE) ;
-    printf("\n");
+//    printf("\n");
     gettimeofday(&end,NULL);
-    printf("Time Spent %f seconds\n", get_time_diff(&start, &end));
+//    printf("Time Spent %f seconds\n", get_time_diff(&start, &end));
 
     return 1;
 }
