@@ -2,12 +2,10 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
-#define INDEX(X,Y,SIZE) ((X)*(SIZE))+(Y)
-
 
 /*****************************
-** jacobi iteration formula:
-**    n[i,j] = 0.25 * (m[i+1, j] +  m[i-1,j] + m[i,j+1] + m[i,j-1]
+** gauss-siedel iteration formula:
+**    output[i,j] = 0.25 * (m[i+1, j] +  output[i-1,j] + m[i,j+1] + output[i,j-1]
 **
 ** I borrowed the algorithm from this web site:
 ** http://www.netlib.org/utk/papers/mpi-book/node44.html
@@ -21,7 +19,7 @@ void print_matrix(double *result, int matrix_size) {
 	printf(" [" );
 	for (j = 0; j < matrix_size; j++){
 	    current_result = result + i * matrix_size + j;
-	    printf(" %4.3f ", *current_result  );
+	    printf(" %4.1f ", *current_result  );
 	}
 	printf("] " );
 
@@ -42,52 +40,55 @@ int main(int argc,char *argv[]) {
     int size = atoi(argv[1]);
     int number_of_iterations = atoi(argv[2]);
 
-    double *output;
-    double *m;
-    output = (double *) malloc(size * size * sizeof(double));       
-    m = (double *) malloc((size+2) * (size+2) * sizeof(double));       
+    double output[size][size];
+    double m[size + 2][size + 2];
     int i, j;
 //    double term1, term2, term3, term4;
 
     for (i=0; i<size; i++){
 	for (j=0; j<size; j++){
-	    output[ INDEX(i, j, size) ] = 0.0;
+	    m[i+1][j+1] = 0.0;
+	    output[i][j] = 0.0;
 	}
     }
-
-    for (i=0; i < size+2; i++){
-	m[ INDEX(i, 0, size+2) ] = 1.0;
-	for (j=1; j<size+2; j++){
-	    m[  INDEX(i, j, size+2)   ] = 0.0;
-	}
-
-    }
-
-    print_matrix(m, size+2);
 
     int a, b;
+    for (i=0; i < size+2; i++) {
+	m[i][0] = 1.0;
+	for (j=1; j<size+2; j++) {
+	    m[i][j] = 0.0;
+	}
+
+    }
+    print_matrix(&m[0][0], size+2);
     int iteration =0 ;
+    double term2, term4; 
     while (iteration < number_of_iterations ) {
-	for (i=0; i < size; i++) {
+	for (i=0; i < size; i++){
 	    a = i + 1  ;
-	    for (j=0; j < size; j++) {
+	    for (j=0; j < size; j++){
 		b = j+1;
-		output[INDEX(i, j, size) ] = 0.25 *  (m[INDEX(a+1, b, size+2)]  +  m[INDEX(a-1,b, size+2) ] + m[INDEX(a,b+1, size +2 ) ] + m[INDEX(a,b-1,size+2)]  ) ;
+                if (i==0 && j==0) { 
+                   term2 =  0.25 *m[0][0] ; 
+                   term4 =  0.25 *m[0][0] ; 
+                }  else {
+                    term2 = output[i-1][j] ; 
+                    term4 = output[i][j - 1] ; 
+                } 
+		output[i][j] = 0.25 *  (m[a+1][b] +  term2 + m[a][b+1] + term4) ;
 	    }
 	}
 
-/*	
- *	for (i=0; i < size; i++){
+	for (i=0; i < size; i++){
 	    a = i + 1  ;
-	    for (j=0; j < size; j++) {
+	    for (j=0; j < size; j++){
 		b = j+1;
-                &m[INDEX(a, b, size+2)]  = &output[INDEX(i,j,size) ] ; 
+                m[a][b] = output[i][j] ; 
             } 
         } 
-*/
         iteration++; 
     }
 
-    print_matrix(output, size);
+    print_matrix(&output[0][0], size);
     return 1;
 }
