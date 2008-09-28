@@ -20,11 +20,12 @@ static float get_time_diff(struct timeval *s, struct timeval *e) {
     return (float) diff_tv.tv_sec + ((float) diff_tv.tv_usec / 1000000.0);
 }
 
-void best_matrix_multiply(double *result, double *a, double *b, int matrix_size) { 
+void i_j_k_matrix_multiply(double *result, double *a, double *b, int matrix_size) { 
     double *current_result;
     double *current_a;
     double *current_b;
     int i,j,k;
+    int multiplications=0; 
     for (i = 0; i < matrix_size; i++) {
         for (k = 0; k < matrix_size; k++) {
             current_a = a + i*matrix_size + k; 
@@ -32,9 +33,12 @@ void best_matrix_multiply(double *result, double *a, double *b, int matrix_size)
                 current_result = result + i*matrix_size + j;
                 current_b = b + k*matrix_size + j; 
                 *current_result += *current_a *  *current_b ; 
+                multiplications++; 
             }
         }
     }
+    printf("multiplications : %d\n", multiplications);
+
 }
 
 int main(int argc,char *argv[])
@@ -83,8 +87,8 @@ int main(int argc,char *argv[])
      */
     gettimeofday(&start,NULL);
 
-    char *implementation = "i-k-j";
-    best_matrix_multiply(&result[0][0], &a[0][0] , &b[0][0], matrix_size ) ;
+    char *implementation = "i-j-k";
+    i_j_k_matrix_multiply(&result[0][0], &a[0][0] , &b[0][0], matrix_size ) ;
     gettimeofday(&end,NULL);
     if (debug){ 
         printf("Time difference for %s implementation %.5f seconds\n", implementation, get_time_diff(&start, &end));
