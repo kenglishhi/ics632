@@ -78,27 +78,26 @@ int main(int argc,char *argv[]) {
     omp_set_dynamic(12) ;
     omp_set_nested(4);
     printf("Dynamic = %d\n", omp_get_dynamic() );
-    do {
     #pragma omp parallel shared(output,output_size, init) private (j, i,i_prev_offset, i_next_offset )
-	    {
+    {
+	do {
 	    #pragma omp for schedule(dynamic,DYNAMIC_CHUNK) nowait
-
-	for (i=1; i <=size; i++) {
-	    i_prev_offset = i-1; i_next_offset = i+1;
+	    for (i=1; i <=size; i++) {
+		i_prev_offset = i-1; i_next_offset = i+1;
 		for (j=1; j <= size; j++) {
 		    output[INDEX(i, j, output_size) ] = 0.25 *  (init[INDEX(i_prev_offset, j, output_size)]  +  init[INDEX(i_next_offset, j, output_size) ] + init[INDEX(i,j+1, output_size ) ] + init[INDEX(i,j-1,output_size )]  ) ;
 		}
 	    }
-	}
-	iteration++;
-	// do a pointer swap
-	if (iteration < number_of_iterations ) {
-	    temp = init;
-	    init = output;
-	    output = temp;
-	}
+	    iteration++;
+	    // do a pointer swap
+	    if (iteration < number_of_iterations ) {
+		temp = init;
+		init = output;
+		output = temp;
+	    }
 
-    }  while (iteration < number_of_iterations ) ;
+	}  while (iteration < number_of_iterations ) ;
+    }
     gettimeofday(&section_end,NULL);
 
     if (debug) {
