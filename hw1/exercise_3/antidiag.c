@@ -14,22 +14,22 @@ int main(int argc,char *argv[] )
         size = atoi(argv[1]);
     }
 
-    int i;
-    int j;
+    int x;
+    int y;
     int diagonol_length = size+size-1; 
     int start, end; 
     
-    for (i=0; i < diagonol_length ; i++ ) {
+    for (x=0; x < diagonol_length ; x++ ) {
 	printf("diag: ");
-	if (i < size) {
+	if (x < size) {
             start =0;     
-            end = i+1 ; 
+            end = x+1 ; 
         } else { 
-            start = i-size+1 ; 
+            start = x-size+1 ; 
             end = diagonol_length-size+1  ; 
         } 
-        for (j=start; j < end; j++) {
-            printf("[%d,%d]", j, i-j);
+        for (y=start; y < end; y++) {
+            printf("[%d,%d]", y+1, x-y+1);
         }
 	printf("\n");
     }

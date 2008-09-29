@@ -52,7 +52,7 @@ int main(int argc,char *argv[]) {
     int output_size = size + 2;
     output = (double *) malloc(output_size * (output_size) * sizeof(double));
     printf("did malloc\n");
-    int i, j, k;
+    int i, j;
 
     for (i=0; i < output_size ; i++){
 	output[ INDEX(i, 0, output_size) ] = 1.0;
@@ -71,39 +71,32 @@ int main(int argc,char *argv[]) {
     int i_prev_offset, i_next_offset;
     omp_set_dynamic(12) ;
     omp_set_num_threads(2);
-    int block_size = 6;
-    int diagonol_length = size + size - 1;
-    int start, end;
+    int diagonol_length = size + size  - 1;
+    int start, end; int x, y;
 
-    #pragma omp parallel shared(output,output_size ) private (j, i,i_prev_offset, i_next_offset )
+    #pragma omp parallel shared(output,output_size,start,end,x ) private (y,i, j, i_prev_offset, i_next_offset )
     {
 	while (iteration < number_of_iterations ) {
-	    for (i=0; i < diagonol_length ; i++ ) {
-		if (i < size) {
+	    for (x=0; x < diagonol_length ; x++ ) {
+//		printf("diag %d : ",x);
+		if (x < size) {
 		    start =0;
-		    end = i+1 ;
+		    end = x+1 ;
 		} else {
-		    start = i-size+1 ;
+		    start = x-size+1 ;
 		    end = diagonol_length-size+1  ;
 		}
-   	        #pragma omp for schedule(dynamic) nowait
-		for (j=start; j < end; j++) {
-		    printf("[%d,%d]", j, i-j);
+                
+                #pragma omp for schedule(dynamic) nowait
+		for (y=start; y < end; y++) {
+                   i =  y+1; j = x-y+1;
+                   i_prev_offset = i-1; i_next_offset = i+1;
+                   output[INDEX(i, j, output_size) ] = 0.25 *  (output[INDEX(i_prev_offset, j, output_size)]  +  output[INDEX(i_next_offset, j, output_size) ] + output[INDEX(i,j+1, output_size ) ] + output[INDEX(i,j-1,output_size )]  ) ;
 		}
 	    }
-
-/**  This is the sequential implementation
-   	for (i=1; i <= size; i++) {
-   	    i_prev_offset = i-1; i_next_offset = i+1;
-   	    for (j=1; j <= size; j++) {
-   		output[INDEX(i, j, output_size) ] = 0.25 *  (output[INDEX(i_prev_offset, j, output_size)]  +  output[INDEX(i_next_offset, j, output_size) ] + output[INDEX(i,j+1, output_size ) ] + output[INDEX(i,j-1,output_size )]  ) ;
-   	    }
-   	}
- **/
 	    iteration++;
-
 	}
-    }
+   }
     gettimeofday(&section_end,NULL);
 
     if (debug) {
