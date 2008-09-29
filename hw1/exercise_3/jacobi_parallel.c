@@ -2,6 +2,9 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
+#include <omp.h>
+#define DYNAMIC_CHUNK 5
+
 #define INDEX(X,Y,SIZE) ((X)*(SIZE))+(Y)
 
 
@@ -48,19 +51,23 @@ int main(int argc,char *argv[]) {
     struct timeval section_end;
 
     double *output;
+    double *init;
+    double *temp;
     int output_size = size + 2;
-    output = (double *) malloc(size * (output_size) * sizeof(double));
-    printf("did malloc\n");
+    init = (double *) malloc(output_size * (output_size) * sizeof(double));
+    output = (double *) malloc(output_size * (output_size) * sizeof(double));
     int i, j;
 
     for (i=0; i < output_size ; i++){
-	output[ INDEX(i, 0, output_size) ] = 1.0;
+	output[INDEX(i, 0, output_size) ] = 1.0;
+	init[ INDEX(i, 0, output_size) ] = 1.0;
 	for (j=1; j < output_size ; j++){
-	    output[  INDEX(i, j, output_size)   ] = 0.0;
+	    init[  INDEX(i, j, output_size)   ] = 0.0;
+	    output[INDEX(i, j, output_size) ] = 0.0;
 	}
     }
-    printf("did array init\n");
     if (debug) {
+	print_matrix(init, output_size);
 	print_matrix(output, output_size);
     }
 
@@ -68,15 +75,30 @@ int main(int argc,char *argv[]) {
 
     int iteration =0 ;
     int i_prev_offset, i_next_offset;
-    while (iteration < number_of_iterations ) {
-	for (i=1; i <= size; i++) {
+    omp_set_dynamic(12) ;
+    omp_set_nested(4);
+    printf("Dynamic = %d\n", omp_get_dynamic() );
+    do {
+    #pragma omp parallel shared(output,output_size, init) private (j, i,i_prev_offset, i_next_offset )
+	    {
+	    #pragma omp for schedule(dynamic,DYNAMIC_CHUNK) nowait
+
+	for (i=1; i <=size; i++) {
 	    i_prev_offset = i-1; i_next_offset = i+1;
-	    for (j=1; j <= size; j++) {
-		output[INDEX(i, j, output_size) ] = 0.25 *  (output[INDEX(i_prev_offset, j, output_size)]  +  output[INDEX(i_next_offset, j, output_size) ] + output[INDEX(i,j+1, output_size ) ] + output[INDEX(i,j-1,output_size )]  ) ;
+		for (j=1; j <= size; j++) {
+		    output[INDEX(i, j, output_size) ] = 0.25 *  (init[INDEX(i_prev_offset, j, output_size)]  +  init[INDEX(i_next_offset, j, output_size) ] + init[INDEX(i,j+1, output_size ) ] + init[INDEX(i,j-1,output_size )]  ) ;
+		}
 	    }
 	}
 	iteration++;
-    }
+	// do a pointer swap
+	if (iteration < number_of_iterations ) {
+	    temp = init;
+	    init = output;
+	    output = temp;
+	}
+
+    }  while (iteration < number_of_iterations ) ;
     gettimeofday(&section_end,NULL);
 
     if (debug) {

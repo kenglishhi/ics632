@@ -23,6 +23,8 @@ int main(int argc,char *argv[]) {
     printf("CALLED lgsearch2.exe %d %.5f\n\n", trials, step_size);
     omp_set_num_threads(2);
     int i;
+    omp_set_dynamic() ;
+
     #pragma omp parallel shared(step_size,trials) private (i)
     {
 	#pragma omp for schedule(dynamic)
