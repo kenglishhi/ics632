@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdlib.h>
 #define INDEX(X,Y,SIZE) ((X)*(SIZE))+(Y)
+#define DYNAMIC_CHUNK 5
+
 
 int omp_get_thread_num(void);
 
@@ -87,9 +89,10 @@ int main(int argc,char *argv[]) {
 		    end = diagonol_length-size+1  ;
 		}
                 
-                #pragma omp for schedule(dynamic) nowait
+                #pragma omp for schedule(dynamic,DYNAMIC_CHUNK) 
 		for (y=start; y < end; y++) {
-                   i =  y+1; j = x-y+1;
+                   i =  y+1; 
+                   j = x-y+1;
                    i_prev_offset = i-1; i_next_offset = i+1;
                    output[INDEX(i, j, output_size) ] = 0.25 *  (output[INDEX(i_prev_offset, j, output_size)]  +  output[INDEX(i_next_offset, j, output_size) ] + output[INDEX(i,j+1, output_size ) ] + output[INDEX(i,j-1,output_size )]  ) ;
 		}
