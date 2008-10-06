@@ -5,7 +5,7 @@
 
 #define MASTER_RANK 0
 #define DEFAULT_TAG 0
-#define DEBUG 1
+#define DEBUG 0
 
 void MPI_MyBcast(int *buffer, int count, int root, MPI_Comm comm) {
     int nprocs, proc, rank;
@@ -27,8 +27,17 @@ void MPI_MyBcast(int *buffer, int count, int root, MPI_Comm comm) {
             MPI_Isend(buffer, count, MPI_INT, proc, DEFAULT_TAG, comm, &requests[proc]);
         }
    }
-
+//   printf("#%d, going to receive count = %d\n", rank, count ); 
    MPI_Recv(buffer, count, MPI_INT, root, DEFAULT_TAG, comm, &status);
+    if (rank == root) {
+         for (proc=0; proc<nprocs ; proc++) {
+            if (DEBUG) {
+                printf("Doing isend to proc = %d\n",proc);
+            }
+            MPI_Wait(&requests[proc], &status);
+        }
+   }
+     
 }
 
 void randomize_array(int *array, int array_size) {

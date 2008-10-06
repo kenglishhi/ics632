@@ -5,10 +5,15 @@
 
 #define MASTER_RANK 0
 #define DEFAULT_TAG 0
-#define DEBUG 1
+#define DEBUG 0
 
+
+void MPI_MyBcast(int *buffer, int count, int root, MPI_Comm comm)  ;
+void randomize_array(int *array, int array_size) ;
+void print_array(int *array, int array_size, int rank  ) ;
 
 void MPI_MyBcast(int *buffer, int count, int root, MPI_Comm comm);
+
 void worker_send_data_confirmation(int *array, int array_size, MPI_Comm comm) {
     MPI_Request request;
     MPI_Isend(array, array_size, MPI_INT, MASTER_RANK, DEFAULT_TAG, comm, &request);
@@ -47,11 +52,8 @@ int main(int argc, char **argv) {
     int *data_array ;
     data_array = (int *) malloc(array_size * sizeof(int));
 
-
-    int *x  ;
-    x = (int *) malloc(array_size * sizeof(int));
     if (rank == MASTER_RANK) {
-        randomize_array(data_array, array_size, rank); 
+        randomize_array(data_array, array_size); 
     }
     MPI_MyBcast(data_array, array_size, MASTER_RANK, MPI_COMM_WORLD);
     
