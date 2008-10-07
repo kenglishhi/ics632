@@ -4,6 +4,7 @@
 
 #define ARRAY_SIZE 800
 //float get_time_diff(struct timeval *s, struct timeval *e) ;
+double mystery_function_800(double *);
 
 double lgsearch(double step_size, int trial ) {
   double x[800];
@@ -21,6 +22,7 @@ double lgsearch(double step_size, int trial ) {
       if (x[i] + step_size > 49.9)
         break;
       x[i] += step_size;
+//      printf("x[i] = %f\n", x[i] ) ;
       new_value = mystery_function_800(x);
       if (new_value > current_value) {
         x[i] -= step_size;
