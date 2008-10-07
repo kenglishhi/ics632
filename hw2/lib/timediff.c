@@ -14,7 +14,7 @@ float get_time_diff(struct timeval *s, struct timeval *e) {
         diff_tv.tv_usec += 1000000;
         diff_tv.tv_sec--;
     }
-
+    printf("%d %f\n" , diff_tv.tv_sec, diff_tv.tv_sec ); 
     return (float) diff_tv.tv_sec + ((float) diff_tv.tv_usec / 1000000.0);
 }
 
