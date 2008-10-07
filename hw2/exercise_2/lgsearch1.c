@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <sys/time.h>
-#include <time.h>
 #include <stdlib.h>
-
+#include <sys/time.h>
 
 float get_time_diff(struct timeval *s, struct timeval *e) ;
 
