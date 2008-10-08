@@ -2,7 +2,9 @@
 #include <time.h>
 #include <stdlib.h>
 
+
 #define ARRAY_SIZE 800
+
 //float get_time_diff(struct timeval *s, struct timeval *e) ;
 double mystery_function_800(double *);
 
@@ -16,7 +18,7 @@ double lgsearch(double step_size, int trial ) {
     x[i] = 50.0 * (double)rand_r(&my_seed)/(double)RAND_MAX;
   }
 
-  for (i=0; i<800; i++) {
+  for (i=0; i<10; i++) {
     current_value = mystery_function_800(x);
     while (1) {
       if (x[i] + step_size > 49.9)
@@ -34,5 +36,4 @@ double lgsearch(double step_size, int trial ) {
   }
   return current_value;
 }
-
 
