@@ -28,7 +28,9 @@ int main(int argc,char *argv[]) {
     for (i=0; i < trials; i++) {
        double local_minimum;
 
+       printf("Calling lgsearch\n"); 
        local_minimum = lgsearch(step_size, i);
+       printf("local_minimum = %f\n", local_minimum); 
        //fprintf(stdout,"Local minimum found for trial #%d: %.4f\n",i,local_minimum); 
        if ((best_minimum < 0) || (local_minimum < best_minimum)) {
          best_minimum = local_minimum;

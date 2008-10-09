@@ -10,7 +10,11 @@ double mystery_function_800(double *);
 
 double lgsearch(double step_size, int trial ) {
   double x[800];
-  int my_seed = getpid() * trial;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+
+  int my_seed = tv.tv_usec * tv.tv_sec * getpid();  // * trial * getpid() + time() ;
+  printf("my_seed  %d %d \n" , my_seed, time(NULL ) ) ; 
   int i;
   double current_value, new_value;
 
