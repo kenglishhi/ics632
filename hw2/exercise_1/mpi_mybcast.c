@@ -28,7 +28,7 @@ void MPI_MyBcast(int *buffer, int count, int root, MPI_Comm comm) {
         }
    }
 //   printf("#%d, going to receive count = %d\n", rank, count ); 
-   MPI_Recv(buffer, count, MPI_INT, root, DEFAULT_TAG, comm, &status);
+    MPI_Recv(buffer, count, MPI_INT, root, DEFAULT_TAG, comm, &status);
     if (rank == root) {
          for (proc=0; proc<nprocs ; proc++) {
             if (DEBUG) {

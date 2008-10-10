@@ -38,7 +38,6 @@ void master_receive_data_confirmation(int *initial_array, int *array, int array_
 }
 int main(int argc, char **argv) {
     int rank, nprocs;
-    char hostname[128];
     // Initialize the MPI, get the size and the rank.
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
