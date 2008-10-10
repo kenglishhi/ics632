@@ -14,7 +14,7 @@ double lgsearch(double step_size, int trial ) {
   gettimeofday(&tv, NULL);
 
   int my_seed = tv.tv_usec * tv.tv_sec * getpid();  // * trial * getpid() + time() ;
-  printf("my_seed  %d %d \n" , my_seed, time(NULL ) ) ; 
+//  printf("my_seed  %d %d \n" , my_seed, time(NULL ) ) ; 
   int i;
   double current_value, new_value;
 
