@@ -3,7 +3,7 @@
 #include <mpi.h>
 #include <stdlib.h>
 
-
+#define DEBUG 0
 #define GLOBAL_I(I,RANK,R) ( (RANK)*(R)+(I) )
 
 void Ring_Send(int *buffer, int length) ;
@@ -77,7 +77,9 @@ int main(int argc, char **argv) {
     // step 1
     int i, j, k, l ;
     int step ;
-    printf("%d\tr = %d\n", rank, row_size);
+    if (DEBUG) { 
+        printf("%d\tr = %d\n", rank, row_size);
+    }
 
     int p = nprocs;
     int q = rank;
@@ -90,7 +92,9 @@ int main(int argc, char **argv) {
 	Ring_Send(tempS, row_size * matrix_size) ;
 	Ring_Recv(tempR, row_size * matrix_size) ;
 	for (l=0; l < nprocs ; l++) {
-	    printf("%d l =  %d  \n", rank, l);
+            if (DEBUG) { 
+	        printf("%d l =  %d  \n", rank, l);
+            }
 	    for (i =0; i < row_size; i++) {
 		for (k =0; k < row_size; k++) {
 		    for (j =0; j < row_size; j++) {
@@ -108,8 +112,10 @@ int main(int argc, char **argv) {
 			current_a = matrix_a + matrix_size*i + row_size * ((offset)%p) +k ;
 			current_b = tempS + matrix_size*k + l*row_size +j;
 
+            if (DEBUG) { 
 			printf("RANK%d\tSTEP%d\ta[%d, %d]:(%d) * b[%d,%d]: (%d)   ", rank,step, global_i, (row_size * ((offset)%p) +k ), *current_a, k,(l*row_size +j), *current_b   ) ;
 			printf("current (%d)   ", *current_result   ) ;
+            }
 //                 printf("b[%d, %d] (%d) ", k, l*row_size +j, *current_b   ) ;
 			printf("\n" ) ;
 			*current_result +=  (*current_a) * (*current_b);
@@ -131,7 +137,9 @@ int main(int argc, char **argv) {
 //      print_matrices(matrix_a, matrix_b, result_matrix, matrix_size);
 //    }
 
-    print_matrices(matrix_a, matrix_b, result_matrix, matrix_size, row_size, rank);
+    if (DEBUG) { 
+        print_matrices(matrix_a, matrix_b, result_matrix, matrix_size, row_size, rank);
+    }
     MPI_Finalize();
 
     return 1;
