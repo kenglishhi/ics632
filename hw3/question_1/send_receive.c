@@ -5,9 +5,7 @@
 #include <mpi.h>
 
 
-void Ring_Send(double *buffer, int length) { 
-
-
+void Ring_Send(int *buffer, int length) { 
     int rank, nprocs, dest; 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -16,16 +14,18 @@ void Ring_Send(double *buffer, int length) {
     }  else { 
        dest = rank + 1; 
     } 
-//    int i;
-//    for (i = 0; i < length; i++) {
-//       printf("%d\t-> %d, SendBuffer[%d] = %f\n", rank,dest, i, buffer[i] );
-//    }
+/*
+   int i;
+   for (i = 0; i < length; i++) {
+       printf("%d\t-> %d, SendBuffer[%d] = %d\n", rank,dest, i, buffer[i] );
+    }
+*/
 
-    MPI_Send(buffer, length, MPI_DOUBLE,  dest, 0, MPI_COMM_WORLD); 
+    MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD); 
 } 
 
 
-void Ring_Receive(double *buffer, int length) { 
+void Ring_Recv(int *buffer, int length) { 
 
     int rank, nprocs, src; 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -36,13 +36,15 @@ void Ring_Receive(double *buffer, int length) {
     }  else { 
        src = rank - 1; 
     } 
-    MPI_Recv(buffer, length, MPI_DOUBLE, src, 0, MPI_COMM_WORLD, &status); 
+    MPI_Recv(buffer, length, MPI_INT, src, 0, MPI_COMM_WORLD, &status); 
 
-//    int i; 
-//    for (i = 0; i < length; i++) {
-//       printf("%d\t<- %d, RecvBuffer[%d] = %f\n", rank,src, i, buffer[i]);
-//    }
+/*
 
+    int i; 
+    for (i = 0; i < length; i++) {
+       printf("%d\t<- %d, RecvBuffer[%d] = %d\n", rank,src, i, buffer[i]);
+    }
+*/
 } 
 
 

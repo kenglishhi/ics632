@@ -184,8 +184,10 @@ int main(int argc,char *argv[])
 
     for (i = 0; i < matrix_size; i++)  {
 	for (j = 0; j < matrix_size; j++){
-	    matrix1[i][j] = 0.0 + (double)(( i * matrix_size) + j)  ;
-	    matrix2[i][j] = 0.0 + (double)(( i * matrix_size) + j)  ;
+//	    matrix1[i][j] = 0.0 + (double)(( i * matrix_size) + j)  ;
+//	    matrix2[i][j] = 0.0 + (double)(( i * matrix_size) + j)  ;
+	    matrix1[i][j] = (double)( i )  ;
+	    matrix2[i][j] = (double)( i + j )  ;
 	    if (debug) {
 		printf("matrix2[%d][%d] = %6.1f, -- ", i,j,matrix2[i][j] ) ;
 		printf("value = %6.1f,\n",  1.0 + (double)(( i * matrix_size) + j) ) ;
