@@ -22,7 +22,7 @@ double lgsearch(double step_size, int trial ) {
     x[i] = 50.0 * (double)rand_r(&my_seed)/(double)RAND_MAX;
   }
 
-  for (i=0; i<10; i++) {
+  for (i=0; i<800; i++) {
     current_value = mystery_function_800(x);
     while (1) {
       if (x[i] + step_size > 49.9)
