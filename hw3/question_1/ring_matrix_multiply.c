@@ -77,8 +77,8 @@ int main(int argc, char **argv) {
     // step 1
     int i, j, k, l ;
     int step ;
-    if (DEBUG) { 
-        printf("%d\tr = %d\n", rank, row_size);
+    if (DEBUG) {
+	printf("%d\tr = %d\n", rank, row_size);
     }
 
     int p = nprocs;
@@ -86,40 +86,31 @@ int main(int argc, char **argv) {
     int *current_a, *current_b, *current_result;
     int global_i;
     int offset;
-//    for (step = 0 ; step < nprocs; step++)
+
     tempS = matrix_b;
+
     for (step = 0 ; step < nprocs; step++) {
 	Ring_Send(tempS, row_size * matrix_size) ;
 	Ring_Recv(tempR, row_size * matrix_size) ;
 	for (l=0; l < nprocs ; l++) {
-            if (DEBUG) { 
-	        printf("%d l =  %d  \n", rank, l);
-            }
+	    if (DEBUG) {
+		printf("%d l =  %d  \n", rank, l);
+	    }
 	    for (i =0; i < row_size; i++) {
 		for (k =0; k < row_size; k++) {
+                    current_a = matrix_a + (matrix_size * i) + row_size * ((q-step + nprocs) % p) + k ;
 		    for (j =0; j < row_size; j++) {
-			global_i = GLOBAL_I(i,rank,row_size);
-			i = i;
-//                 if (rank ==0 ){
-			current_result = result_matrix + matrix_size * i + l*row_size + j ;
-//                 printf("RANK%d\tc[%d, %d] += ", rank, global_i, l*row_size +j  ) ;
-//
-			if ((q-step) > 0) {
-			    offset = q-step;
-			} else {
-			    offset = step - q;
-			}
-			current_a = matrix_a + matrix_size*i + row_size * ((offset)%p) +k ;
-			current_b = tempS + matrix_size*k + l*row_size +j;
 
-            if (DEBUG) { 
-			printf("RANK%d\tSTEP%d\ta[%d, %d]:(%d) * b[%d,%d]: (%d)   ", rank,step, global_i, (row_size * ((offset)%p) +k ), *current_a, k,(l*row_size +j), *current_b   ) ;
-			printf("current (%d)   ", *current_result   ) ;
-            }
-//                 printf("b[%d, %d] (%d) ", k, l*row_size +j, *current_b   ) ;
-			printf("\n" ) ;
+			current_result = result_matrix + (matrix_size * i) + (l * row_size) + j ;
+			current_b = tempS + (matrix_size*k) + (l*row_size) +j;
+
+			if (DEBUG) {
+                            global_i = GLOBAL_I(i,rank,row_size);
+			    printf("RANK%d\tSTEP%d\ta[%d, %d]:(%d) * b[%d,%d]: (%d)   ", rank,step, global_i, (row_size * ((offset)%p) +k ), *current_a, k,(l*row_size +j), *current_b   ) ;
+			    printf("current (%d)   ", *current_result   ) ;
+			    printf("\n" ) ;
+			}
 			*current_result +=  (*current_a) * (*current_b);
-//                }
 		    }
 		}
 	    }
@@ -137,8 +128,8 @@ int main(int argc, char **argv) {
 //      print_matrices(matrix_a, matrix_b, result_matrix, matrix_size);
 //    }
 
-    if (DEBUG) { 
-        print_matrices(matrix_a, matrix_b, result_matrix, matrix_size, row_size, rank);
+    if (DEBUG) {
+	print_matrices(matrix_a, matrix_b, result_matrix, matrix_size, row_size, rank);
     }
     MPI_Finalize();
 
