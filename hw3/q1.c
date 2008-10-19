@@ -4,84 +4,17 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-
 #define DEBUG 0
 #define GLOBAL_I(I,RANK,R) ( (RANK)*(R)+(I) )
 
-double get_time_diff(struct timeval *start, struct timeval *finish)  ;
 
 void Ring_Send(double *buffer, int length) ;
-void Ring_Recv(double *buffer, int length) ;
-
-void initialize_matrix_slice(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size, int row_size, int rank) {
-    int i, j;
-    for (i=0; i < row_size; i++){
-	for (j=0; j < matrix_size; j++){
-	    *(matrix_a + i*matrix_size + j) = GLOBAL_I(i,rank,row_size) * 1.0;
-	    *(matrix_b + i*matrix_size + j) = (GLOBAL_I(i,rank,row_size) + j) * 1.0;
-	    *(result_matrix + i*matrix_size + j) = 0.0;
-	}
-    }
-}
-
-void initialize_matrix(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size) {
-    int i, j;
-    for (i=0; i < matrix_size; i++){
-        for (j=0; j < matrix_size; j++){
-            *(matrix_a + i*matrix_size + j) = i * 1.0;
-            *(matrix_b + i*matrix_size + j) = (i + j) * 1.0;
-            *(result_matrix + i*matrix_size + j) = 0.0;
-        }
-    }
-}
-
-void print_matrix_slice(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size, int row_size, int rank) {
-    double *current_result;
-    double *current_a;
-    double *current_b;
-    int i,j;
-    printf("matrix_size = %d \n\n", matrix_size  );
-    for (i = 0; i < row_size; i++) {
-	printf("RANK%d RESULT row[%d] --  [", rank, GLOBAL_I(i,rank,row_size) );
-	for (j = 0; j < matrix_size; j++){
-	    current_a = matrix_a + i*matrix_size + j;
-	    printf(" %.4f ", *current_a  );
-	}
-	printf("] " );
-	printf("[" );
-	for (j = 0; j < matrix_size; j++){
-	    current_b = matrix_b + i*matrix_size + j;
-	    printf(" %.4f ", *current_b  );
-	}
-	printf("] = " );
-	printf("[ " );
-	for (j = 0; j < matrix_size; j++){
-	    current_result = result_matrix + i * matrix_size + j;
-	    printf(" %.4f ", *current_result  );
-	}
-	printf("] " );
-
-	printf("\n" );
-    }
-}
-
-void best_matrix_multiply(double *a, double *b, double *result,  int matrix_size) {
-    double *current_result;
-    double *current_a;
-    double *current_b;
-    int i,j,k;
-    for (i = 0; i < matrix_size; i++) {
-        for (k = 0; k < matrix_size; k++) {
-            current_a = a + i*matrix_size + k;
-            for (j = 0; j < matrix_size; j++) {
-                current_result = result + i*matrix_size + j;
-                current_b = b + k*matrix_size + j;
-                *current_result += *current_a *  *current_b ;
-            }
-        }
-    }
-}
+void Ring_Recv(double *buffer, int length) ; 
+void initialize_matrix_slice(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size, int row_size, int rank) ; 
+void initialize_matrix(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size) ; 
+void print_matrix_slice(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size, int row_size, int rank) ; 
+void best_matrix_multiply(double *a, double *b, double *result,  int matrix_size)  ; 
+double get_time_diff(struct timeval *start, struct timeval *finish) ; 
 
 int main(int argc, char **argv) {
     int rank, nprocs;
