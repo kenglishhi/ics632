@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-void Ring_Send(int *buffer, int length) ; 
-void Ring_Recv(int *buffer, int length) ; 
+void Ring_Send(double *buffer, int length) ; 
+void Ring_Recv(double *buffer, int length) ; 
 
 
 int main(int argc, char **argv) {
@@ -15,8 +15,8 @@ int main(int argc, char **argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
    
-    int send_buffer[2];  
-    int receive_buffer[2];  
+    double send_buffer[2];  
+    double receive_buffer[2];  
     send_buffer[0] = 1.0 * (rank+1); 
     send_buffer[1] = 2.0 * (rank+1); 
 
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
     int i; 
     for (i = 0; i < 2; i++) {
-          printf("%d\t Received[%d] = %d\n", rank,i,  receive_buffer[i] );
+          printf("%d\t Received[%d] = %.4f\n", rank,i,  receive_buffer[i] );
    
    }
     
