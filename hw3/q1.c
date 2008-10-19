@@ -15,6 +15,7 @@ void initialize_matrix(double *matrix_a, double *matrix_b, double *result_matrix
 void print_matrix_slice(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size, int row_size, int rank) ; 
 void best_matrix_multiply(double *a, double *b, double *result,  int matrix_size)  ; 
 double get_time_diff(struct timeval *start, struct timeval *finish) ; 
+void slice_matrix_multiply(double *matrix_a,double *matrix_b, double *result_matrix, int matrix_size, int row_size,  int rank, int nprocs, int step) ; 
 
 int main(int argc, char **argv) {
     int rank, nprocs;
@@ -45,46 +46,21 @@ int main(int argc, char **argv) {
     initialize_matrix_slice(matrix_a, matrix_b, result_matrix, matrix_size,row_size, rank);
 
     // step 1
-    int i, j, k, l ;
+    int i, j ;
     int step ;
     if (DEBUG) {
 	printf("%d\tr = %d\n", rank, row_size);
     }
 
-    int p = nprocs;
-    int q = rank;
-    double *current_a, *current_b, *current_result;
-    int global_i;
-    int offset;
+    double  *current_result;
 
     tempS = matrix_b;
 
     for (step = 0 ; step < nprocs; step++) {
 	Ring_Send(tempS, row_size * matrix_size) ;
 	Ring_Recv(tempR, row_size * matrix_size) ;
-	for (l=0; l < nprocs ; l++) {
-	    if (DEBUG) {
-		printf("%d l =  %d  \n", rank, l);
-	    }
-	    for (i =0; i < row_size; i++) {
-		for (k =0; k < row_size; k++) {
-                    current_a = matrix_a + (matrix_size * i) + row_size * ((q-step + nprocs) % p) + k ;
-		    for (j =0; j < row_size; j++) {
+        slice_matrix_multiply(matrix_a,tempS, result_matrix, matrix_size, row_size,  rank, nprocs, step)  ; 
 
-			current_result = result_matrix + (matrix_size * i) + (l * row_size) + j ;
-			current_b = tempS + (matrix_size*k) + (l*row_size) +j;
-
-			if (DEBUG) {
-                            global_i = GLOBAL_I(i,rank,row_size);
-			    printf("RANK%d\tSTEP%d\ta[%d, %d]:(%f) * b[%d,%d]: (%f)   ", rank,step, global_i, (row_size * ((offset)%p) +k ), *current_a, k,(l*row_size +j), *current_b   ) ;
-			    printf("current (%f)   ", *current_result   ) ;
-			    printf("\n" ) ;
-			}
-			*current_result +=  (*current_a) * (*current_b);
-		    }
-		}
-	    }
-	}
 	tempX = tempS;
 	tempS = tempR;
 	tempR = tempX;
