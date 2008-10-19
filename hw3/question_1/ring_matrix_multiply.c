@@ -2,13 +2,19 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
+#include <time.h>
+
+
 
 #define DEBUG 0
 #define GLOBAL_I(I,RANK,R) ( (RANK)*(R)+(I) )
 
-void Ring_Send(int *buffer, int length) ;
-void Ring_Recv(int *buffer, int length) ;
-void initialize_matrices(int *matrix_a, int *matrix_b, int *result_matrix, int matrix_size, int row_size, int rank) {
+double get_time_diff(struct timeval *start, struct timeval *finish)  ;
+
+void Ring_Send(double *buffer, int length) ;
+void Ring_Recv(double *buffer, int length) ;
+
+void initialize_matrix_slice(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size, int row_size, int rank) {
     int i, j;
     for (i=0; i < row_size; i++){
 	for (j=0; j < matrix_size; j++){
@@ -19,29 +25,40 @@ void initialize_matrices(int *matrix_a, int *matrix_b, int *result_matrix, int m
     }
 }
 
-void print_matrices(int *matrix_a, int *matrix_b, int *result_matrix, int matrix_size, int row_size, int rank) {
-    int *current_result;
-    int *current_a;
-    int *current_b;
+void initialize_matrix(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size) {
+    int i, j;
+    for (i=0; i < matrix_size; i++){
+        for (j=0; j < matrix_size; j++){
+            *(matrix_a + i*matrix_size + j) = i * 1.0;
+            *(matrix_b + i*matrix_size + j) = (i + j) * 1.0;
+            *(result_matrix + i*matrix_size + j) = 0.0;
+        }
+    }
+}
+
+void print_matrix_slice(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size, int row_size, int rank) {
+    double *current_result;
+    double *current_a;
+    double *current_b;
     int i,j;
     printf("matrix_size = %d \n\n", matrix_size  );
     for (i = 0; i < row_size; i++) {
 	printf("RANK%d RESULT row[%d] --  [", rank, GLOBAL_I(i,rank,row_size) );
 	for (j = 0; j < matrix_size; j++){
 	    current_a = matrix_a + i*matrix_size + j;
-	    printf(" %d ", *current_a  );
+	    printf(" %.4f ", *current_a  );
 	}
 	printf("] " );
 	printf("[" );
 	for (j = 0; j < matrix_size; j++){
 	    current_b = matrix_b + i*matrix_size + j;
-	    printf(" %d ", *current_b  );
+	    printf(" %.4f ", *current_b  );
 	}
 	printf("] = " );
 	printf("[ " );
 	for (j = 0; j < matrix_size; j++){
 	    current_result = result_matrix + i * matrix_size + j;
-	    printf(" %d ", *current_result  );
+	    printf(" %.4f ", *current_result  );
 	}
 	printf("] " );
 
@@ -49,7 +66,22 @@ void print_matrices(int *matrix_a, int *matrix_b, int *result_matrix, int matrix
     }
 }
 
-
+void best_matrix_multiply(double *a, double *b, double *result,  int matrix_size) {
+    double *current_result;
+    double *current_a;
+    double *current_b;
+    int i,j,k;
+    for (i = 0; i < matrix_size; i++) {
+        for (k = 0; k < matrix_size; k++) {
+            current_a = a + i*matrix_size + k;
+            for (j = 0; j < matrix_size; j++) {
+                current_result = result + i*matrix_size + j;
+                current_b = b + k*matrix_size + j;
+                *current_result += *current_a *  *current_b ;
+            }
+        }
+    }
+}
 
 int main(int argc, char **argv) {
     int rank, nprocs;
@@ -61,18 +93,23 @@ int main(int argc, char **argv) {
 
     int matrix_size = atoi(argv[1]);
 
+    struct timeval total_start; 
+    struct timeval total_finish; 
+
+    gettimeofday(&total_start,NULL); 
+
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
     int row_size = matrix_size / nprocs;
 
-    int *matrix_a; int *matrix_b; int *result_matrix ; int *tempR; int *tempS; int *tempX;
-    matrix_a = (int *) malloc(matrix_size * (row_size) * sizeof(int)) ;
-    matrix_b = (int *) malloc(matrix_size * (row_size) * sizeof(int)) ;
-    result_matrix = (int *) malloc(matrix_size * (row_size) * sizeof(int)) ;
-    tempR = (int *) malloc(matrix_size * (row_size) * sizeof(int)) ;
+    double *matrix_a, *matrix_b, *result_matrix, *tempR, *tempS, *tempX;
+    matrix_a = (double *) malloc(matrix_size * (row_size) * sizeof(double)) ;
+    matrix_b = (double *) malloc(matrix_size * (row_size) * sizeof(double)) ;
+    result_matrix = (double *) malloc(matrix_size * (row_size) * sizeof(double)) ;
+    tempR = (double *) malloc(matrix_size * (row_size) * sizeof(double)) ;
 
-    initialize_matrices(matrix_a, matrix_b, result_matrix, matrix_size,row_size, rank);
+    initialize_matrix_slice(matrix_a, matrix_b, result_matrix, matrix_size,row_size, rank);
 
     // step 1
     int i, j, k, l ;
@@ -83,7 +120,7 @@ int main(int argc, char **argv) {
 
     int p = nprocs;
     int q = rank;
-    int *current_a, *current_b, *current_result;
+    double *current_a, *current_b, *current_result;
     int global_i;
     int offset;
 
@@ -106,8 +143,8 @@ int main(int argc, char **argv) {
 
 			if (DEBUG) {
                             global_i = GLOBAL_I(i,rank,row_size);
-			    printf("RANK%d\tSTEP%d\ta[%d, %d]:(%d) * b[%d,%d]: (%d)   ", rank,step, global_i, (row_size * ((offset)%p) +k ), *current_a, k,(l*row_size +j), *current_b   ) ;
-			    printf("current (%d)   ", *current_result   ) ;
+			    printf("RANK%d\tSTEP%d\ta[%d, %d]:(%f) * b[%d,%d]: (%f)   ", rank,step, global_i, (row_size * ((offset)%p) +k ), *current_a, k,(l*row_size +j), *current_b   ) ;
+			    printf("current (%f)   ", *current_result   ) ;
 			    printf("\n" ) ;
 			}
 			*current_result +=  (*current_a) * (*current_b);
@@ -115,22 +152,48 @@ int main(int argc, char **argv) {
 		}
 	    }
 	}
-//      print_matrices(matrix_a, tempS, result_matrix, matrix_size, row_size, rank);
 	tempX = tempS;
 	tempS = tempR;
 	tempR = tempX;
 
-
     }
 
-//    if (rank == 1 ){
-//
-//      print_matrices(matrix_a, matrix_b, result_matrix, matrix_size);
-//    }
 
     if (DEBUG) {
-	print_matrices(matrix_a, matrix_b, result_matrix, matrix_size, row_size, rank);
+	print_matrix_slice(matrix_a, matrix_b, result_matrix, matrix_size, row_size, rank);
     }
+
+    gettimeofday(&total_finish,NULL); 
+
+
+    printf("RANK%d,CompleteTime,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+    gettimeofday(&total_start,NULL); 
+    double *verify_matrix_a, *verify_matrix_b, *verify_result_matrix, *global_current_result ;
+
+    verify_matrix_a = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
+    verify_matrix_b = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
+    verify_result_matrix = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
+
+    initialize_matrix(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size); 
+    best_matrix_multiply(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size); 
+    if (DEBUG && (rank ==0) ) { 
+       print_matrix_slice(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size, matrix_size,rank);
+    } 
+    double diff ; 
+    for (i=0; i < row_size; i++){
+	for (j=0; j < matrix_size; j++){
+	    current_result = result_matrix + i * matrix_size + j;
+	    global_current_result = verify_result_matrix  + GLOBAL_I(i,rank,row_size) * matrix_size + j;
+            diff  =  *current_result - *global_current_result ; 
+            if (diff != 0.0) { 
+	        printf(" (%.4f == %.4f) => diff = %.4f ", *current_result, *global_current_result, diff );
+            } 
+        } 
+    } 
+    gettimeofday(&total_finish,NULL); 
+    printf("RANK%d,Naive,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+    
+
     MPI_Finalize();
 
     return 1;
