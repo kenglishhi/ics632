@@ -57,9 +57,11 @@ int main(int argc, char **argv) {
     tempS = matrix_b;
 
     for (step = 0 ; step < nprocs; step++) {
+        printf("RANK%d,DOING SEND\n", rank ) ;
 	Ring_Send(tempS, row_size * matrix_size) ;
+        printf("RANK%d,DOING RECEIVE\n", rank ) ;
 	Ring_Recv(tempR, row_size * matrix_size) ;
-        slice_matrix_multiply(matrix_a,tempS, result_matrix, matrix_size, row_size,  rank, nprocs, step)  ; 
+//        slice_matrix_multiply(matrix_a,tempS, result_matrix, matrix_size, row_size,  rank, nprocs, step)  ; 
 
 	tempX = tempS;
 	tempS = tempR;
@@ -101,7 +103,6 @@ int main(int argc, char **argv) {
     } 
     gettimeofday(&total_finish,NULL); 
     printf("RANK%d,Naive,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
-    
 
     MPI_Finalize();
 

@@ -109,13 +109,7 @@ void slice_matrix_multiply(double *matrix_a,double *matrix_b, double *result_mat
                 }
             }
         }
-
-
-
-
 } 
-
-
 
 void Ring_Send(double *buffer, int length) { 
     int rank, nprocs, dest; 
@@ -131,6 +125,7 @@ void Ring_Send(double *buffer, int length) {
    for (i = 0; i < length; i++) {
        printf("%d\t-> %d, SendBuffer[%d] = %d\n", rank,dest, i, buffer[i] );
     }
+    printf("%d\t<- %d, Doing Send\n", rank, dest);
 */
 
     MPI_Send(buffer, length, MPI_DOUBLE,  dest, 0, MPI_COMM_WORLD); 
@@ -148,10 +143,13 @@ void Ring_Recv(double *buffer, int length) {
     }  else { 
        src = rank - 1; 
     } 
+
+
     MPI_Recv(buffer, length, MPI_DOUBLE, src, 0, MPI_COMM_WORLD, &status); 
 
 /*
 
+    printf("%d\t<- %d, Doing Receive\n", rank,src);
     int i; 
     for (i = 0; i < length; i++) {
        printf("%d\t<- %d, RecvBuffer[%d] = %d\n", rank,src, i, buffer[i]);
