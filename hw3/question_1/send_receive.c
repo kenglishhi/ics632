@@ -5,7 +5,7 @@
 #include <mpi.h>
 
 
-void Ring_Send(int *buffer, int length) { 
+void Ring_Send(double *buffer, int length) { 
     int rank, nprocs, dest; 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -21,11 +21,11 @@ void Ring_Send(int *buffer, int length) {
     }
 */
 
-    MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD); 
+    MPI_Send(buffer, length, MPI_DOUBLE,  dest, 0, MPI_COMM_WORLD); 
 } 
 
 
-void Ring_Recv(int *buffer, int length) { 
+void Ring_Recv(double *buffer, int length) { 
 
     int rank, nprocs, src; 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -36,7 +36,7 @@ void Ring_Recv(int *buffer, int length) {
     }  else { 
        src = rank - 1; 
     } 
-    MPI_Recv(buffer, length, MPI_INT, src, 0, MPI_COMM_WORLD, &status); 
+    MPI_Recv(buffer, length, MPI_DOUBLE, src, 0, MPI_COMM_WORLD, &status); 
 
 /*
 
