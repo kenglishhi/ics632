@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
-#include <time.h>
+#include <sys/time.h>
 
 // for L : write a program to measure -- L Time to send a measure = L + b * (message size) where message size = 0, send one to the other and then divide by 2
 // for b : write a program to bandwidth -- send a big message using b above

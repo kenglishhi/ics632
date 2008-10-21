@@ -64,14 +64,15 @@ int main(int argc, char **argv) {
     tempS = matrix_b;
 
     for (step = 0 ; step < nprocs; step++) {
+        printf("RANK%d,DOING SEND\n", rank ) ;
 	Ring_Send(tempS, row_size * matrix_size) ;
+        printf("RANK%d,DOING RECEIVE\n", rank ) ;
 	Ring_Recv(tempR, row_size * matrix_size) ;
         slice_matrix_multiply(matrix_a,tempS, result_matrix, matrix_size, row_size,  rank, nprocs, step)  ; 
 
 	tempX = tempS;
 	tempS = tempR;
 	tempR = tempX;
-
     }
 
 
@@ -80,7 +81,6 @@ int main(int argc, char **argv) {
     }
 
     gettimeofday(&total_finish,NULL); 
-
 
     printf("RANK%d,CompleteTime,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
     gettimeofday(&total_start,NULL); 
@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
        print_matrix_slice(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size, matrix_size,rank);
     } 
     double diff ; 
+
     for (i=0; i < row_size; i++){
 	for (j=0; j < matrix_size; j++){
 	    current_result = result_matrix + i * matrix_size + j;
@@ -108,7 +109,6 @@ int main(int argc, char **argv) {
     } 
     gettimeofday(&total_finish,NULL); 
     printf("RANK%d,Naive,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
-    
 
     MPI_Finalize();
 
