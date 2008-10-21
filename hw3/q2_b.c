@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
        
       gettimeofday(&transmit_finish,NULL); 
       latency = get_time_diff(&transmit_start, &transmit_finish)/2.0 ;
+
       printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
       printf("RANK,%d,CompleteTime,%.4f\n", rank, get_time_diff(&transmit_start, &transmit_finish) ) ;
 
