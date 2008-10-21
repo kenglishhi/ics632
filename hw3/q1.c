@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
-#include <time.h>
+#include <sys/time.h> 
 
 #define DEBUG 0
 #define GLOBAL_I(I,RANK,R) ( (RANK)*(R)+(I) )
@@ -18,21 +18,28 @@ double get_time_diff(struct timeval *start, struct timeval *finish) ;
 void slice_matrix_multiply(double *matrix_a,double *matrix_b, double *result_matrix, int matrix_size, int row_size,  int rank, int nprocs, int step) ; 
 
 int main(int argc, char **argv) {
+    MPI_Init(&argc, &argv);
+
     int rank, nprocs;
     // Initialize the MPI, get the size and the rank.
+
     if (argc < 2) {
 	printf("Must supply option for Matrix Size, eg: naive.exe 1000 \n");
 	return -1;
     }
 
-    int matrix_size = atoi(argv[1]);
+    int matrix_size; 
+    if (sscanf(argv[1], "%d", &matrix_size) != 1) { 
+        printf("Invalid command line argument: '%s'\n", argv[1] ); 
+        return 1; 
+    }  
+//    int matrix_size = atoi(argv[1]);
 
     struct timeval total_start; 
     struct timeval total_finish; 
 
     gettimeofday(&total_start,NULL); 
 
-    MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
     int row_size = matrix_size / nprocs;
