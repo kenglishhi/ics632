@@ -85,7 +85,8 @@ int main(int argc, char **argv) {
 
     gettimeofday(&total_finish,NULL); 
 
-    printf("RANK%d,CompleteTime,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+    printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
+    printf("%d,%.4f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
 
     MPI_Finalize();
 

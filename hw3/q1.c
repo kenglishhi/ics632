@@ -80,7 +80,10 @@ int main(int argc, char **argv) {
 
     gettimeofday(&total_finish,NULL); 
 
-    printf("RANK%d,CompleteTime,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+    printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
+    printf("%d,%.4f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
+    return 1;
+
     gettimeofday(&total_start,NULL); 
     double *verify_matrix_a, *verify_matrix_b, *verify_result_matrix, *global_current_result ;
 
@@ -106,6 +109,7 @@ int main(int argc, char **argv) {
         } 
     } 
     gettimeofday(&total_finish,NULL); 
+
     printf("RANK%d,Naive,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
 
     MPI_Finalize();
