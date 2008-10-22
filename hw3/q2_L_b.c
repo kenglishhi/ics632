@@ -16,12 +16,15 @@ int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
     if (nprocs < 2) {
        printf("Nprocs must be 2 or above\n");
        return -1;
     } 
+
     int *buffer;
     int message_size ; 
+
     if (argc < 2 ) { 
         printf("Invalid number of arguments\n");
         return -1; 
