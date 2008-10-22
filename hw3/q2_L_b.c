@@ -7,7 +7,7 @@
 // for L : write a program to measure -- L Time to send a measure = L + b * (message size) where message size = 0, send one to the other and then divide by 2
 // for b : write a program to bandwidth -- send a big message using b above
 // for w : write a program to measure w -- Time to do work 
-//
+
 
 double get_time_diff(struct timeval *start, struct timeval *finish) ;
 int main(int argc, char **argv) {
@@ -92,9 +92,8 @@ int main(int argc, char **argv) {
       if (MPI_Send(buffer, message_size, MPI_INT, 0, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { 
          fprintf(stderr,"Error while calling MPI_Send()\n");
       }  
-
-
    } 
+
    MPI_Finalize(); 
    return 0;
  
