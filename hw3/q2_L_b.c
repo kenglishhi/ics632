@@ -60,9 +60,6 @@ int main(int argc, char **argv) {
       gettimeofday(&transmit_finish,NULL); 
       latency = get_time_diff(&transmit_start, &transmit_finish)/2.0 ;
 
-//      printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
-//      printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
-//      printf("RANK,%d,CompleteTime,%.4f\n", rank, get_time_diff(&transmit_start, &transmit_finish) ) ;
 
       gettimeofday(&transmit_start,NULL); 
       if (MPI_Send(buffer, message_size, MPI_INT, 1, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { 
@@ -73,9 +70,6 @@ int main(int argc, char **argv) {
       }  
       gettimeofday(&transmit_finish,NULL); 
       message_time = get_time_diff(&transmit_start, &transmit_finish)/2.0 ;
-//      printf("RANK,%d,CompleteTime,%.4f\n", rank, get_time_diff(&transmit_start, &transmit_finish) ) ;
-//      printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
-//      printf("RANK,%d,Message Bytes,%d\n", rank, message_bits ) ;
       printf("message_size, latency,  message_bits, message_time\n") ;
       printf("%d,%.8f,%d, %.8f\n", message_size, latency,  message_bits, message_time ) ;
     } else if (rank == 1) {
