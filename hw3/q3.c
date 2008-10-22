@@ -67,12 +67,8 @@ int main(int argc, char **argv) {
     MPI_Request recv_request ; 
    
     for (step = 0 ; step < 1; step++) {
-        printf("RANK%d doing  send row_size:%d , matrix_size:%d \n", rank, row_size ,matrix_size ); 
         Ring_Isend(tempS, row_size * matrix_size, &send_request) ;
-        printf("RANK%d doing  recv \n", rank); 
 	Ring_Irecv(tempR, row_size * matrix_size, &recv_request) ; 
-        printf("RANK%d DONE \n", rank); 
-
         slice_matrix_multiply(matrix_a,tempS, result_matrix, matrix_size, row_size,  rank, nprocs, step)  ; 
         Ring_Wait(&send_request);  
         Ring_Wait(&recv_request);  

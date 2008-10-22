@@ -167,10 +167,7 @@ void Ring_Isend(double *buffer, int length, MPI_Request *request) {
        dest = rank + 1; 
     } 
 
-     MPI_Request request1;  
-    printf("RANK%d, doing SEND: length: %d, src: %d,  ", rank, length, dest) ; 
     MPI_Isend(buffer, length, MPI_DOUBLE,  dest, 0, MPI_COMM_WORLD,request); 
-//    request = &request1 ; 
 }
 
 
@@ -184,10 +181,7 @@ void Ring_Irecv(double *buffer, int length, MPI_Request *request ) {
     }  else { 
        src = rank - 1; 
     } 
-     MPI_Request request1;  
-    printf("RANK%d, doing RECV: length: %d, src: %d,  ", rank, length, src) ; 
     MPI_Irecv(buffer, length, MPI_DOUBLE, src, 0, MPI_COMM_WORLD, request); 
- //   request = &request1 ; 
 } 
 void Ring_Wait(MPI_Request *request) { 
     MPI_Status status  ;
