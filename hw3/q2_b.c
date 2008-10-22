@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
     buffer = (int *) calloc(message_size,sizeof(int) ); 
     int message_bits = message_size * sizeof(int) ; 
     double latency =0.0;
+    double message_time =0.0;
 
     struct timeval transmit_start;
     struct timeval transmit_finish;
@@ -44,6 +45,7 @@ int main(int argc, char **argv) {
     MPI_Status status ;
 
     if (rank == 0) { 
+      printf("RANK,%d,Message Size,%d\n", rank, message_size ) ;
       gettimeofday(&transmit_start,NULL); 
       if (MPI_Send(buffer, 0, MPI_INT, 1, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { 
          fprintf(stderr,"Error while calling MPI_Send()\n");
@@ -55,8 +57,9 @@ int main(int argc, char **argv) {
       gettimeofday(&transmit_finish,NULL); 
       latency = get_time_diff(&transmit_start, &transmit_finish)/2.0 ;
 
-      printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
-      printf("RANK,%d,CompleteTime,%.4f\n", rank, get_time_diff(&transmit_start, &transmit_finish) ) ;
+//      printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
+//      printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
+//      printf("RANK,%d,CompleteTime,%.4f\n", rank, get_time_diff(&transmit_start, &transmit_finish) ) ;
 
       gettimeofday(&transmit_start,NULL); 
       if (MPI_Send(buffer, message_size, MPI_INT, 1, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { 
@@ -66,9 +69,12 @@ int main(int argc, char **argv) {
          fprintf(stderr,"Error while calling MPI_Recv()\n");
       }  
       gettimeofday(&transmit_finish,NULL); 
-      printf("RANK,%d,CompleteTime,%.4f\n", rank, get_time_diff(&transmit_start, &transmit_finish) ) ;
+      message_time = get_time_diff(&transmit_start, &transmit_finish)/2.0 ;
+//      printf("RANK,%d,CompleteTime,%.4f\n", rank, get_time_diff(&transmit_start, &transmit_finish) ) ;
 //      printf("RANK,%d,Latency,%.4f\n", rank, latency ) ;
-      printf("RANK,%d,Message Bytes,%d\n", rank, message_bits ) ;
+//      printf("RANK,%d,Message Bytes,%d\n", rank, message_bits ) ;
+      printf("message_size, latency,  message_bits, message_time\n") ;
+      printf("%d,%.8f,%d, %.8f\n", message_size, latency,  message_bits, message_time ) ;
     } else if (rank == 1) {
       if (MPI_Recv(buffer, 0, MPI_INT, 0, 0, MPI_COMM_WORLD,&status) != MPI_SUCCESS) { 
          fprintf(stderr,"Error while calling MPI_Recv()\n");
