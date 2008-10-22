@@ -3,6 +3,7 @@ main: clean  ring_matrix_multiply
 	mpicc -Wall q1.c ring_matrix_multiply.o  -o q1
 	mpicc -Wall q2_L_b.c ring_matrix_multiply.o -o q2_L_b
 	mpicc -Wall q2_w.c ring_matrix_multiply.o -o q2_w
+	mpicc -Wall q3.c ring_matrix_multiply.o -o q3
 clean:
 	/bin/rm -f q1 q2_L_b *.o test_send_receive
 ring_matrix_multiply:

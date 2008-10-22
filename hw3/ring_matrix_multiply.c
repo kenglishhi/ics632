@@ -155,7 +155,45 @@ void Ring_Recv(double *buffer, int length) {
        printf("%d\t<- %d, RecvBuffer[%d] = %d\n", rank,src, i, buffer[i]);
     }
 */
+}
+
+void Ring_Isend(double *buffer, int length, MPI_Request *request) { 
+    int rank, nprocs, dest; 
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    if (rank == (nprocs -1)) { 
+       dest = 0 ;
+    }  else { 
+       dest = rank + 1; 
+    } 
+
+     MPI_Request request1;  
+    printf("RANK%d, doing SEND: length: %d, src: %d,  ", rank, length, dest) ; 
+    MPI_Isend(buffer, length, MPI_DOUBLE,  dest, 0, MPI_COMM_WORLD,request); 
+//    request = &request1 ; 
+}
+
+
+void Ring_Irecv(double *buffer, int length, MPI_Request *request ) { 
+
+    int rank, nprocs, src; 
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    if (rank == 0 )  { 
+       src = nprocs -1 ;
+    }  else { 
+       src = rank - 1; 
+    } 
+     MPI_Request request1;  
+    printf("RANK%d, doing RECV: length: %d, src: %d,  ", rank, length, src) ; 
+    MPI_Irecv(buffer, length, MPI_DOUBLE, src, 0, MPI_COMM_WORLD, request); 
+ //   request = &request1 ; 
 } 
+void Ring_Wait(MPI_Request *request) { 
+    MPI_Status status  ;
+    MPI_Wait(request, &status );
+} 
+
 
 double get_time_diff(struct timeval *start, struct timeval *finish) {
     // Copied from Casanova
