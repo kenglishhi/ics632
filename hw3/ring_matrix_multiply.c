@@ -111,6 +111,39 @@ void slice_matrix_multiply(double *matrix_a,double *matrix_b, double *result_mat
         }
 } 
 
+void slice_matrix_multiply_openmp(double *matrix_a,double *matrix_b, double *result_matrix, int matrix_size, int row_size,  int rank, int nprocs, int step) {
+    int l, i, j, k, global_i;
+    double *current_a, *current_b, *current_result;
+
+        for (l=0; l < nprocs ; l++) {
+            if (DEBUG) {
+                printf("%d l =  %d  \n", rank, l);
+            }
+            for (i =0; i < row_size; i++) {
+                for (k =0; k < row_size; k++) {
+                    current_a = matrix_a + (matrix_size * i) + row_size * ((nprocs-step + nprocs) % nprocs) + k ;
+#pragma omp parallel for private(j)                     
+                    for (j =0; j < row_size; j++) {
+
+                        current_result = result_matrix + (matrix_size * i) + (l * row_size) + j ;
+                        current_b = matrix_b + (matrix_size*k) + (l*row_size) +j;
+
+                        if (DEBUG) {
+                            global_i = GLOBAL_I(i,rank,row_size);
+                            printf("RANK%d\tSTEP%d\ta[%d, %d]:(%f) * b[%d,%d]: (%f)   ", rank,step, global_i, (row_size * ((nprocs-step + nprocs)%nprocs) +k ), *current_a, k,(l*row_size +j), *current_b   ) ;
+                            printf("current (%f)   ", *current_result   ) ;
+                            printf("\n" ) ;
+                        }
+                        *current_result +=  (*current_a) * (*current_b);
+                    }
+                }
+            }
+        }
+}
+
+
+
+
 void Ring_Send(double *buffer, int length) { 
     int rank, nprocs, dest; 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
