@@ -89,9 +89,8 @@ int main(int argc, char **argv) {
       if (MPI_Send(buffer, message_size, MPI_INT, 0, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { 
          fprintf(stderr,"Error while calling MPI_Send()\n");
       }  
-
-
    } 
+
    MPI_Finalize(); 
    return 0;
  
