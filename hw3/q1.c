@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     } 
     gettimeofday(&total_finish,NULL); 
 
-    printf("RANK%d,Naive,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+    printf("RANK%d,Naive,%.8f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
 
     MPI_Finalize();
 
