@@ -22,6 +22,18 @@ void initialize_matrix_slice(double *matrix_a, double *matrix_b, double *result_
 	}
     }
 }
+double get_validated_result(int i, int j, int matrix_size) {
+   int k; 
+   double result =0.0;
+   double a=0.0; 
+   double b=0.0; 
+   for (k=0; k< matrix_size; k++ ) {
+       a = i * 1.0;  
+       b = i * 1.0;  
+       result +=  a * b; 
+   } 
+
+} 
 
 void initialize_matrix(double *matrix_a, double *matrix_b, double *result_matrix, int matrix_size) {
     int i, j;

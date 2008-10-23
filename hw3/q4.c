@@ -43,6 +43,9 @@ int main(int argc, char **argv) {
 
     gettimeofday(&total_start,NULL); 
 
+
+    omp_set_num_threads(4); 
+
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
     int row_size = matrix_size / nprocs;
@@ -85,7 +88,8 @@ int main(int argc, char **argv) {
 
     gettimeofday(&total_finish,NULL); 
 
-    printf("RANK%d,CompleteTime,%.4f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+    printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
+    printf("%d,%.8f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
 
     MPI_Finalize();
 

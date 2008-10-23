@@ -86,11 +86,27 @@ int main(int argc, char **argv) {
     gettimeofday(&total_finish,NULL); 
 
     printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
-    printf("%d,%.4f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
+    printf("%d,%.8f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
+    double *verify_matrix_a, *verify_matrix_b, *verify_result_matrix, *global_current_result ;
+    double validate_result ; 
+    double diff ; 
+
+    for (i=0; i < row_size; i++){
+	for (j=0; j < matrix_size; j++){
+	    current_result = result_matrix + i * matrix_size + j;
+            validate_result = get_validated_result(i, j ); 
+//	    global_current_result = verify_result_matrix  + GLOBAL_I(i,rank,row_size) * matrix_size + j;
+
+            diff  =  *current_result - validate_result ; // *global_current_result ; 
+            if (diff != 0.0) { 
+	        printf(" (%.4f == %.4f) => diff = %.4f ", *current_result, validate_result, diff );
+            } 
+        } 
+    } 
+ 
     return 1;
 
     gettimeofday(&total_start,NULL); 
-    double *verify_matrix_a, *verify_matrix_b, *verify_result_matrix, *global_current_result ;
 
     verify_matrix_a = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
     verify_matrix_b = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
@@ -101,7 +117,6 @@ int main(int argc, char **argv) {
     if (DEBUG && (rank ==0) ) { 
        print_matrix_slice(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size, matrix_size,rank);
     } 
-    double diff ; 
 
     for (i=0; i < row_size; i++){
 	for (j=0; j < matrix_size; j++){
