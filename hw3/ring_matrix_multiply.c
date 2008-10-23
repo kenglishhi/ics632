@@ -32,6 +32,7 @@ double get_validated_result(int i, int j, int matrix_size) {
        b = i * 1.0;  
        result +=  a * b; 
    } 
+   return result; 
 
 } 
 
