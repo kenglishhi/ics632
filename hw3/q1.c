@@ -64,8 +64,13 @@ int main(int argc, char **argv) {
     tempS = matrix_b;
 
     for (step = 0 ; step < nprocs; step++) {
-	Ring_Send(tempS, row_size * matrix_size) ;
-	Ring_Recv(tempR, row_size * matrix_size) ;
+        if (rank%2 == 0 ) { 
+  	  Ring_Send(tempS, row_size * matrix_size) ;
+          Ring_Recv(tempR, row_size * matrix_size) ;
+        } else {
+	  Ring_Recv(tempR, row_size * matrix_size) ;
+	  Ring_Send(tempS, row_size * matrix_size) ;
+        } 
         slice_matrix_multiply(matrix_a,tempS, result_matrix, matrix_size, row_size,  rank, nprocs, step)  ; 
 
 	tempX = tempS;
