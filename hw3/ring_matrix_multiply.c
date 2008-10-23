@@ -28,10 +28,12 @@ double get_validated_result(int i, int j, int matrix_size) {
    double a=0.0; 
    double b=0.0; 
    for (k=0; k< matrix_size; k++ ) {
+
        a = i * 1.0;  
-       b = i * 1.0;  
+       b = (j + k) * 1.0;  
        result +=  a * b; 
    } 
+   return result;
 
 } 
 

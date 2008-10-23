@@ -16,6 +16,8 @@ void print_matrix_slice(double *matrix_a, double *matrix_b, double *result_matri
 void best_matrix_multiply(double *a, double *b, double *result,  int matrix_size)  ; 
 double get_time_diff(struct timeval *start, struct timeval *finish) ; 
 void slice_matrix_multiply(double *matrix_a,double *matrix_b, double *result_matrix, int matrix_size, int row_size,  int rank, int nprocs, int step) ; 
+double get_validated_result(int i, int j, int matrix_size) ;
+
 
 int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
@@ -59,6 +61,8 @@ int main(int argc, char **argv) {
 	printf("%d\tr = %d\n", rank, row_size);
     }
 
+    double validate_result ; 
+    double diff ; 
     double  *current_result;
 
     tempS = matrix_b;
@@ -88,52 +92,17 @@ int main(int argc, char **argv) {
     printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
     printf("%d,%.8f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
     double *verify_matrix_a, *verify_matrix_b, *verify_result_matrix, *global_current_result ;
-    double validate_result ; 
-    double diff ; 
 
     for (i=0; i < row_size; i++){
 	for (j=0; j < matrix_size; j++){
 	    current_result = result_matrix + i * matrix_size + j;
-            validate_result = get_validated_result(i, j ); 
-//	    global_current_result = verify_result_matrix  + GLOBAL_I(i,rank,row_size) * matrix_size + j;
-
+            validate_result = get_validated_result( GLOBAL_I(i,rank,row_size)  , j , matrix_size); 
             diff  =  *current_result - validate_result ; // *global_current_result ; 
             if (diff != 0.0) { 
 	        printf(" (%.4f == %.4f) => diff = %.4f ", *current_result, validate_result, diff );
             } 
         } 
     } 
- 
-    return 1;
-
-    gettimeofday(&total_start,NULL); 
-
-    verify_matrix_a = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
-    verify_matrix_b = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
-    verify_result_matrix = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
-
-    initialize_matrix(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size); 
-    best_matrix_multiply(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size); 
-    if (DEBUG && (rank ==0) ) { 
-       print_matrix_slice(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size, matrix_size,rank);
-    } 
-
-    for (i=0; i < row_size; i++){
-	for (j=0; j < matrix_size; j++){
-	    current_result = result_matrix + i * matrix_size + j;
-	    global_current_result = verify_result_matrix  + GLOBAL_I(i,rank,row_size) * matrix_size + j;
-            diff  =  *current_result - *global_current_result ; 
-            if (diff != 0.0) { 
-	        printf(" (%.4f == %.4f) => diff = %.4f ", *current_result, *global_current_result, diff );
-            } 
-        } 
-    } 
-    gettimeofday(&total_finish,NULL); 
-
-    printf("RANK%d,Naive,%.8f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
-
-    MPI_Finalize();
-
-    return 1;
+    return 0;
 
 }
