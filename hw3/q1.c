@@ -89,8 +89,11 @@ int main(int argc, char **argv) {
 
     gettimeofday(&total_finish,NULL); 
 
-    printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
+    if (rank ==(nprocs-1) ) { 
+        printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
+    } 
     printf("%d,%.8f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
+    return 1;
     double *verify_matrix_a, *verify_matrix_b, *verify_result_matrix, *global_current_result ;
 
     for (i=0; i < row_size; i++){
@@ -103,6 +106,36 @@ int main(int argc, char **argv) {
             } 
         } 
     } 
-    return 0;
+ 
+
+    gettimeofday(&total_start,NULL); 
+
+    verify_matrix_a = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
+    verify_matrix_b = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
+    verify_result_matrix = (double *) malloc(matrix_size * (matrix_size) * sizeof(double)) ;
+
+    initialize_matrix(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size); 
+    best_matrix_multiply(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size); 
+    if (DEBUG && (rank ==0) ) { 
+       print_matrix_slice(verify_matrix_a, verify_matrix_b, verify_result_matrix, matrix_size, matrix_size,rank);
+    } 
+
+    for (i=0; i < row_size; i++){
+	for (j=0; j < matrix_size; j++){
+	    current_result = result_matrix + i * matrix_size + j;
+	    global_current_result = verify_result_matrix  + GLOBAL_I(i,rank,row_size) * matrix_size + j;
+            diff  =  *current_result - *global_current_result ; 
+//            if (diff != 0.0) { 
+//	        printf(" (%.4f == %.4f) => diff = %.4f ", *current_result, *global_current_result, diff );
+//            } 
+        } 
+    } 
+    gettimeofday(&total_finish,NULL); 
+
+    printf("RANK%d,Naive,%.8f\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+
+    MPI_Finalize();
+
+    return 1;
 
 }

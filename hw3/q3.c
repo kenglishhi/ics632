@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
     MPI_Request send_request ; 
     MPI_Request recv_request ; 
    
-    for (step = 0 ; step < 1; step++) {
+    for (step = 0 ; step < nprocs; step++) {
         Ring_Isend(tempS, row_size * matrix_size, &send_request) ;
 	Ring_Irecv(tempR, row_size * matrix_size, &recv_request) ; 
         slice_matrix_multiply(matrix_a,tempS, result_matrix, matrix_size, row_size,  rank, nprocs, step)  ; 
@@ -84,8 +84,9 @@ int main(int argc, char **argv) {
     }
 
     gettimeofday(&total_finish,NULL); 
-
-    printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
+    if (rank == (nprocs-1) ) { 
+        printf("RANK,CompleteTime,row_size, matrix_size\n" ) ;
+    } 
     printf("%d,%.8f,%d, %d\n", rank, get_time_diff(&total_start, &total_finish),row_size, matrix_size ) ;
 
     MPI_Finalize();
