@@ -6,4 +6,4 @@ main: clean
 #	gcc -Wall sw_small.c  -o sw_small
 clean:
 	/bin/rm -f sw_test sw_sequential sw_simple
-	/bin/rm -f sw_basic sw_small 
+	/bin/rm -f sw_basic sw_small sw 
