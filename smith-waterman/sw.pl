@@ -49,7 +49,7 @@ for(my $i = 1; $i <= length($seq2); $i++) {
         # calculate gap scores
         $up_score   = $matrix[$i-1][$j]{score} + $GAP;
         $left_score = $matrix[$i][$j-1]{score} + $GAP;
-        
+        print "[$i, $j] = diagonal_score: $diagonal_score, up_score: $up_score, left_score: $left_score \n";
         if ($diagonal_score <= 0 and $up_score <= 0 and $left_score <= 0) {
             $matrix[$i][$j]{score}   = 0;
             $matrix[$i][$j]{pointer} = "none";
@@ -84,7 +84,9 @@ for(my $i = 1; $i <= length($seq2); $i++) {
             $max_score = $matrix[$i][$j]{score};
         }
     }
+        print "\n";
 }
+print "max_i = $max_i, max_j = $max_j, max_score = $max_score\n"; 
 
 # trace-back
 
