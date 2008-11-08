@@ -1,6 +1,4 @@
-/* sw_small.c -- Test the speed of the standard Smith-Waterman algorithm for * *   comparison with bit-parallel constrained Smith-Waterman algorithm *   http://coen.boisestate.edu/ssmith/BioHW/CompCode/BitParallel/sw_test.txt *
- */
-
+/* sw_sequential.c */
 
 #include  <stdio.h>
 #include <unistd.h>
@@ -21,16 +19,16 @@
 #define DIRECTION_DIAGONAL 3
 
 
-void print_score_matrix(int *matrix, int row_size, int col_size) {
+void print_score_matrix(int *matrix, int nrows, int ncols) {
    int *current_value;
    int i,j;
 
-   printf("row_size , col_size = [%d,%d]  \n\n", row_size, col_size );
-   for (i = 0; i < row_size; i++) {
+   printf("nrows , col_size = [%d,%d]  \n\n", nrows, ncols );
+   for (i = 0; i < nrows; i++) {
         printf(" [" );
-        for (j = 0; j < col_size; j++){
-            current_value = matrix + (i * col_size) + j;
-            printf("--%d [%d,%d]=%d ", (i*col_size) +j, i, j, *current_value  );
+        for (j = 0; j < ncols; j++){
+            current_value = matrix + (i * ncols) + j;
+            printf("--%d [%d,%d]=%d ", (i*ncols) +j, i, j, *current_value  );
         }
         printf("] " );
 
@@ -41,8 +39,8 @@ void print_score_matrix(int *matrix, int row_size, int col_size) {
 
 int  main(int argc,char *argv[]) { 
   char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
-  char *seq1 = "ppeaiccc"; 
-  char *seq2 = "ggeaicgg"; 
+  char *seq1;  
+  char *seq2;  
   if (argc < 3) { 
      printf("You need 2 arguments\n"); 
      return 0 ;
@@ -123,10 +121,14 @@ int  main(int argc,char *argv[]) {
        up_score   = score_matrix[i-1][j] + GAP;
        left_score = score_matrix[i][j-1] + GAP;
           
-//       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, \n", i, j, diagonal_score, up_score, left_score ); 
+       if (i==1 && j==1) { 
+          printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, letter1=%d, letter2=%d \n", i, j, diagonal_score, up_score, left_score, letter1, letter2 ); 
+//            printf("%d [%d,%d] diagonal_score: %d, up_score: %d, left_score: %d,letter1=%d, letter2=%d \n", ARRAY_OFFSET(i,j,ncols), i, j, diagonal_score, 
+//                up_score, left_score, letter1, letter2 );
+       }
        if ((diagonal_score <= 0) && (up_score <= 0) && (left_score <= 0)) {
             score_matrix[i][j]   = 0;
-            printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
+//            printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
             direction_matrix[i][j]   = DIRECTION_NONE;
             continue; 
         }
@@ -156,7 +158,7 @@ int  main(int argc,char *argv[]) {
             }
         }
 
-       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
+//       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
 
         // set maximum score
         if (score_matrix[i][j] > max_score) {
@@ -173,14 +175,14 @@ printf("max_i = %d\n", max_i);
 printf("max_j = %d\n", max_j); 
 printf("max_score = %d\n", max_score); 
 
-  for (i=0; i <= seq2_length; i++) { 
-    for (j=0; j <= seq1_length; j++) { 
-        printf("score_matrix[%d][%d]  %d\n", i,j, score_matrix[i][j] ); 
-    }
-  } 
+//  for (i=0; i <= seq2_length; i++) { 
+//    for (j=0; j <= seq1_length; j++) { 
+////        printf("score_matrix[%d][%d]  %d\n", i,j, score_matrix[i][j] ); 
+//    }
+//  } 
 
 
-print_score_matrix(score_matrix,  seq2_length+1, seq1_length+1  ); 
+print_score_matrix(&score_matrix[0][0],  seq2_length+1, seq1_length+1  ); 
 printf("finished printing score matrix= %d\n", max_score); 
 //  trace-back
 
