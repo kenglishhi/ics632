@@ -1,122 +1,249 @@
-/* sw_test.c -- Test the speed of the standard Smith-Waterman algorithm for
- *
- *   comparison with bit-parallel constrained Smith-Waterman algorithm 
- *   http://coen.boisestate.edu/ssmith/BioHW/CompCode/BitParallel/sw_test.txt
- *
+/* sw_small.c -- Test the speed of the standard Smith-Waterman algorithm for * *   comparison with bit-parallel constrained Smith-Waterman algorithm *   http://coen.boisestate.edu/ssmith/BioHW/CompCode/BitParallel/sw_test.txt *
  */
 
 
 #include  <stdio.h>
-#define   STRLEN     78
-#define   ITER       2
-#define   GAP_OPEN   0
-#define   GAP_CONT   0       
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
 
-int main()
-{
-  long  i, j, d_loc, q_loc, d_index[STRLEN], q_index[STRLEN], Ins_c, Del_c, H_temp;
-  char  aa[21] = "acdefghiklmnpqrstvwy";
-  long  Ins[STRLEN][STRLEN], Del[STRLEN][STRLEN], H[STRLEN][STRLEN], Hg[STRLEN][STRLEN];
 
-  /* Query Sequence = d1xpa_1 a.6.1.2 (134-210) from ASTRAL 1.67 40% */
-  char q[STRLEN] = "heaga";
-  /* Database Sequence =  d1jjcb2 a.6.1.1 (B:400-474) from ASTRAL 1.67 40% */
-  char d[STRLEN] = "pawhe";
-  int q_len = 5; int d_len = 5; 
-  /* Scoring Matrix (PAM 250) */
-  int  S[20][20] = {
-  { 2, -2,  0,  0,  -4,   1,  -1,  -1,  -1,  -2,  -1,   0,   1,   0,  -2,   1,   1,   0,  -1,  -3},
-  {-2, 12, -5, -5,  -4,  -3,  -3,  -2,  -5,  -6,  -5,  -4,  -3,  -5,  -4,   0,  -2,  -2,  -8,   0},
-  { 0, -5,  4,  3,  -6,   1,   1,  -2,   0,  -4,  -3,   2,  -1,   2,  -1,   0,   0,  -2,  -7,  -4},
-  { 0, -5,  3,  4,  -5,   0,   1,  -2,   0,  -3,  -2,   1,  -1,   2,  -1,   0,   0,  -2,  -7,  -4},
-  {-4, -4, -6, -5,   9,  -5,  -2,   1,  -5,   2,   0,  -4,  -5,  -5,  -4,  -3,  -3,  -1,   0,   7},
-  { 1, -3,  1,  0,  -5,   5,  -2,  -3,  -2,  -4,  -3,   0,  -1,  -1,  -3,   1,   0,  -1,  -7,  -5},
-  {-1, -3,  1,  1,  -2,  -2,   6,  -2,   0,  -2,  -2,   2,   0,   3,   2,  -1,  -1,  -2,  -3,   0},
-  {-1, -2, -2, -2,   1,  -3,  -2,   5,  -2,   2,   2,  -2,  -2,  -2,  -2,  -1,   0,   4,  -5,  -1},
-  {-1, -5,  0,  0,  -5,  -2,   0,  -2,   5,  -3,   0,   1,  -1,   1,   3,   0,   0,  -2,  -3,  -4},
-  {-2, -6, -4, -3,   2,  -4,  -2,   2,  -3,   6,   4,  -3,  -3,  -2,  -3,  -3,  -2,   2,  -2,  -1},
-  {-1, -5, -3, -2,   0,  -3,  -2,   2,   0,   4,   6,  -2,  -2,  -1,   0,  -2,  -1,   2,  -4,  -2},
-  { 0, -4,  2,  1,  -4,   0,   2,  -2,   1,  -3,  -2,   2,  -1,   1,   0,   1,   0,  -2,  -4,  -2},
-  { 1, -3, -1, -1,  -5,  -1,   0,  -2,  -1,  -3,  -2,  -1,   6,   0,   0,   1,   0,  -1,  -6,  -5},
-  { 0, -5,  2,  2,  -5,  -1,   3,  -2,   1,  -2,  -1,   1,   0,   4,   1,  -1,  -1,  -2,  -5,  -4},
-  {-2, -4, -1, -1,  -4,  -3,   2,  -2,   3,  -3,   0,   0,   0,   1,   6,   0,  -1,  -2,   2,  -4},
-  { 1,  0,  0,  0,  -3,   1,  -1,  -1,   0,  -3,  -2,   1,   1,  -1,   0,   2,   1,  -1,  -2,  -3},
-  { 1, -2,  0,  0,  -3,   0,  -1,   0,   0,  -2,  -1,   0,   0,  -1,  -1,   1,   3,   0,  -5,  -3},
-  { 0, -2, -2, -2,  -1,  -1,  -2,   4,  -2,   2,   2,  -2,  -1,  -2,  -2,  -1,   0,   4,  -6,  -2},
-  {-6, -8, -7, -7,   0,  -7,  -3,  -5,  -3,  -2,  -4,  -4,  -6,  -5,   2,  -2,  -5,  -6,  17,   0},
-  {-3,  0, -4, -4,   7,  -5,   0,  -1,  -4,  -1,  -2,  -2,  -5,  -4,  -4,  -3,  -3,  -2,   0,  10},
-  };
+#define STRLEN     8
+#define   ITER       1
+#define GAP   -1
+#define MATCH 1
+#define MISMATCH -1
+#define SEQ1_LEN 8
+#define DIRECTION_NONE     0
+#define DIRECTION_UP       1
+#define DIRECTION_LEFT     2
+#define DIRECTION_DIAGONAL 3
 
+
+void print_score_matrix(int *matrix, int row_size, int col_size) {
+   int *current_value;
+   int i,j;
+
+   printf("row_size , col_size = [%d,%d]  \n\n", row_size, col_size );
+   for (i = 0; i < row_size; i++) {
+        printf(" [" );
+        for (j = 0; j < col_size; j++){
+            current_value = matrix + (i * col_size) + j;
+            printf("--%d [%d,%d]=%d ", (i*col_size) +j, i, j, *current_value  );
+        }
+        printf("] " );
+
+        printf("\n" );
+    }
+}
+
+
+int  main(int argc,char *argv[]) { 
+  char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
+  char *seq1 = "ppeaiccc"; 
+  char *seq2 = "ggeaicgg"; 
+  if (argc < 3) { 
+     printf("You need 2 arguments\n"); 
+     return 0 ;
+  } else { 
+     seq1 = argv[1] ; 
+     seq2 = argv[2] ; 
+  } 
+
+  printf("seq1 = %s\n", seq1); 
+  printf("seq2 = %s\n", seq2); 
+  
+  int seq1_length = 0 ; 
+  int seq2_length = 0; 
+  while (seq1[seq1_length] != '\0') { 
+    seq1_length++;  
+  } 
+  printf("seq1_length = %d\n", seq1_length ); 
+  while (seq2[seq2_length] != '\0') { 
+    seq2_length++;  
+  } 
+  printf("seq2_length = %d\n", seq2_length ); 
+
+//  char *seq1 = "ppeaiccc"; 
+//  char *seq2 = "ggeaicgg"; 
+
+  int seq1_arr[seq1_length], seq2_arr[seq2_length]  ;
+  int i, j; 
+  int score_matrix[seq2_length+1][seq1_length+1] ;  
+  int direction_matrix[seq2_length+1][seq1_length+1] ;  
+  int max_i=-1, max_j=-1, max_score=-1 ; 
+  int diagonal_score, left_score, up_score  ;
+  int letter1, letter2; 
 
   /* Convert residue characters to indices */
-  for (d_loc=0; d_loc < d_len; d_loc++) { 
-    for (j=0; j<20; j++) { 
-      if (d[d_loc] == aa[j]) { 
-        d_index[d_loc] = j;
-      } 
-    } 
+  printf("STRLEN = %d\n", STRLEN);
+  printf("d_loc = %d\n", STRLEN);
+  printf("seq1 = %s\n", seq1); 
+  printf("seq2 = %s\n", seq2); 
+  for (i=0; i < seq1_length; i++)
+    for (j=0; j<20; j++)
+      if (seq1[i] == alphabet[j])
+        seq1_arr[i] = j;
+
+  for (i=0; i < seq2_length; i++) 
+    for (j=0; j<20; j++) 
+      if (seq2[i] == alphabet[j]) 
+        seq2_arr[i] = j;
+
+  for (j=0; j <= seq1_length; j++) { 
+    score_matrix[0][j] = 0; 
+    direction_matrix[0][j]   = DIRECTION_NONE;
   } 
-  for (q_loc=0; q_loc < q_len; q_loc++) { 
-    for (j=0; j<20; j++) { 
-      if (q[q_loc] == aa[j]) { 
-        q_index[q_loc] = j;
-      } 
-    } 
-
+  printf("rows = seq1_length  = %d\n", seq1_length); 
+  for (i=0; i <= seq2_length; i++ ) { 
+    score_matrix[i][0] = 0; 
+    direction_matrix[i][0]   = DIRECTION_NONE;
+    printf("score_matrix[%d][0]  %d\n", i, score_matrix[i][0] ); 
   } 
-  /* Iterate calculation enough times to get good timing results */
-  for (i=1; i<ITER; i++) {
+  printf("cols = seq2_length  = %d\n", seq2_length); 
 
-    /* Intialize Ins, Del, and H */
-    for (d_loc=0; d_loc<d_len+1; d_loc++) {
-      Ins[d_loc][0] = 0;
-      Del[d_loc][0] = 0;
-      H[d_loc][0] = 0;
-      Hg[d_loc][0] = - GAP_OPEN;
+  for (i=1; i <= seq2_length; i++) { 
+    printf("score_matrix[%d][0]  %d\n", i, score_matrix[i][0] ); 
+    for (j=1; j <= seq1_length; j++) { 
+
+       diagonal_score=0; left_score=0; up_score=0;      
+       letter1 = seq1_arr[i-1]; 
+       letter2 = seq2_arr[j-1]; 
+       // calculate match score 
+       
+       if (letter1 == letter2)  { 
+         diagonal_score = score_matrix[i-1][j-1] + MATCH; 
+       } 
+       else { 
+         diagonal_score = score_matrix[i-1][j-1] + MISMATCH; 
+       } 
+       
+       // calculate gap scores
+       up_score   = score_matrix[i-1][j] + GAP;
+       left_score = score_matrix[i][j-1] + GAP;
+          
+//       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, \n", i, j, diagonal_score, up_score, left_score ); 
+       if ((diagonal_score <= 0) && (up_score <= 0) && (left_score <= 0)) {
+            score_matrix[i][j]   = 0;
+            printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
+            direction_matrix[i][j]   = DIRECTION_NONE;
+            continue; 
+        }
+
+        // choose best score
+        if (diagonal_score >= up_score) {
+            if (diagonal_score >= left_score) {
+              score_matrix[i][j]   = diagonal_score;
+              direction_matrix[i][j]   = DIRECTION_DIAGONAL;
+                //$matrix[$i][$j]{pointer} = "diagonal";
+            }
+            else {
+              score_matrix[i][j]   = left_score;
+              direction_matrix[i][j]   = DIRECTION_LEFT;
+                //$matrix[$i][$j]{pointer} = "left";
+            }
+        } else {
+            if (up_score >= left_score) {
+              score_matrix[i][j]   = up_score;
+              direction_matrix[i][j]   = DIRECTION_UP;
+                //$matrix[$i][$j]{pointer} = "up";
+            }
+            else {
+              score_matrix[i][j]   = left_score;
+              direction_matrix[i][j]   = DIRECTION_LEFT;
+                //$matrix[$i][$j]{pointer} = "left";
+            }
+        }
+
+       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
+
+        // set maximum score
+        if (score_matrix[i][j] > max_score) {
+            max_i     = i;
+            max_j     = j;
+            max_score = score_matrix[i][j];
+        }
+    }  
+    printf("\n");
+  } 
+
+
+printf("max_i = %d\n", max_i); 
+printf("max_j = %d\n", max_j); 
+printf("max_score = %d\n", max_score); 
+
+  for (i=0; i <= seq2_length; i++) { 
+    for (j=0; j <= seq1_length; j++) { 
+        printf("score_matrix[%d][%d]  %d\n", i,j, score_matrix[i][j] ); 
     }
-    for (q_loc=1; q_loc<d_len+1; q_loc++) {
-      Ins[0][q_loc] = 0;
-      Del[0][q_loc] = 0;
-      H[0][q_loc] = 0;
-      Hg[0][q_loc] = - GAP_OPEN;
-    }      
+  } 
 
-    /* Do scoring */
-    for (d_loc=0; d_loc < d_len; d_loc++) { 
-      for (q_loc=0; q_loc < q_len; q_loc++) {
-        Ins_c = Ins[d_loc][q_loc+1] - GAP_CONT;
-        if (Hg[d_loc][q_loc+1] > Ins_c) { 
-          Ins[d_loc+1][q_loc+1] = Hg[d_loc][q_loc+1];
-        } 
-        else { 
-          Ins[d_loc+1][q_loc+1] = Ins_c;
-        } 
 
-        Del_c = Del[d_loc+1][q_loc] - GAP_CONT;
-        if (Hg[d_loc+1][q_loc] > Del_c)  { 
-          Del[d_loc+1][q_loc+1] = Hg[d_loc+1][q_loc];
-        } 
-        else { 
-          Ins[d_loc+1][q_loc+1] = Del_c;
-        } 
-        if (Ins[d_loc][q_loc] > Del[d_loc][q_loc]) { 
-          H_temp = Ins[d_loc][q_loc];
-        } 
-        else { 
-          H_temp = Del[d_loc][q_loc];
-        } 
-        if (H_temp < H[d_loc][q_loc]) { 
-          H_temp = H[d_loc][q_loc];
-        } 
-        H[d_loc+1][q_loc+1] = H_temp + S[q_index[q_loc]][d_index[d_loc]];
-        if (H[d_loc+1][q_loc+1] < 0) { 
-          H[d_loc+1][q_loc+1] = 0;
-        } 
-        Hg[d_loc+1][q_loc+1] = H[d_loc+1][q_loc+1] - GAP_OPEN;
-        printf ("Hg[%d][%d] = %d \n", (d_loc+1), (q_loc+1) , Hg[d_loc+1][q_loc+1] ); 
-      }
+print_score_matrix(score_matrix,  seq2_length+1, seq1_length+1  ); 
+printf("finished printing score matrix= %d\n", max_score); 
+//  trace-back
+
+//char align1[SEQ1_LEN] = "ppeaiccc";
+//char align2[SEQ1_LEN] = "ppeaiccc";
+int align1_arr[seq1_length], align2_arr[seq2_length]  ;
+
+//align1 = "";
+//align2 = "";
+
+j = max_j; i = max_i;
+
+int align1_index=0; 
+int align2_index=0; 
+
+while (1) {
+    if (direction_matrix[i][j] == DIRECTION_NONE) 
+      break ; 
+
+    if (direction_matrix[i][j] ==  DIRECTION_DIAGONAL ) {
+         align1_arr[align1_index] = seq1_arr[j-1]  ;
+         align2_arr[align2_index] = seq2_arr[i-1]  ;
+//        $align1 .= substr($seq1, $j-1, 1);
+//        $align2 .= substr($seq2, $i-1, 1);
+        i--; j--;
     }
-  }
-   return 1;
+    else if (direction_matrix[i][j] ==  DIRECTION_LEFT  ) {
+         align1_arr[align1_index] = seq1_arr[j-1]  ;
+         align2_arr[align2_index] = -1 ; 
+//        $align1 .= substr($seq1, $j-1, 1);
+//        $align2 .= "-";
+        j--;
+    }
+    else if (direction_matrix[i][j] ==  DIRECTION_UP ) {
+         align1_arr[align1_index] = -1; 
+         align2_arr[align2_index] = seq2_arr[i-1]  ;
+//        align1 .= "-";
+//        align2 .= substr($seq2, $i-1, 1);
+        i--;
+    }
+    align1_index++; align2_index++; 
+
+}
+printf("align1_index = %d, align2_index = %d\n", align1_index, align2_index); 
+char *align1 ; 
+char *align2; 
+align1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
+align2 = (char *) calloc(seq2_length,sizeof(char) )  ; 
+for(i=0;i<align1_index;i++){ 
+  align1[align1_index-i-1] =  alphabet[align1_arr[i]] ; 
+} 
+
+printf("align1 = %s\n", align1); 
+printf("align2 = %s\n", align1); 
+
+
+/*
+$align1 = reverse $align1;
+$align2 = reverse $align2;
+print "$align1\n";
+print "$align2\n"
+
+*/
+return 1; 
 }
 
