@@ -40,7 +40,7 @@ int  main(int argc,char *argv[]) {
   int seq2_length = SEQ1_LEN; 
   char seq1[SEQ1_LEN] = "ppeaiccc"; 
   char seq2[SEQ1_LEN] = "ppeaiccc"; 
-  int seq1_index[seq1_length], seq2_index[seq2_length]  ;
+  int seq1_arr[seq1_length], seq2_arr[seq2_length]  ;
   int i, j; 
   int score_matrix[seq1_length+1][seq2_length+1] ;  
   int direction_matrix[seq1_length+1][seq2_length+1] ;  
@@ -51,15 +51,17 @@ int  main(int argc,char *argv[]) {
   /* Convert residue characters to indices */
   printf("STRLEN = %d\n", STRLEN);
   printf("d_loc = %d\n", STRLEN);
+  printf("seq1 = %s\n", seq1); 
+  printf("seq2 = %s\n", seq2); 
   for (i=0; i < seq1_length; i++)
     for (j=0; j<20; j++)
       if (seq1[i] == alphabet[j])
-        seq1_index[i] = j;
+        seq1_arr[i] = j;
 
   for (i=0; i < seq2_length; i++) 
     for (j=0; j<20; j++) 
       if (seq2[i] == alphabet[j]) 
-        seq2_index[i] = j;
+        seq2_arr[i] = j;
 
   
 
@@ -78,8 +80,8 @@ int  main(int argc,char *argv[]) {
     for (j=1; j <= seq2_length; j++) { 
 
        diagonal_score=0; left_score=0; up_score=0;      
-       letter1 = seq1_index[i-1]; 
-       letter2 = seq2_index[j-1]; 
+       letter1 = seq1_arr[i-1]; 
+       letter2 = seq2_arr[j-1]; 
        // calculate match score 
        if (letter1 == letter2)  
          diagonal_score = score_matrix[i-1][j-1] + MATCH; 
@@ -134,46 +136,68 @@ int  main(int argc,char *argv[]) {
 
 
 
-# trace-back
+//  trace-back
 
-  char seq1[SEQ1_LEN] = "ppeaiccc";
-  char seq2[SEQ1_LEN] = "ppeaiccc";
-  int align1_index[seq1_length], align2_index[seq2_length]  ;
+//char align1[SEQ1_LEN] = "ppeaiccc";
+//char align2[SEQ1_LEN] = "ppeaiccc";
+int align1_arr[seq1_length], align2_arr[seq2_length]  ;
 
 //align1 = "";
 //align2 = "";
 
 j = max_j; i = max_i;
 
+int align1_index=0; 
+int align2_index=0; 
+
 while (1) {
     if (direction_matrix[i][j] == DIRECTION_NONE) 
       break ; 
 
     if (direction_matrix[i][j] ==  DIRECTION_DIAGONAL ) {
-        $align1 .= substr($seq1, $j-1, 1);
-        $align2 .= substr($seq2, $i-1, 1);
-        $i--; $j--;
+         align1_arr[align1_index] = seq1_arr[j-1]  ;
+         align2_arr[align2_index] = seq2_arr[i-1]  ;
+//        $align1 .= substr($seq1, $j-1, 1);
+//        $align2 .= substr($seq2, $i-1, 1);
+        i--; j--;
     }
-    elsif (direction_matrix[i][j] ==  DIRECTION_LEFT  ) {
-        $align1 .= substr($seq1, $j-1, 1);
-        $align2 .= "-";
-        $j--;
+    else if (direction_matrix[i][j] ==  DIRECTION_LEFT  ) {
+         align1_arr[align1_index] = seq1_arr[j-1]  ;
+         align2_arr[align2_index] = -1 ; 
+//        $align1 .= substr($seq1, $j-1, 1);
+//        $align2 .= "-";
+        j--;
     }
-    elsif (direction_matrix[i][j] ==  DIRECTION_UP ) {
-        $align1 .= "-";
-        $align2 .= substr($seq2, $i-1, 1);
-        $i--;
+    else if (direction_matrix[i][j] ==  DIRECTION_UP ) {
+         align1_arr[align1_index] = -1; 
+         align2_arr[align2_index] = seq2_arr[i-1]  ;
+//        align1 .= "-";
+//        align2 .= substr($seq2, $i-1, 1);
+        i--;
     }
-}
+    align1_index++; align2_index++; 
 
+}
+printf("align1_index = %d, align2_index = %d\n", align1_index, align2_index); 
+char align1[SEQ1_LEN] ; 
+char align2[SEQ1_LEN] ; 
+for(i=0;i<align1_index;i++){ 
+  align1[align1_index-i-1] =  alphabet[align1_arr[i]] ; 
+} 
+
+printf("align1 = %s\n", align1); 
+
+
+/*
 $align1 = reverse $align1;
 $align2 = reverse $align2;
 print "$align1\n";
 print "$align2\n"
 
-
+*/
       
 
   
   return 0;
 }
+
