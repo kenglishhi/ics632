@@ -21,18 +21,16 @@
 #define DIRECTION_DIAGONAL 3
 
 
-void print_score_matrix(int *matrix, int rows, int cols) {
-    int *current_value;
-    int i,j;
+void print_score_matrix(int *matrix, int row_size, int col_size) {
+   int *current_value;
+   int i,j;
 
-    printf("rows , cols = [%d,%d]  \n\n", rows, cols );
-    for (i = 0; i < rows; i++) {
+   printf("row_size , col_size = [%d,%d]  \n\n", row_size, col_size );
+   for (i = 0; i < row_size; i++) {
         printf(" [" );
-        for (j = 0; j < cols; j++){
-             
-            current_value = matrix + i * rows + j;
-//            printf("%d [%d,%d] =  %d ", *current_value, i*row +  );
-            printf("--%d [%d,%d]=%d ", i*cols +j, i, j, *current_value  );
+        for (j = 0; j < col_size; j++){
+            current_value = matrix + (i * col_size) + j;
+            printf("--%d [%d,%d]=%d ", (i*col_size) +j, i, j, *current_value  );
         }
         printf("] " );
 
@@ -72,8 +70,8 @@ int  main(int argc,char *argv[]) {
 
   int seq1_arr[seq1_length], seq2_arr[seq2_length]  ;
   int i, j; 
-  int score_matrix[seq1_length+1][seq2_length+1] ;  
-  int direction_matrix[seq1_length+1][seq2_length+1] ;  
+  int score_matrix[seq2_length+1][seq1_length+1] ;  
+  int direction_matrix[seq2_length+1][seq1_length+1] ;  
   int max_i=-1, max_j=-1, max_score=-1 ; 
   int diagonal_score, left_score, up_score  ;
   int letter1, letter2; 
@@ -93,21 +91,21 @@ int  main(int argc,char *argv[]) {
       if (seq2[i] == alphabet[j]) 
         seq2_arr[i] = j;
 
-  for (j=0; j <= seq2_length; j++) { 
+  for (j=0; j <= seq1_length; j++) { 
     score_matrix[0][j] = 0; 
     direction_matrix[0][j]   = DIRECTION_NONE;
   } 
   printf("rows = seq1_length  = %d\n", seq1_length); 
-  for (i=0; i <= seq1_length; i++ ) { 
+  for (i=0; i <= seq2_length; i++ ) { 
     score_matrix[i][0] = 0; 
     direction_matrix[i][0]   = DIRECTION_NONE;
     printf("score_matrix[%d][0]  %d\n", i, score_matrix[i][0] ); 
   } 
   printf("cols = seq2_length  = %d\n", seq2_length); 
 
-  for (i=1; i <= seq1_length; i++) { 
+  for (i=1; i <= seq2_length; i++) { 
     printf("score_matrix[%d][0]  %d\n", i, score_matrix[i][0] ); 
-    for (j=1; j <= seq2_length; j++) { 
+    for (j=1; j <= seq1_length; j++) { 
 
        diagonal_score=0; left_score=0; up_score=0;      
        letter1 = seq1_arr[i-1]; 
@@ -128,7 +126,7 @@ int  main(int argc,char *argv[]) {
 //       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, \n", i, j, diagonal_score, up_score, left_score ); 
        if ((diagonal_score <= 0) && (up_score <= 0) && (left_score <= 0)) {
             score_matrix[i][j]   = 0;
-       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
+            printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
             direction_matrix[i][j]   = DIRECTION_NONE;
             continue; 
         }
@@ -158,7 +156,7 @@ int  main(int argc,char *argv[]) {
             }
         }
 
-//       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
+       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
 
         // set maximum score
         if (score_matrix[i][j] > max_score) {
@@ -175,8 +173,14 @@ printf("max_i = %d\n", max_i);
 printf("max_j = %d\n", max_j); 
 printf("max_score = %d\n", max_score); 
 
+  for (i=0; i <= seq2_length; i++) { 
+    for (j=0; j <= seq1_length; j++) { 
+        printf("score_matrix[%d][%d]  %d\n", i,j, score_matrix[i][j] ); 
+    }
+  } 
 
-print_score_matrix(score_matrix,  seq1_length+1, seq2_length+1  ); 
+
+print_score_matrix(score_matrix,  seq2_length+1, seq1_length+1  ); 
 printf("finished printing score matrix= %d\n", max_score); 
 //  trace-back
 
