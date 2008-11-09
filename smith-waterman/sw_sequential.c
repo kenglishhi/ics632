@@ -28,7 +28,7 @@ void print_score_matrix(int *matrix, int nrows, int ncols) {
         printf(" [" );
         for (j = 0; j < ncols; j++){
             current_value = matrix + (i * ncols) + j;
-            printf("--%d [%d,%d]=%d ", (i*ncols) +j, i, j, *current_value  );
+            printf("(%d,%d)=%d ", i, j, *current_value  );
         }
         printf("] " );
 
@@ -97,12 +97,10 @@ int  main(int argc,char *argv[]) {
   for (i=0; i <= seq2_length; i++ ) { 
     score_matrix[i][0] = 0; 
     direction_matrix[i][0]   = DIRECTION_NONE;
-    printf("score_matrix[%d][0]  %d\n", i, score_matrix[i][0] ); 
   } 
   printf("cols = seq2_length  = %d\n", seq2_length); 
 
   for (i=1; i <= seq2_length; i++) { 
-    printf("score_matrix[%d][0]  %d\n", i, score_matrix[i][0] ); 
     for (j=1; j <= seq1_length; j++) { 
 
        diagonal_score=0; left_score=0; up_score=0;      
@@ -121,11 +119,11 @@ int  main(int argc,char *argv[]) {
        up_score   = score_matrix[i-1][j] + GAP;
        left_score = score_matrix[i][j-1] + GAP;
           
-       if (i==1 && j==1) { 
-          printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, letter1=%d, letter2=%d \n", i, j, diagonal_score, up_score, left_score, letter1, letter2 ); 
+//       if (i==1 && j==1) { 
+//          printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, letter1=%d, letter2=%d \n", i, j, diagonal_score, up_score, left_score, letter1, letter2 ); 
 //            printf("%d [%d,%d] diagonal_score: %d, up_score: %d, left_score: %d,letter1=%d, letter2=%d \n", ARRAY_OFFSET(i,j,ncols), i, j, diagonal_score, 
 //                up_score, left_score, letter1, letter2 );
-       }
+ //      }
        if ((diagonal_score <= 0) && (up_score <= 0) && (left_score <= 0)) {
             score_matrix[i][j]   = 0;
 //            printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
@@ -167,7 +165,6 @@ int  main(int argc,char *argv[]) {
             max_score = score_matrix[i][j];
         }
     }  
-    printf("\n");
   } 
 
 
