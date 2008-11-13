@@ -33,11 +33,7 @@ double get_validated_result(int i, int j, int matrix_size) {
        b = (j + k) * 1.0;  
        result +=  a * b; 
    } 
-<<<<<<< HEAD:hw3/ring_matrix_multiply.c
-   return result;
-=======
    return result; 
->>>>>>> db77cba4cfdee7c102eb1e55d5a7a2cb5c52803a:hw3/ring_matrix_multiply.c
 
 } 
 
