@@ -49,14 +49,15 @@ int main(int argc,char *argv[]) {
   int i; 
 
 //  arr = (int *) calloc(size,sizeof(int) )  ; 
-  seq1_arr = (int *) calloc(seq1_length,sizeof(int) )  ; 
-  seq2_arr = (int *) calloc(seq2_length,sizeof(int) )  ; 
 
-  seq1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
-  seq2 = (char *) calloc(seq2_length,sizeof(char) )  ; 
+  seq1_arr = (int *) malloc(seq1_length * sizeof(int) )  ; 
+  seq2_arr = (int *) malloc(seq2_length * sizeof(int) )  ; 
 
-  align1_arr = (int *) calloc(seq1_length, sizeof(int) )  ; 
-  align2_arr = (int *) calloc(seq2_length, sizeof(int) )  ; 
+  seq1 = (char *) malloc(seq1_length * sizeof(char) )  ; 
+  seq2 = (char *) malloc(seq2_length * sizeof(char) )  ; 
+
+  align1_arr = (int *) malloc(seq1_length * sizeof(int) )  ; 
+  align2_arr = (int *) malloc(seq2_length * sizeof(int) )  ; 
 
   generate_random_array(seq1_arr, seq1_length,  20);   
   generate_random_array(seq2_arr, seq2_length,  20);   
