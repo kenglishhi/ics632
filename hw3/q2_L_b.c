@@ -51,10 +51,10 @@ int main(int argc, char **argv) {
       printf("RANK,%d,Message Size,%d\n", rank, message_size ) ;
       gettimeofday(&transmit_start,NULL); 
       if (MPI_Send(buffer, 0, MPI_INT, 1, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { 
-         fprintf(stderr,"Error while calling MPI_Send()\n");
+         printf(stderr,"Error while calling MPI_Send()\n");
       }  
       if (MPI_Recv(buffer, 0, MPI_INT, 1, 0, MPI_COMM_WORLD,&status) != MPI_SUCCESS) { 
-         fprintf(stderr,"Error while calling MPI_Recv()\n");
+         printf(stderr,"Error while calling MPI_Recv()\n");
       }  
        
       gettimeofday(&transmit_finish,NULL); 

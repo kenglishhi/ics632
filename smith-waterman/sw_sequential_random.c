@@ -34,7 +34,7 @@ int main(int argc,char *argv[]) {
 
     if ((sscanf(argv[1],"%d",&seq1_length) != 1) ||
         (sscanf(argv[2],"%d",&seq2_length) != 1)) {
-      fprintf(stderr,"Usage: %s <num trials> <step size>\n", argv[0] );
+      fprintf(stderr,"Usage: %s <seq1_length> <seq2_length>\n", argv[0] );
       exit(1);
     }
 
