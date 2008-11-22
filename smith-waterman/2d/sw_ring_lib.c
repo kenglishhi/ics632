@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <mpi.h>
 
-
+#define GLOBAL_ROW_NUMBER(I,RANK,ROW_SIZE) ( (RANK)*(ROW_SIZE)+(I) )
+#define ARRAY_OFFSET(I,J,NROWS)  ((I)*(NROWS) + (J))
 #define DEBUG   0
 #define STRLEN     8
 #define ITER       1
@@ -35,6 +37,9 @@ double get_time_diff(struct timeval *start, struct timeval *finish) {
 }
 
 void print_score_matrix(int *matrix, int nrows, int ncols) {
+   int rank;
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
    int *current_value;
    int i,j;
 
@@ -43,7 +48,7 @@ void print_score_matrix(int *matrix, int nrows, int ncols) {
         printf(" [" );
         for (j = 0; j < ncols; j++){
             current_value = matrix + (i * ncols) + j;
-            printf("(%d,%d)=%d ", i, j, *current_value  );
+            printf("(%d,%d)=%d ", GLOBAL_ROW_NUMBER(i,rank,nrows), j, *current_value  );
         }
         printf("] " );
 
@@ -51,179 +56,96 @@ void print_score_matrix(int *matrix, int nrows, int ncols) {
     }
 }
 
+void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int nrows,int ncols, int col_start, int chunk_size, int *max_score, int *max_i, int *max_j ) {
+   int rank, nprocs;  
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+//   printf("Calculating chunk= %d, col_start\n", col_start);  
 
-int do_sw(int *seq1_arr, int seq1_length, int *seq2_arr, int seq2_length, int *output1_arr, int *output1_length, int *output2_arr, int *output2_length ) { 
+   int row_start=0; 
+   int col_end;
 
-  if (DEBUG) { 
-    printf("seq1_length = %d\n", seq1_length ); 
-    printf("seq2_length = %d\n", seq2_length ); 
-  } 
+   if (GLOBAL_ROW_NUMBER(0,rank,nrows) == 0 ) { 
+      row_start=1; 
+   }  
 
-//  char *seq1 = "ppeaiccc"; 
-//  char *seq2 = "ggeaicgg"; 
-
-  int i, j; 
-  int score_matrix[seq2_length+1][seq1_length+1] ;  
-  int direction_matrix[seq2_length+1][seq1_length+1] ;  
-  int max_i=-1, max_j=-1, max_score=-1 ; 
-  int diagonal_score, left_score, up_score  ;
-  int letter1, letter2; 
-
-  /* Convert residue characters to indices */
-  if (DEBUG) { 
-    printf("STRLEN = %d\n", STRLEN);
-    printf("d_loc = %d\n", STRLEN);
-  } 
-  for (j=0; j <= seq1_length; j++) { 
-    score_matrix[0][j] = 0; 
-    direction_matrix[0][j]   = DIRECTION_NONE;
-  } 
-  printf("rows = seq1_length  = %d\n", seq1_length); 
-  for (i=0; i <= seq2_length; i++ ) { 
-    score_matrix[i][0] = 0; 
-    direction_matrix[i][0]   = DIRECTION_NONE;
-  } 
-  printf("cols = seq2_length  = %d\n", seq2_length); 
-
-  for (i=1; i <= seq2_length; i++) { 
-    for (j=1; j <= seq1_length; j++) { 
-
+   if (col_start ==0 ) {
+     col_start=1; 
+     col_end = col_start+chunk_size - 1; 
+   } else {
+     col_end = col_start+chunk_size  ; 
+   } 
+   if (DEBUG) 
+   printf("{%d} row_start: %d, row_end : %d,  col_start: %d,  col_end: %d \n", rank, row_start, nrows, col_start,  col_end); 
+   int i,j;
+   int diagonal_score, left_score, up_score;
+   int letter1, letter2 ; 
+   int *diagonal_ptr,  *up_ptr; 
+   for (i = row_start; i < nrows;  i++ ) { 
+     for (j = col_start; j < col_end; j++ ) { 
        diagonal_score=0; left_score=0; up_score=0;      
-       letter1 = seq1_arr[i-1]; 
-       letter2 = seq2_arr[j-1]; 
+       letter1 = *(seq1_arr+ GLOBAL_ROW_NUMBER((i-1),rank,nrows) ) ; 
+       letter2 = *(seq2_arr +(j-1) ); 
        // calculate match score 
-       
+       //  
+   
+       if (i==0) {     
+         diagonal_ptr = (prev_row + (j-1)) ; 
+         up_ptr =  (prev_row + j  ) ; 
+       } else{ 
+         diagonal_ptr = (score_matrix + ARRAY_OFFSET(i-1, j-1, ncols)) ; 
+         up_ptr =  (score_matrix + ARRAY_OFFSET(i-1, j, ncols)  ) ; 
+       } 
+
        if (letter1 == letter2)  { 
-         diagonal_score = score_matrix[i-1][j-1] + MATCH; 
+         diagonal_score = *diagonal_ptr  + MATCH; 
        } 
        else { 
-         diagonal_score = score_matrix[i-1][j-1] + MISMATCH; 
+         diagonal_score = *diagonal_ptr   + MISMATCH; 
        } 
-       
-       // calculate gap scores
-       up_score   = score_matrix[i-1][j] + GAP;
-       left_score = score_matrix[i][j-1] + GAP;
-          
-//       if (i==1 && j==1) { 
-//          printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, letter1=%d, letter2=%d \n", i, j, diagonal_score, up_score, left_score, letter1, letter2 ); 
-//            printf("%d [%d,%d] diagonal_score: %d, up_score: %d, left_score: %d,letter1=%d, letter2=%d \n", ARRAY_OFFSET(i,j,ncols), i, j, diagonal_score, 
-//                up_score, left_score, letter1, letter2 );
- //      }
+       up_score = *up_ptr + GAP ; 
+       left_score = *(score_matrix + ARRAY_OFFSET(i, j-1, ncols)  )  + GAP;
        if ((diagonal_score <= 0) && (up_score <= 0) && (left_score <= 0)) {
-            score_matrix[i][j]   = 0;
+          *(score_matrix + ARRAY_OFFSET(i, j, ncols) )    = 0;
 //            printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
-            direction_matrix[i][j]   = DIRECTION_NONE;
-            continue; 
-        }
-
+          *(direction_matrix + ARRAY_OFFSET(i, j, ncols))  = DIRECTION_NONE;
+          continue; 
+        } 
         // choose best score
         if (diagonal_score >= up_score) {
             if (diagonal_score >= left_score) {
-              score_matrix[i][j]   = diagonal_score;
-              direction_matrix[i][j]   = DIRECTION_DIAGONAL;
+              *(score_matrix + ARRAY_OFFSET(i, j, ncols) )    = diagonal_score;
+              *(direction_matrix + ARRAY_OFFSET(i, j, ncols)) = DIRECTION_DIAGONAL;
                 //$matrix[$i][$j]{pointer} = "diagonal";
             }
             else {
-              score_matrix[i][j]   = left_score;
-              direction_matrix[i][j]   = DIRECTION_LEFT;
+              *(score_matrix + ARRAY_OFFSET(i, j, ncols) )    = left_score;
+              *(direction_matrix + ARRAY_OFFSET(i, j, ncols)) = DIRECTION_LEFT;
+//              direction_matrix[i][j]   = DIRECTION_LEFT;
                 //$matrix[$i][$j]{pointer} = "left";
             }
         } else {
             if (up_score >= left_score) {
-              score_matrix[i][j]   = up_score;
-              direction_matrix[i][j]   = DIRECTION_UP;
+              *(score_matrix + ARRAY_OFFSET(i, j, ncols) )   = up_score;
+              *(direction_matrix + ARRAY_OFFSET(i, j, ncols)) = DIRECTION_UP;
+//              direction_matrix[i][j]   = DIRECTION_UP;
                 //$matrix[$i][$j]{pointer} = "up";
             }
             else {
-              score_matrix[i][j]   = left_score;
-              direction_matrix[i][j]   = DIRECTION_LEFT;
+              *(score_matrix + ARRAY_OFFSET(i, j, ncols) )    = left_score;
+              *(direction_matrix + ARRAY_OFFSET(i, j, ncols)) = DIRECTION_LEFT ;
+//              direction_matrix[i][j]   = DIRECTION_LEFT;
                 //$matrix[$i][$j]{pointer} = "left";
             }
         }
-
 //       printf("[%d,%d] diagonal_score: %d, up_score: %d, left_score: %d, score_matrix:%d \n", i, j, diagonal_score, up_score, left_score, score_matrix[i][j]); 
-
         // set maximum score
-        if (score_matrix[i][j] > max_score) {
-            max_i     = i;
-            max_j     = j;
-            max_score = score_matrix[i][j];
+        if (*(score_matrix + ARRAY_OFFSET(i, j, ncols) )  > *max_score) {
+            *max_i     = GLOBAL_ROW_NUMBER((i),rank,nrows) ;
+            *max_j     = j;
+            *max_score = *(score_matrix + ARRAY_OFFSET(i, j, ncols) ) ;
         }
-    }  
-  } 
-
-
-  if (DEBUG) { 
-    printf("max_i = %d\n", max_i); 
-    printf("max_j = %d\n", max_j); 
-    printf("max_score = %d\n", max_score); 
-  }
-//  for (i=0; i <= seq2_length; i++) { 
-//    for (j=0; j <= seq1_length; j++) { 
-////        printf("score_matrix[%d][%d]  %d\n", i,j, score_matrix[i][j] ); 
-//    }
-//  } 
-
-
-if (DEBUG) { 
-  print_score_matrix(&score_matrix[0][0],  seq2_length+1, seq1_length+1  ); 
-  printf("finished printing score matrix= %d\n", max_score); 
-}
-//  trace-back
-
-//char align1[SEQ1_LEN] = "ppeaiccc";
-//char align2[SEQ1_LEN] = "ppeaiccc";
-// int output1_arr[seq1_length], output2_arr[seq2_length]  ;
-
-//align1 = "";
-//align2 = "";
-
-j = max_j; i = max_i;
-
-int align1_index=0; 
-int align2_index=0; 
-
-while (1) {
-    if (direction_matrix[i][j] == DIRECTION_NONE) 
-      break ; 
-
-    if (direction_matrix[i][j] ==  DIRECTION_DIAGONAL ) {
-         output1_arr[align1_index] = seq1_arr[j-1]  ;
-         output2_arr[align2_index] = seq2_arr[i-1]  ;
-//        $align1 .= substr($seq1, $j-1, 1);
-//        $align2 .= substr($seq2, $i-1, 1);
-        i--; j--;
-    }
-    else if (direction_matrix[i][j] ==  DIRECTION_LEFT  ) {
-         output1_arr[align1_index] = seq1_arr[j-1]  ;
-         output2_arr[align2_index] = -1 ; 
-//        $align1 .= substr($seq1, $j-1, 1);
-//        $align2 .= "-";
-        j--;
-    }
-    else if (direction_matrix[i][j] ==  DIRECTION_UP ) {
-         output1_arr[align1_index] = -1; 
-         output2_arr[align2_index] = seq2_arr[i-1]  ;
-//        align1 .= "-";
-//        align2 .= substr($seq2, $i-1, 1);
-        i--;
-    }
-    align1_index++; align2_index++; 
+     }
+   } 
 
 }
-if (DEBUG) 
-  printf("align1_index = %d, align2_index = %d\n", align1_index, align2_index); 
-*output1_length = align1_index; 
-*output2_length = align2_index; 
-
-
-/*
-$align1 = reverse $align1;
-$align2 = reverse $align2;
-print "$align1\n";
-print "$align2\n"
-
-*/
-return 1; 
-}
-

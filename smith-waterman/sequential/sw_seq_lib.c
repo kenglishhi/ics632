@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 
-#define DEBUG   0
+#define DEBUG   1
 #define STRLEN     8
 #define   ITER       1
 #define GAP   -1
@@ -181,7 +181,9 @@ int do_sw(int *seq1_arr, int seq1_length, int *seq2_arr, int seq2_length, int *o
 
 
 if (DEBUG) { 
+  printf("SCORE MATRIX:\n"); 
   print_score_matrix(score_matrix,  seq2_length+1, matrix_width  ); 
+  printf("DIRECTION MATRIX:\n"); 
   print_score_matrix(direction_matrix,  seq2_length+1, matrix_width  ); 
   printf("finished printing score matrix= %d\n", max_score); 
   printf("max_i = %d, max_j = %d\n", max_i, max_j); 

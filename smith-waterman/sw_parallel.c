@@ -279,9 +279,9 @@ int  main(int argc,char *argv[]) {
        if (DEBUG) 
          printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ; 
        MPI_Recv(&prev_row_buffer[chunk*chunk_size], chunk_size, MPI_INT, src, 0, MPI_COMM_WORLD, &status); 
-       for (i=(chunk*chunk_size) ; i< (chunk*chunk_size+chunk_size) ; i ++) { 
-          printf("{%d} GOT VALUE %d \n", rank, prev_row_buffer[i]) ; 
-       } 
+//       for (i=(chunk*chunk_size) ; i< (chunk*chunk_size+chunk_size) ; i ++) { 
+//        printf("{%d} GOT VALUE %d \n", rank, prev_row_buffer[i]) ; 
+//     } 
        calculate_chunk(&seq1_arr[0], &seq2_arr[0], &score_matrix[0][0], &direction_matrix[0][0], &prev_row_buffer[0],  nrows, ncols, chunk*chunk_size , chunk_size, &max_score, &max_i, &max_j);
        if (DEBUG) 
          printf("{%d} Sending columns %d \n", rank, chunk*chunk_size) ; 
