@@ -91,9 +91,10 @@ int main(int argc,char *argv[]) {
   gettimeofday(&total_start,NULL); 
   do_sw(seq1_arr, seq1_length, seq2_arr, seq2_length, 
         align1_arr, &align1_length, align2_arr, &align2_length ); 
+
   printf("Back FROM do_sw\n"); 
-//  gettimeofday(&total_finish,NULL); 
-//  printf("%.8f nanosecs per unit work\n", get_time_diff(&total_start, &total_finish) *1000000.0) ; 
+  gettimeofday(&total_finish,NULL); 
+  printf("%.8f nanosecs per unit work\n", get_time_diff(&total_start, &total_finish) *1000000.0) ; 
 //  char *align1, *align2  ; 
 //  align1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
 //  align2 = (char *) calloc(seq2_length,sizeof(char) )  ; 

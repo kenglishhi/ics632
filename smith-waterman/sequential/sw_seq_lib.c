@@ -236,6 +236,7 @@ if (DEBUG)
 output1_length = &align1_index; 
 output2_length = &align2_index; 
 
+printf("Returning \n" ) ;
 
 /*
  
