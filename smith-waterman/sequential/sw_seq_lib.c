@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <sys/time.h>
 
 
@@ -21,7 +22,6 @@
 #define SEQ_INDEX(I,J,ROW_SIZE) ( (J) + ((I) * (ROW_SIZE) ) )  
 
 void generate_random_array(int *arr, int size, int rand_max, int seed) { 
-   int my_seed = getpid() * time(NULL) ; 
    int i; 
    int val; 
 

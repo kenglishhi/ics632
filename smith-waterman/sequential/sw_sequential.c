@@ -82,6 +82,5 @@ int  main(int argc,char *argv[]) {
   printf("align1 = %s\n", align1);
   printf("align2 = %s\n", align1);
 
-
-
+  return 0; 
 }

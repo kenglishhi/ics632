@@ -21,6 +21,8 @@
 #define GLOBAL_ROW_NUMBER(I,RANK,ROW_SIZE) ( (RANK)*(ROW_SIZE)+(I) )
 #define ARRAY_OFFSET(I,J,NROWS)  ((I)*(NROWS) + (J))  
 
+void calculate_chunk(int *, int *, int *, int *, int *, int ,int , int , int , int *, int *, int *) ; 
+
 int  main(int argc,char *argv[]) { 
   MPI_Init(&argc, &argv);  
   int rank, nprocs;  

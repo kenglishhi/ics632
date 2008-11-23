@@ -11,4 +11,4 @@ main: clean
 clean:
 #	/bin/rm -f sw_test sw_sequential sw_simple
 #	/bin/rm -f sw_basic sw_small sw  sw_parallel
-	/bin/rm -f sw_sequential 
+	/bin/rm -f sw_sequential  sw_sequential_random

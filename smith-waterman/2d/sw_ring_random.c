@@ -32,6 +32,8 @@ int  main(int argc,char *argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
+  char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
+
   /* Parse Command Line Args */ 
   int seq1_length, seq2_length, nrows, ncols ;
   if (argc < 3) {
@@ -48,7 +50,6 @@ int  main(int argc,char *argv[]) {
   /*  Check for current constraints of the program */ 
 
   int matrix_width = seq1_length+1 ; 
-
   if (seq1_length != seq2_length) {
     printf("Current program limitation, seq1_length != seq2_length \n");
     return 1;
@@ -82,17 +83,44 @@ int  main(int argc,char *argv[]) {
   // They will have a slice of sequence 2
   seq1_arr = (int *) malloc(seq1_length * sizeof(int) )  ;
   seq2_arr = (int *) malloc(seq2_length * sizeof(int) )  ;
+  char *seq1, *seq2; 
 
   if (rank == 0 ) { 
      generate_random_array(seq1_arr, seq1_length,  20);   
-     for (i = 0; i < seq1_length ; i++ ) { 
-        seq2_arr[i] = *seq1_arr; 
-     } 
-//     generate_random_array(seq2_arr, seq2_length,  20);   
+     seq2_arr = seq1_arr; 
 //     for (i = 0; i < seq1_length ; i++ ) { 
-//        printf("[%d] seq1_arr[%d] = %d\n " ,rank, i, *(seq1_arr+i) ) ; 
+//        *(seq2_arr+i)  = *(seq1_arr+i); 
 //     } 
+
+     seq1 = (char *) malloc(seq1_length * sizeof(char) )  ;
+     seq2 = (char *) malloc(seq2_length * sizeof(char) )  ;
+
+//     printf("seq1 = %s--\n", seq1);
+//     printf("seq2 = %s--\n", seq2);
+
+     for(i=0; i < seq1_length; i++){
+       printf("%d, ", seq1_arr[i] ); 
+       seq1[i] =  alphabet[seq1_arr[i]] ;
+     }
+
+     for(i=0; i < seq2_length; i++){
+       printf("%d, ", seq2_arr[i] ); 
+       seq2[i] =  alphabet[seq2_arr[i]] ;
+     }
+
+     printf("\n", seq1);
+     printf("seq1 = %s--\n", seq1);
+     printf("seq2 = %s--\n", seq2);
+
+     for(i=0; i < seq2_length; i++){
+       printf("%c", seq1[i] ); 
+     }
+     printf("\n", seq1);
+
+
+
   } 
+
 
 
   printf("Rank is not %d, seq2_length: %d, ncols: %d, nrows: %d \n", rank,  seq2_length, matrix_width, nrows   );
