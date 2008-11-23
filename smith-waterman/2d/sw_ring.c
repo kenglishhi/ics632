@@ -22,6 +22,7 @@
 #define ARRAY_OFFSET(I,J,NROWS)  ((I)*(NROWS) + (J))  
 
 void calculate_chunk(int *, int *, int *, int *, int *, int ,int , int , int , int *, int *, int *) ; 
+void print_score_matrix(int *, int , int ) ; 
 
 int  main(int argc,char *argv[]) { 
   MPI_Init(&argc, &argv);  

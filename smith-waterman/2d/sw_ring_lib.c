@@ -10,16 +10,26 @@
 #define GLOBAL_ROW_NUMBER(I,RANK,ROW_SIZE) ( (RANK)*(ROW_SIZE)+(I) )
 #define ARRAY_OFFSET(I,J,NROWS)  ((I)*(NROWS) + (J))
 #define DEBUG   0
-#define STRLEN     8
-#define ITER       1
-#define GAP   -1
-#define MATCH 1
+#define STRLEN  8
+#define ITER    1
+#define GAP    -1
+#define MATCH   1
 #define MISMATCH -1
 #define SEQ1_LEN 8
 #define DIRECTION_NONE     0
 #define DIRECTION_UP       1
 #define DIRECTION_LEFT     2
 #define DIRECTION_DIAGONAL 3
+
+void generate_random_array(int *arr, int size, int rand_max); 
+double get_time_diff(struct timeval *start, struct timeval *finish); 
+void print_score_matrix(int *matrix, int nrows, int ncols); 
+void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int nrows,int ncols, int col_start, int chunk_size, int *max_score, int *max_i, int *max_j ) ; 
+void Ring_Send(int *buffer, int length ) ; 
+int get_ring_destination()  ; 
+void Ring_Recv(int *buffer, int length ) ; 
+
+int get_ring_source() ; 
 
 void generate_random_array(int *arr, int size, int rand_max) { 
    int i; 
@@ -43,7 +53,8 @@ void print_score_matrix(int *matrix, int nrows, int ncols) {
    int *current_value;
    int i,j;
 
-   printf("nrows , col_size = [%d,%d]  \n\n", nrows, ncols );
+   if (DEBUG) 
+     printf("nrows , col_size = [%d,%d]  \n\n", nrows, ncols );
    for (i = 0; i < nrows; i++) {
         printf(" [" );
         for (j = 0; j < ncols; j++){
@@ -76,7 +87,7 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
      col_end = col_start+chunk_size  ; 
    } 
    if (DEBUG) 
-   printf("{%d} row_start: %d, row_end : %d,  col_start: %d,  col_end: %d \n", rank, row_start, nrows, col_start,  col_end); 
+     printf("{%d} row_start: %d, row_end : %d,  col_start: %d,  col_end: %d \n", rank, row_start, nrows, col_start,  col_end); 
    int i,j;
    int diagonal_score, left_score, up_score;
    int letter1, letter2 ; 
@@ -147,5 +158,46 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
         }
      }
    } 
+}
+void Ring_Send(int *buffer, int length ) { 
+  int dest = get_ring_destination()  ; 
+  printf("Dest = %d \n", dest); 
+  MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD); 
+} 
+
+void Ring_Recv(int *buffer, int length ) {
+  int src = get_ring_source()  ;
+  if (DEBUG) 
+    printf("Source = %d \n", src);
+  MPI_Status status ; 
+  MPI_Recv(buffer  , length, MPI_INT, src, 0, MPI_COMM_WORLD, &status); 
 
 }
+
+
+int get_ring_destination() { 
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    if (rank == (nprocs -1)) {
+       return  0 ;
+    }  else {
+       return (  rank + 1) ;
+    }
+    return 0; 
+} 
+
+
+int get_ring_source() { 
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    if (rank == 0 ) {
+       return  nprocs -1  ;
+    }  else {
+       return (  rank - 1) ;
+    }
+    return 0; 
+} 
+
+
