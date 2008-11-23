@@ -161,7 +161,8 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
 }
 void Ring_Send(int *buffer, int length ) { 
   int dest = get_ring_destination()  ; 
-  printf("Dest = %d \n", dest); 
+  if (DEBUG) 
+    printf("Dest = %d \n", dest); 
   MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD); 
 } 
 

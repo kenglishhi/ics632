@@ -8,7 +8,7 @@
 #include <time.h>
 #include <mpi.h>
 
-#define DEBUG    1
+#define DEBUG    0
 #define STRLEN     8
 #define ITER       1
 #define GAP   -1
@@ -21,6 +21,8 @@
 #define DIRECTION_DIAGONAL 3
 #define ROOT 0
 #define CHUNK_OFFSET(NROWS, NCOLS, CHUNK, CHUNK_SIZE) (  (((NROWS)-1)*(NCOLS) ) +  (CHUNK)*(CHUNK_SIZE) ) 
+#define GLOBAL_ROW_NUMBER(I,RANK,ROW_SIZE) ( (RANK)*(ROW_SIZE)+(I) )
+
 
 
 void Ring_Send(int *, int ) ;
@@ -58,8 +60,9 @@ int  main(int argc,char *argv[]) {
 
   int nrows =  (seq1_length+1)/nprocs;
   int ncols =  (seq1_length+1);
-
-  printf("[%d] nrows = %d, ncols = %d\n", rank, nrows, ncols); 
+  
+  if (DEBUG)  
+    printf("[%d] nrows = %d, ncols = %d\n", rank, nrows, ncols); 
   if (seq1_length != seq2_length) {
     printf("Current program limitation, seq1_length != seq2_length \n");
     return 1;
@@ -97,65 +100,38 @@ int  main(int argc,char *argv[]) {
   if (rank == 0 ) { 
      generate_random_array(seq1_arr, seq1_length,  20);   
      seq2_arr = seq1_arr; 
-//     for (i = 0; i < seq1_length ; i++ ) { 
-//        *(seq2_arr+i)  = *(seq1_arr+i); 
-//     } 
-
      seq1 = (char *) malloc(seq1_length * sizeof(char) )  ;
      seq2 = (char *) malloc(seq2_length * sizeof(char) )  ;
 
-//     printf("seq1 = %s--\n", seq1);
-//     printf("seq2 = %s--\n", seq2);
+     if (DEBUG) { 
+       for(i=0; i < seq1_length; i++){
+         seq1[i] =  alphabet[seq1_arr[i]] ;
+       }
 
-     for(i=0; i < seq1_length; i++){
-       seq1[i] =  alphabet[seq1_arr[i]] ;
-     }
-
-     for(i=0; i < seq2_length; i++){
-       seq2[i] =  alphabet[seq2_arr[i]] ;
-     }
-     printf("seq1 = %s --\n", seq1);
-     printf("seq2 = %s --\n", seq2);
+       for(i=0; i < seq2_length; i++){
+         seq2[i] =  alphabet[seq2_arr[i]] ;
+       }
+       printf("seq1 = %s --\n", seq1);
+       printf("seq2 = %s --\n", seq2);
+     } 
   } 
 
-  printf("Rank is not %d, seq2_length: %d, ncols: %d, nrows: %d \n", rank,  seq2_length, ncols, nrows   );
+  if (DEBUG) 
+    printf("Rank is not %d, seq2_length: %d, ncols: %d, nrows: %d \n", rank,  seq2_length, ncols, nrows   );
   if (MPI_Bcast(seq1_arr, seq1_length, MPI_INT, ROOT, MPI_COMM_WORLD) ) {
     printf("Error while calling MPI_Bcast()\n"); 
     exit(0); 
   } 
-
-//  for (i = 0; i < seq1_length ; i++ ) { 
-//     printf("[%d] seq1_arr[%d] = %d --  \n" ,rank,i, *(seq1_arr+i) ) ; 
-//  } 
-//  printf("\n" ) ; 
 
   if (MPI_Bcast(seq2_arr, seq2_length, MPI_INT, ROOT, MPI_COMM_WORLD) ) {
     printf("Error while calling MPI_Bcast()\n"); 
     exit(0); 
   } 
 
-//  for (i = 0; i < seq2_length ; i++ ) { 
-//     printf("[%d] seq2_arr[%d] = %d --  \n" ,rank,i, *(seq2_arr+i) ) ; 
-//  } 
-//  printf("\n" ) ; 
-  
-/*  if (MPI_Scatter(seq2_arr, seq2_chunk_length, MPI_INT, seq2_chunk_arr , seq2_chunk_length,  MPI_INT, 0, MPI_COMM_WORLD) != MPI_SUCCESS ) { 
-    printf("Error while calling MPI_Scatter()\n"); 
-  } 
-
-  printf("[%d] Back from scatter\n" ,rank ) ; 
-
-  for (i = 0; i < seq2_chunk_length ; i++ ) { 
-     printf("[%d] value = %d\n " ,rank, *(seq2_chunk_arr+i) ) ; 
-  } 
-*/
-  
   int *score_matrix , *direction_matrix ; 
   score_matrix = (int *) malloc(nrows  * ncols * sizeof(int) )  ;
   direction_matrix = (int *) malloc(nrows  * ncols * sizeof(int) )  ;
 
-//  int score_matrix[nrows][ncols] ;
-//  int direction_matrix[nrows][ncols] ;
 
   if (rank ==0) {
     for (j=0; j <= seq1_length; j++) {
@@ -173,75 +149,33 @@ int  main(int argc,char *argv[]) {
   int chunk;
   int *prev_row_buffer; 
   prev_row_buffer = (int *) malloc(ncols * sizeof(int) )  ;
-  int src ;
-  int max_i, max_j, max_score;
+  int global_max_rownum, max_j, max_score;
 
-  if (rank == ROOT ) {
-
-     for (chunk = 0; chunk < number_of_chucks; chunk++ ) {
-       if (rank != ROOT ) { 
-         if (DEBUG)
-           printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ;
-         Ring_Recv((prev_row_buffer + chunk*chunk_size), chunk_size ); 
-       } 
-       calculate_chunk(seq1_arr, seq2_arr, score_matrix, direction_matrix, prev_row_buffer,  nrows, ncols, chunk*chunk_size, chunk_size, &max_score, &max_i, &max_j);
-       if (rank != (nprocs-1))  { 
-         if (DEBUG)
-           printf("{%d} Sending columns %d \n", rank, chunk*chunk_size) ;
-         Ring_Send((score_matrix + CHUNK_OFFSET(nrows, ncols, chunk, chunk_size)), chunk_size) ; 
-       } 
+  for (chunk = 0; chunk < number_of_chucks; chunk++ ) {
+    if (rank != ROOT ) { 
+//      if (DEBUG)
+//        printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ;
+      Ring_Recv((prev_row_buffer + chunk*chunk_size), chunk_size ); 
+    } 
+    calculate_chunk(seq1_arr, seq2_arr, score_matrix, direction_matrix, prev_row_buffer,  nrows, ncols, chunk*chunk_size, chunk_size, &max_score, &global_max_rownum, &max_j);
+    if (rank != (nprocs-1))  { 
+//      if (DEBUG)
+//        printf("{%d} Sending columns %d \n", rank, chunk*chunk_size) ;
+      Ring_Send((score_matrix + CHUNK_OFFSET(nrows, ncols, chunk, chunk_size)), chunk_size) ; 
+    } 
 //       MPI_Send((score_matrix + CHUNK_OFFSET(nrows, ncols, chunk, chunk_size)), chunk_size, MPI_INT,  dest, 0, MPI_COMM_WORLD);
-     }
-     if (DEBUG) { 
-       print_score_matrix(score_matrix,  nrows, ncols  );
-       printf("[%d] Max_score: %d, score: %d,  max_i: %d, max_j: %d \n",rank,  max_score, score_matrix[max_i*ncols + max_j] , max_i, max_j);
-     } 
-  } else if (rank == (nprocs-1))  {
-     src = rank - 1 ;
-
-     for (chunk = 0; chunk< number_of_chucks; chunk++ ) {
-       if (DEBUG)
-         printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ;
-
-       Ring_Recv((prev_row_buffer + chunk*chunk_size), chunk_size ); 
-//       MPI_Recv((prev_row_buffer + chunk*chunk_size), chunk_size, MPI_INT, src, 0, MPI_COMM_WORLD, &status);
-
-       calculate_chunk(seq1_arr, seq2_arr, score_matrix, direction_matrix, prev_row_buffer,  nrows, ncols, chunk*chunk_size , chunk_size, &max_score, &max_i, &max_j);
-     }
-     if (DEBUG) { 
-       print_score_matrix(score_matrix,  nrows, ncols  );
-       printf("[%d] Max_score: %d, score: %d,  max_i: %d, max_j: %d \n",rank,  max_score, score_matrix[max_i*ncols + max_j] , max_i, max_j);
-     } 
-
-  } else {
-     src = rank - 1 ;
-     if (DEBUG)
-       printf("{%d} Else stuff, src:%d,  \n", rank, src) ;
-
-     MPI_Status status ;
-
-     for (chunk = 0; chunk< number_of_chucks; chunk++ ) {
-       if (DEBUG)
-         printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ;
-//       Ring_Recv((prev_row_buffer + chunk*chunk_size), chunk_size ); 
-       MPI_Recv((prev_row_buffer + chunk*chunk_size) , chunk_size, MPI_INT, src, 0, MPI_COMM_WORLD, &status);
-//       for (i=(chunk*chunk_size) ; i< (chunk*chunk_size+chunk_size) ; i ++) {
-//          printf("{%d} GOT VALUE %d \n", rank, prev_row_buffer[i]) ;
-//       }
-       calculate_chunk(seq1_arr, seq2_arr, score_matrix, direction_matrix, prev_row_buffer,  nrows, ncols, chunk*chunk_size , chunk_size, &max_score, &max_i, &max_j);
-       if (DEBUG)
-         printf("{%d} Sending columns %d \n", rank, chunk*chunk_size) ;
-//       MPI_Send((score_matrix + CHUNK_OFFSET(nrows, ncols, chunk, chunk_size)), chunk_size, MPI_INT,  dest, 0, MPI_COMM_WORLD);
-       Ring_Send((score_matrix + CHUNK_OFFSET(nrows, ncols, chunk, chunk_size)), chunk_size) ; 
-     }
-
-     if (DEBUG) { 
-       print_score_matrix(score_matrix,  nrows, ncols  );
-       printf("[%d] Max_score: %d, score: %d,  max_i: %d, max_j: %d \n",rank,  max_score, score_matrix[max_i*ncols + max_j] , max_i, max_j);
-     } 
-
   }
+  if (DEBUG) { 
+    print_score_matrix(score_matrix,  nrows, ncols  );
+    printf("[%d] Max_score: %d, score: %d,  max_j: %d \n",rank,  max_score,  global_max_rownum, max_j);
+  } 
+  int global_max_score;  
+  MPI_Allreduce(&max_score, &global_max_score, 1, MPI_INT, MPI_MAX,  MPI_COMM_WORLD); 
 
+  if (global_max_score==max_score) { 
+    printf("[%d] I HAVE THE MAX : %d,  rownum=%d   \n", rank, global_max_score, global_max_rownum );
+  } 
+  
   MPI_Finalize(); 
     
   return 1; 

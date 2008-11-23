@@ -91,22 +91,22 @@ int main(int argc,char *argv[]) {
   gettimeofday(&total_start,NULL); 
   do_sw(seq1_arr, seq1_length, seq2_arr, seq2_length, 
         align1_arr, &align1_length, align2_arr, &align2_length ); 
+  printf("Back FROM do_sw\n"); 
+//  gettimeofday(&total_finish,NULL); 
+//  printf("%.8f nanosecs per unit work\n", get_time_diff(&total_start, &total_finish) *1000000.0) ; 
+//  char *align1, *align2  ; 
+//  align1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
+//  align2 = (char *) calloc(seq2_length,sizeof(char) )  ; 
 
-  gettimeofday(&total_finish,NULL); 
-  printf("%.8f nanosecs per unit work\n", get_time_diff(&total_start, &total_finish) *1000000.0) ; 
-  char *align1, *align2  ; 
-  align1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
-  align2 = (char *) calloc(seq2_length,sizeof(char) )  ; 
+//  for(i=0;i<align1_length;i++){ 
+//    align1[align1_length-i-1] =  alphabet[align1_arr[i]] ; 
+//  } 
+//  for(i=0;i<align2_length;i++){ 
+//    align2[align2_length-i-1] =  alphabet[align2_arr[i]] ; 
+//  } 
 
-  for(i=0;i<align1_length;i++){ 
-    align1[align1_length-i-1] =  alphabet[align1_arr[i]] ; 
-  } 
-  for(i=0;i<align2_length;i++){ 
-    align2[align2_length-i-1] =  alphabet[align2_arr[i]] ; 
-  } 
-
-  printf("align1 = %s\n", align1); 
-  printf("align2 = %s\n", align1); 
+//  printf("align1 = %s\n", align1); 
+//  printf("align2 = %s\n", align1); 
 
 
 /*
