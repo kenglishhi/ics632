@@ -27,20 +27,32 @@ int do_sw(int *,int, int *,int, int *, int *, int *,int *) ;
 
 int main(int argc,char *argv[]) { 
   
-  int seq1_length, seq2_length ; 
+  /* Parse Command Line Args */
+  int  ncols, chunk_size ;
   if (argc < 3) {
      printf("You need 2 arguments\n");
      return 0 ;
   } else {
-
-    if ((sscanf(argv[1],"%d",&seq1_length) != 1) ||
-        (sscanf(argv[2],"%d",&seq2_length) != 1)) {
-      fprintf(stderr,"Usage: %s <seq1_length> <seq2_length>\n", argv[0] );
+    if ((sscanf(argv[1],"%d",&ncols) != 1) ||
+        (sscanf(argv[2],"%d",&chunk_size) != 1)) {
+      fprintf(stderr,"Usage: %s <ncols> <chunk_size>\n", argv[0] );
       exit(1);
     }
-
   }
+  int seq1_length = ncols - 1;
+  int seq2_length = seq1_length ;
+
+  /*  Check for current constraints of the program */
+  
+
+
   srand(time(0)) ;  
+
+
+  struct timeval total_start;
+  struct timeval total_finish;
+
+  gettimeofday(&total_start,NULL);
 
 
   char  alphabet[20] = "acdefghiklmnpqrstvwy"; 
@@ -85,10 +97,7 @@ int main(int argc,char *argv[]) {
 //  char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
   int align1_length,align2_length;
 
-  struct timeval total_start;
-  struct timeval total_finish;
 
-  gettimeofday(&total_start,NULL); 
   do_sw(seq1_arr, seq1_length, seq2_arr, seq2_length, 
         align1_arr, &align1_length, align2_arr, &align2_length ); 
 
