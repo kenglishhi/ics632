@@ -103,7 +103,8 @@ int main(int argc,char *argv[]) {
 
   printf("Back FROM do_sw\n"); 
   gettimeofday(&total_finish,NULL); 
-  printf("%.8f nanosecs per unit work\n", get_time_diff(&total_start, &total_finish) *1000000.0) ; 
+
+  printf("%f seconds to complete work. \n", get_time_diff(&total_start, &total_finish)) ; 
 //  char *align1, *align2  ; 
 //  align1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
 //  align2 = (char *) calloc(seq2_length,sizeof(char) )  ; 
