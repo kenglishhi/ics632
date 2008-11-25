@@ -41,6 +41,13 @@ int  main(int argc,char *argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
+
+  struct timeval total_start;
+  struct timeval total_finish;
+
+  gettimeofday(&total_start,NULL);
+
+
   char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
 
   /* Parse Command Line Args */ 
@@ -179,6 +186,10 @@ int  main(int argc,char *argv[]) {
   if (global_max_score==max_score) { 
     printf("[%d] I HAVE THE MAX : %d,  rownum=%d   \n", rank, global_max_score, global_max_rownum );
   } 
+
+  gettimeofday(&total_finish,NULL);
+  printf("[%d] %.8f nanosecs per unit work\n", rank, get_time_diff(&total_start, &total_finish) *1000000.0) ;
+
   
   MPI_Finalize(); 
     
