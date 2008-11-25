@@ -36,7 +36,7 @@ void print_score_matrix(int *, int , int ) ;
 int  main(int argc,char *argv[]) { 
   /* Initialize MPI */ 
   MPI_Init(&argc, &argv);  
-  int rank, nprocs, chunk_size ;  
+  int rank, nprocs ;  
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -51,7 +51,7 @@ int  main(int argc,char *argv[]) {
   char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
 
   /* Parse Command Line Args */ 
-  int nrows, ncols ; 
+  int nrows, ncols, chunk_size ; 
   if (argc < 3) {
      printf("You need 2 arguments\n");
      return 0 ;
