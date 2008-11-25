@@ -36,7 +36,7 @@ void print_score_matrix(int *, int , int ) ;
 int  main(int argc,char *argv[]) { 
   /* Initialize MPI */ 
   MPI_Init(&argc, &argv);  
-  int rank, nprocs;  
+  int rank, nprocs, chunk_size ;  
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -44,23 +44,27 @@ int  main(int argc,char *argv[]) {
   char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
 
   /* Parse Command Line Args */ 
-  int seq1_length, seq2_length;
+  int nrows, ncols ; 
   if (argc < 3) {
      printf("You need 2 arguments\n");
      return 0 ;
   } else {
-    if ((sscanf(argv[1],"%d",&seq1_length) != 1) ||
-        (sscanf(argv[2],"%d",&seq2_length) != 1)) {
-      fprintf(stderr,"Usage: %s <seq1_length> <seq2_length>\n", argv[0] );
+    if ((sscanf(argv[1],"%d",&ncols) != 1) ||
+        (sscanf(argv[2],"%d",&chunk_size) != 1)) {
+      fprintf(stderr,"Usage: %s <ncols> <chunk_size>\n", argv[0] );
       exit(1);
     }
   }
+  int seq1_length = ncols - 1; 
+  int seq2_length = seq1_length ; 
 
   /*  Check for current constraints of the program */ 
 
-  int nrows =  (seq1_length+1)/nprocs;
-  int ncols =  (seq1_length+1);
+  nrows =  ncols/nprocs;
+//  int ncols =  (seq1_length+1);
   
+  printf("[%d] nrows = %d, ncols = %d, chunk_size = %d, seq1_length = %d \n", rank, nrows, ncols, chunk_size, seq1_length); 
+
   if (DEBUG)  
     printf("[%d] nrows = %d, ncols = %d\n", rank, nrows, ncols); 
   if (seq1_length != seq2_length) {
@@ -78,7 +82,7 @@ int  main(int argc,char *argv[]) {
     return 1;
   }
 
-  int chunk_size = 2; // (ncols)/2;
+//  int chunk_size = 10; // (ncols)/2;
   if (((ncols) % chunk_size) != 0 ) {
     printf("Current program limitation, ncols (%d) must be 2 (%d)  \n", (ncols), nprocs );
     return 1;
