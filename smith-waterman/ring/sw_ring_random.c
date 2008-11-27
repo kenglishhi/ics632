@@ -28,6 +28,7 @@
 void Ring_Send(int *, int ) ;
 void Ring_Recv(int *, int ) ;
 
+double get_time_diff(struct timeval *, struct timeval *);
 
 void calculate_chunk(int *, int *, int *, int *, int *, int ,int , int , int , int *, int *, int *) ; 
 void generate_random_array(int *, int, int); 
@@ -188,7 +189,7 @@ int  main(int argc,char *argv[]) {
   } 
 
   gettimeofday(&total_finish,NULL);
-  printf("[%d] %.8f nanosecs per unit work\n", rank, get_time_diff(&total_start, &total_finish) *1000000.0) ;
+  printf("[%d] %f seconds to complete work\n", rank, get_time_diff(&total_start, &total_finish) ) ;
 
   
   MPI_Finalize(); 
