@@ -29,8 +29,10 @@ int main(int argc,char *argv[]) {
   
   /* Parse Command Line Args */
   int  ncols, chunk_size ;
+  char *program_name = "sw_sequential_random" ; 
+  
   if (argc < 3) {
-     printf("You need 2 arguments\n");
+     printf("[%s] You need 2 arguments\n", program_name);
      return 0 ;
   } else {
     if ((sscanf(argv[1],"%d",&ncols) != 1) ||
@@ -75,10 +77,10 @@ int main(int argc,char *argv[]) {
   generate_random_array(seq1_arr, seq1_length,  20);   
   generate_random_array(seq2_arr, seq2_length,  20);   
 
-  printf("seq1_length  = %d\n", seq1_length); 
-  printf("seq2_length  = %d\n", seq2_length); 
+  printf("%s, seq1_length  = %d\n", program_name, seq1_length); 
+  printf("%s, seq2_length  = %d\n", program_name, seq2_length); 
 
-  printf("alphabet[%d] = %c \n", 20, alphabet[20]  ); 
+  printf("%s, alphabet[%d] = %c \n", 20, program_name, alphabet[20]  ); 
 
   for(i=0;i < seq1_length;i++){ 
     seq1[i] =  alphabet[seq1_arr[i]] ; 
@@ -88,8 +90,8 @@ int main(int argc,char *argv[]) {
   } 
 
   if (DEBUG) { 
-    printf("seq1 = %s\n", seq1); 
-    printf("seq2 = %s\n", seq2); 
+    printf("%s, seq1 = %s\n", program_name, seq1); 
+    printf("%s, seq2 = %s\n", program_name, seq2); 
   } 
 
 
@@ -101,10 +103,9 @@ int main(int argc,char *argv[]) {
   do_sw(seq1_arr, seq1_length, seq2_arr, seq2_length, 
         align1_arr, &align1_length, align2_arr, &align2_length ); 
 
-  printf("Back FROM do_sw\n"); 
   gettimeofday(&total_finish,NULL); 
 
-  printf("%f seconds to complete work. \n", get_time_diff(&total_start, &total_finish)) ; 
+  printf("%s, %f seconds to complete work. \n", program_name, get_time_diff(&total_start, &total_finish)) ; 
 //  char *align1, *align2  ; 
 //  align1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
 //  align2 = (char *) calloc(seq2_length,sizeof(char) )  ; 
