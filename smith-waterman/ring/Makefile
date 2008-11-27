@@ -10,4 +10,4 @@ main: clean
 clean:
 #	/bin/rm -f sw_test sw_sequential sw_simple
 #	/bin/rm -f sw_basic sw_small sw  sw_parallel
-	/bin/rm -f q sw_ring_random  sw_ring
+	/bin/rm -f q sw_ring_random_sync  sw_ring
