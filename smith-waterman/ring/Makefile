@@ -6,8 +6,8 @@ main: clean
 #	gcc -Wall sw_basic.c  -o sw_basic
 #	gcc -Wall sw_small.c  -o sw_small
 	mpicc -Wall sw_ring.c sw_ring_lib.c  -o sw_ring
-	mpicc -Wall sw_ring_lib.c sw_ring_random.c  -o sw_ring_random
+	mpicc -Wall sw_ring_lib.c sw_ring_random_sync.c  -o sw_ring_random_sync
 clean:
 #	/bin/rm -f sw_test sw_sequential sw_simple
 #	/bin/rm -f sw_basic sw_small sw  sw_parallel
-	/bin/rm -f q sw_ring_random  sw_ring
+	/bin/rm -f q sw_ring_random_sync  sw_ring
