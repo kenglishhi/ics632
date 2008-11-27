@@ -50,11 +50,12 @@ int  main(int argc,char *argv[]) {
 
 
   char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
-
+  char *program_name; 
+  program_name = argv[0];
   /* Parse Command Line Args */ 
   int nrows, ncols, chunk_size ; 
   if (argc < 3) {
-     printf("You need 2 arguments\n");
+     printf("[%s] You need 2 arguments\n", program_name);
      return 0 ;
   } else {
     if ((sscanf(argv[1],"%d",&ncols) != 1) ||
@@ -71,10 +72,10 @@ int  main(int argc,char *argv[]) {
   nrows =  ncols/nprocs;
 //  int ncols =  (seq1_length+1);
   
-  printf("[%d] nrows = %d, ncols = %d, chunk_size = %d, seq1_length = %d \n", rank, nrows, ncols, chunk_size, seq1_length); 
+  printf("%s, %d, nrows = %d, ncols = %d, chunk_size = %d, seq1_length = %d \n", program_name, rank, nrows, ncols, chunk_size, seq1_length); 
 
   if (DEBUG)  
-    printf("[%d] nrows = %d, ncols = %d\n", rank, nrows, ncols); 
+    printf("%s, %d, nrows = %d, ncols = %d\n", program_name, rank, nrows, ncols); 
   if (seq1_length != seq2_length) {
     printf("Current program limitation, seq1_length != seq2_length \n");
     return 1;
@@ -129,7 +130,7 @@ int  main(int argc,char *argv[]) {
   } 
 
   if (DEBUG) 
-    printf("Rank is not %d, seq2_length: %d, ncols: %d, nrows: %d \n", rank,  seq2_length, ncols, nrows   );
+    printf("%s,%d, seq2_length: %d, ncols: %d, nrows: %d \n", program_name, rank,  seq2_length, ncols, nrows   );
   if (MPI_Bcast(seq1_arr, seq1_length, MPI_INT, ROOT, MPI_COMM_WORLD) ) {
     printf("Error while calling MPI_Bcast()\n"); 
     exit(0); 
@@ -179,17 +180,18 @@ int  main(int argc,char *argv[]) {
   }
   if (DEBUG) { 
     print_score_matrix(score_matrix,  nrows, ncols  );
-    printf("[%d] Max_score: %d, score: %d,  max_j: %d \n",rank,  max_score,  global_max_rownum, max_j);
+    printf("%s, %d, Max_score: %d, score: %d,  max_j: %d \n",program_name, rank,  max_score,  global_max_rownum, max_j);
   } 
   int global_max_score;  
   MPI_Allreduce(&max_score, &global_max_score, 1, MPI_INT, MPI_MAX,  MPI_COMM_WORLD); 
 
   if (global_max_score==max_score) { 
-    printf("[%d] I HAVE THE MAX : %d,  rownum=%d   \n", rank, global_max_score, global_max_rownum );
+    printf("%s, %d, I HAVE THE MAX : %d,  rownum=%d   \n", program_name, rank, global_max_score, global_max_rownum );
   } 
 
   gettimeofday(&total_finish,NULL);
-  printf("[%d] %f seconds to complete work\n", rank, get_time_diff(&total_start, &total_finish) ) ;
+  printf("%s, %d, %f seconds to complete work\n", program_name, rank, get_time_diff(&total_start, &total_finish) ) ;
+  printf("-----------------------------------------\n" ) ;
 
   
   MPI_Finalize(); 
