@@ -51,7 +51,7 @@ int  main(int argc,char *argv[]) {
 
   char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
   char *program_name; 
-  program_name = argv[0];
+  program_name = "sw_ring_random_sync";
   /* Parse Command Line Args */ 
   int nrows, ncols, chunk_size ; 
   if (argc < 3) {

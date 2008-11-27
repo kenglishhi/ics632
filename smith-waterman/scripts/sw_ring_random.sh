@@ -62,8 +62,11 @@ cleanup()
 
 #### YOUR PROGRAM: modivy only the last two items on the line
 
-PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/ring/sw_ring_random"
+PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/ring/sw_ring_random_sync"
 mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 4 $PROGRAM_EXE  1000 50
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 4 $PROGRAM_EXE  1000 100
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 4 $PROGRAM_EXE  2000 100
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 4 $PROGRAM_EXE  4000 100
 
 ## DO NOT CHANGE ANYTHING BELOW ###############
 
