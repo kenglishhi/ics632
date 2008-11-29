@@ -22,6 +22,10 @@
 #define ROOT 0
 #define CHUNK_OFFSET(NROWS, NCOLS, CHUNK, CHUNK_SIZE) (  (((NROWS)-1)*(NCOLS) ) +  (CHUNK)*(CHUNK_SIZE) ) 
 #define GLOBAL_ROW_NUMBER(I,RANK,ROW_SIZE) ( (RANK)*(ROW_SIZE)+(I) )
+#define LOCAL_ROW_NUMBER(GLOBAL_ROW_NUM,RANK,ROW_SIZE) ( GLOBAL_ROW_NUM - (RANK)*(ROW_SIZE) )
+#define ARRAY_OFFSET(I,J,NROWS)  ((I)*(NROWS) + (J))
+
+
 
 
 
@@ -103,16 +107,22 @@ int  main(int argc,char *argv[]) {
 
   srand(time(0)) ;
   int i,j; 
-  int *seq1_arr, *seq2_arr;
+  int *seq1_arr, *seq2_arr, *output1_arr, *output2_arr;
   // all processes will have a copy of Sequence 1
   // They will have a slice of sequence 2
   seq1_arr = (int *) malloc(seq1_length * sizeof(int) )  ;
   seq2_arr = (int *) malloc(seq2_length * sizeof(int) )  ;
+  output1_arr = (int *) malloc(seq1_length * sizeof(int) )  ;
+  output2_arr = (int *) malloc(seq2_length * sizeof(int) )  ;
   char *seq1, *seq2; 
 
   if (rank == 0 ) { 
      generate_random_array(seq1_arr, seq1_length,  20);   
-     seq2_arr = seq1_arr; 
+     if (argc == 4) 
+       seq2_arr = seq1_arr; 
+     else 
+       generate_random_array(seq2_arr, seq1_length,  20);   
+ 
      seq1 = (char *) malloc(seq1_length * sizeof(char) )  ;
      seq2 = (char *) malloc(seq2_length * sizeof(char) )  ;
 
@@ -162,7 +172,7 @@ int  main(int argc,char *argv[]) {
   int chunk;
   int *prev_row_buffer; 
   prev_row_buffer = (int *) malloc(ncols * sizeof(int) )  ;
-  int global_max_rownum, max_j, max_score;
+  int global_max_rownum=0, max_colnum=0, max_score=0;
 
   for (chunk = 0; chunk < number_of_chucks; chunk++ ) {
     if (rank != ROOT ) { 
@@ -170,7 +180,7 @@ int  main(int argc,char *argv[]) {
 //        printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ;
       Ring_Recv((prev_row_buffer + chunk*chunk_size), chunk_size ); 
     } 
-    calculate_chunk(seq1_arr, seq2_arr, score_matrix, direction_matrix, prev_row_buffer,  nrows, ncols, chunk*chunk_size, chunk_size, &max_score, &global_max_rownum, &max_j);
+    calculate_chunk(seq1_arr, seq2_arr, score_matrix, direction_matrix, prev_row_buffer,  nrows, ncols, chunk*chunk_size, chunk_size, &max_score, &global_max_rownum, &max_colnum);
     if (rank != (nprocs-1))  { 
 //      if (DEBUG)
 //        printf("{%d} Sending columns %d \n", rank, chunk*chunk_size) ;
@@ -180,14 +190,103 @@ int  main(int argc,char *argv[]) {
   }
   if (DEBUG) { 
     print_score_matrix(score_matrix,  nrows, ncols  );
-    printf("%s, %d, Max_score: %d, score: %d,  max_j: %d \n",program_name, rank,  max_score,  global_max_rownum, max_j);
+    printf("%s, %d, Max_score: %d, score: %d,  max_colnum: %d \n",program_name, rank,  max_score,  global_max_rownum, max_colnum);
   } 
+  printf("%s, %d, Max_score: %d, score: %d,  max_colnum: %d \n",program_name, rank,  max_score,  global_max_rownum, max_colnum);
   int global_max_score;  
-  MPI_Allreduce(&max_score, &global_max_score, 1, MPI_INT, MPI_MAX,  MPI_COMM_WORLD); 
+  int *my_results_arr;  
+  int *global_results_arr;  
+  global_results_arr = (int *) malloc(3 * sizeof(int) )  ;
+  my_results_arr = (int *) malloc(3 * sizeof(int) )  ;
 
-  if (global_max_score==max_score) { 
-    printf("%s, %d, I HAVE THE MAX : %d,  rownum=%d   \n", program_name, rank, global_max_score, global_max_rownum );
+  my_results_arr[0] = max_score; 
+  my_results_arr[1] = global_max_rownum ; 
+  my_results_arr[2] = max_colnum ; 
+  printf("%s, %d, My Max_score: %d, i=%d, j=%d \n",program_name, rank,  max_score , global_max_rownum ,max_colnum  );
+  printf("%s, %d, My Max_score: %d, i=%d, j=%d \n",program_name, rank,  *my_results_arr, *(my_results_arr+1),*(my_results_arr+2) );
+
+  if (rank == ROOT ) { 
+    global_results_arr = my_results_arr ; 
+    Ring_Send(my_results_arr, 3); 
+  } else if (rank == (nprocs-1))  { 
+    Ring_Recv(global_results_arr, 3); 
+    printf("%s, %d, Compare %d > %d \n",program_name, rank, my_results_arr[0], global_results_arr[0] );
+    if (*my_results_arr >= *global_results_arr  ) { 
+       printf("%s, %d, My REsults are higher \n",program_name, rank);
+       global_results_arr[0] = my_results_arr[0]; 
+       global_results_arr[1] = my_results_arr[1]; 
+       global_results_arr[2] = my_results_arr[2]; 
+    } 
+
+  } else { 
+    Ring_Recv(global_results_arr, 3); 
+    if (*my_results_arr >= *global_results_arr ) { 
+       printf("%s, %d, My REsults are higher \n",program_name, rank);
+       global_results_arr[0] = my_results_arr[0]; 
+       global_results_arr[1] = my_results_arr[1]; 
+       global_results_arr[2] = my_results_arr[2]; 
+    } 
+    Ring_Send(global_results_arr, 3); 
   } 
+     
+  MPI_Bcast(global_results_arr, 3, MPI_INT, (nprocs-1),  MPI_COMM_WORLD); 
+
+  max_score = global_results_arr[0]; 
+  global_max_rownum  = global_results_arr[1]; 
+  max_colnum  = global_results_arr[2]; 
+
+  printf("%s, %d, Global Max_score: %d,max_rownum:%d, max_colnum: \n",program_name, rank,  max_score, global_max_rownum, max_colnum  );
+
+  int lower = (rank * nrows) ; 
+  int upper = ((rank+1) * nrows) ; 
+  int align1_index=0;
+  int align2_index=0;
+  int *diagonal_ptr ; 
+
+  printf("%s, %d, max_rownum: %d Lower: %d, Upper: %d \n",program_name, rank, global_max_rownum, lower, upper  );
+
+  if (global_max_rownum >= lower && global_max_rownum < upper ) { 
+     printf("%s, %d, Global MaX ROWS IS MINE!: %d, Local Row Number %d \n",program_name, rank,  global_max_rownum, LOCAL_ROW_NUMBER(global_max_rownum,rank, nrows)  );
+     i = LOCAL_ROW_NUMBER(global_max_rownum,rank, nrows); 
+     j = max_colnum ; 
+     printf("%s, %d, ARRAY_OFFSET(%d, %d, %d) == %d \n",program_name, rank,  i,j, ncols , ARRAY_OFFSET(i, j, ncols)  );
+      
+     while (1) { 
+        diagonal_ptr = (direction_matrix + ARRAY_OFFSET(i, j, ncols)) ; 
+        if (*diagonal_ptr == DIRECTION_NONE  ) { 
+            printf("%s, %d, No Direction!!!!!\n", program_name, rank  ) ;  
+            break ;
+        } 
+        if (i == 0 ) {
+            printf("%s, %d, i == 0 !!!!!\n", program_name, rank  ) ;  
+            break ;
+        } 
+
+        if (*diagonal_ptr ==  DIRECTION_DIAGONAL ) {
+            printf("%s, %d, [%d,%d] DIRECTION_DIAGONAL !!!!!\n", program_name, rank, i, j   ) ;  
+            output1_arr[align1_index] = seq1_arr[j-1]  ;
+            output2_arr[align2_index] = seq2_arr[i-1]  ;
+            i--; j--;
+        }
+        else if (*diagonal_ptr ==  DIRECTION_LEFT  ) {
+            printf("%s, %d, DIRECTION_LEFT !!!!!\n", program_name, rank  ) ;  
+            output1_arr[align1_index] = seq1_arr[j-1]  ;
+            output2_arr[align2_index] = -1 ;
+            j--;
+        }
+        else if (*diagonal_ptr  ==  DIRECTION_UP ) {
+            printf("%s, %d, DIRECTION_UP !!!!!\n", program_name, rank  ) ;  
+            output1_arr[align1_index] = -1;
+            output2_arr[align2_index] = seq2_arr[i-1]  ;
+            i--;
+        }
+        align1_index++; align2_index++;
+     } 
+     
+  } 
+  
+
+
 
   gettimeofday(&total_finish,NULL);
   printf("%s, %d, %f seconds to complete work\n", program_name, rank, get_time_diff(&total_start, &total_finish) ) ;

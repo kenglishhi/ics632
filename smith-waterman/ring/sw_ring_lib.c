@@ -26,8 +26,10 @@ double get_time_diff(struct timeval *start, struct timeval *finish);
 void print_score_matrix(int *matrix, int nrows, int ncols); 
 void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int nrows,int ncols, int col_start, int chunk_size, int *max_score, int *max_i, int *max_j ) ; 
 void Ring_Send(int *buffer, int length ) ; 
+void Ring_Isend(int *buffer, int length,MPI_Request *request ) ; 
 int get_ring_destination()  ; 
-void Ring_Recv(int *buffer, int length ) ; 
+void Ring_Recv(int *buffer, int length )  ; 
+void Ring_Irecv(int *buffer, int length,MPI_Request *request ) ; 
 
 int get_ring_source() ; 
 
@@ -175,6 +177,38 @@ void Ring_Recv(int *buffer, int length ) {
 
 }
 
+void Ring_Isend(int *buffer, int length, MPI_Request *request) {
+    int rank, nprocs, dest;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    if (rank == (nprocs -1)) {
+       dest = 0 ;
+    }  else {
+       dest = rank + 1;
+    }
+
+    MPI_Isend(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD,request);
+}
+
+
+void Ring_Irecv(int *buffer, int length, MPI_Request *request ) {
+    int rank, nprocs, src;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+    if (rank == 0 )  {
+       src = nprocs -1 ;
+    }  else {
+       src = rank - 1;
+    }
+
+    MPI_Irecv(buffer, length, MPI_INT, src, 0, MPI_COMM_WORLD, request);
+}
+
+void Ring_Wait(MPI_Request *request) {
+    MPI_Status status  ;
+    MPI_Wait(request, &status );
+}
 
 int get_ring_destination() { 
     int rank, nprocs;
