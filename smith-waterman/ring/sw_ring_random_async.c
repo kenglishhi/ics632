@@ -27,6 +27,8 @@
 
 void Ring_Isend(int *, int,  MPI_Request * ) ;
 void Ring_Irecv(int *, int,  MPI_Request * ) ;
+void Ring_Send(int *, int ) ;
+void Ring_Recv(int *, int) ;
 void Ring_Wait(MPI_Request *request) ; 
 
 
@@ -164,7 +166,7 @@ int  main(int argc,char *argv[]) {
   prev_row_buffer = (int *) malloc(ncols * sizeof(int) )  ;
   int global_max_rownum, max_j, max_score;
   MPI_Request send_request ; 
-  MPI_Request recv_request ; 
+//  MPI_Request recv_request ; 
   for (chunk = 0; chunk < number_of_chucks; chunk++ ) {
     if (rank != ROOT ) { 
       Ring_Recv((prev_row_buffer + chunk*chunk_size), chunk_size); 

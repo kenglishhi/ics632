@@ -25,10 +25,15 @@ void generate_random_array(int *arr, int size, int rand_max);
 double get_time_diff(struct timeval *start, struct timeval *finish); 
 void print_score_matrix(int *matrix, int nrows, int ncols); 
 void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int nrows,int ncols, int col_start, int chunk_size, int *max_score, int *max_i, int *max_j ) ; 
+
 void Ring_Send(int *buffer, int length ) ; 
+void Ring_Recv(int *buffer, int length )  ; 
+
+void Ring_Reverse_Send(int *buffer, int length ) ; 
+void Ring_Reverse_Recv(int *buffer, int length ) ; 
+
 void Ring_Isend(int *buffer, int length,MPI_Request *request ) ; 
 int get_ring_destination()  ; 
-void Ring_Recv(int *buffer, int length )  ; 
 void Ring_Irecv(int *buffer, int length,MPI_Request *request ) ; 
 
 int get_ring_source() ; 
@@ -161,12 +166,74 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
      }
    } 
 }
+void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_matrix, int *top_i, int *top_j,int ncols,int nrows, int *output1_arr, int *output2_arr,int *align1_index,int *align2_index, int *completion_flag ) {
+  int rank;
+
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  char *program_name;
+  char  alphabet[21] = "acdefghiklmnpqrstvwy";
+  program_name = "sw_ring_random_sync";
+  int *diagonal_ptr; 
+  int i, j; 
+  i = *top_i; j = *top_j ; 
+  printf("%s, RANK%d, completion_flag = %d !!!!!\n", program_name, rank, *completion_flag ) ;
+  int done_flag = 1 ;
+  while (1) {
+        diagonal_ptr = (direction_matrix + ARRAY_OFFSET(i, j, ncols)) ;
+        if (*diagonal_ptr == DIRECTION_NONE  ) {
+            if (DEBUG)  
+              printf("%s, RANK%d, No Direction!!!!!\n", program_name, rank  ) ;
+            completion_flag = &done_flag; 
+            break ;
+        }
+        if (i < 0  ) {
+            if (DEBUG)  
+              printf("%s, RANK%d, i < 0 %d !!!!!\n", program_name, rank ,i   ) ;
+            completion_flag = &done_flag; 
+            break ;
+        }
+        if (GLOBAL_ROW_NUMBER(i,rank,nrows) == 0 ) {
+            if (DEBUG)  
+              printf("%s, RANK%d, i == 0 !!!!!\n", program_name, rank  ) ;
+            completion_flag = &done_flag; 
+            break ;
+        }
+        
+
+        if (*diagonal_ptr ==  DIRECTION_DIAGONAL ) {
+            if (DEBUG)  
+              printf("%s, RANK%d, [%d,%d] DIRECTION_DIAGONAL !!!!!\n", program_name, rank, GLOBAL_ROW_NUMBER(i,rank,nrows), j   ) ;
+            output1_arr[*align1_index] = seq1_arr[j-1]  ;
+            output2_arr[*align2_index] = seq2_arr[i-1]  ;
+            if (DEBUG)  
+              printf("%s, RANK%d, [%d,%d] output1_arr = %c !!!!!\n", program_name, rank, GLOBAL_ROW_NUMBER(i,rank,nrows), j,alphabet[output1_arr[*align1_index]]    ) ;
+            i--; j--;
+        }
+        else if (*diagonal_ptr ==  DIRECTION_LEFT  ) {
+            if (DEBUG)  
+              printf("%s, RANK%d, DIRECTION_LEFT !!!!!\n", program_name, rank  ) ;
+            output1_arr[*align1_index] = seq1_arr[j-1]  ;
+            output2_arr[*align2_index] = -1 ;
+            j--;
+        }
+        else if (*diagonal_ptr  ==  DIRECTION_UP ) {
+            if (DEBUG)  
+              printf("%s, RANK%d, DIRECTION_UP !!!!!\n", program_name, rank  ) ;
+            output1_arr[*align1_index] = -1;
+            output2_arr[*align2_index] = seq2_arr[i-1]  ;
+            i--;
+        }
+        *align1_index= *align1_index+1 ; *align2_index = *align2_index+1 ;
+     }
+  *top_i =i ;  *top_j = j  ; 
+}
 void Ring_Send(int *buffer, int length ) { 
   int dest = get_ring_destination()  ; 
   if (DEBUG) 
     printf("Dest = %d \n", dest); 
   MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD); 
 } 
+
 
 void Ring_Recv(int *buffer, int length ) {
   int src = get_ring_source()  ;
@@ -176,6 +243,25 @@ void Ring_Recv(int *buffer, int length ) {
   MPI_Recv(buffer  , length, MPI_INT, src, 0, MPI_COMM_WORLD, &status); 
 
 }
+
+void Ring_Reverse_Send(int *buffer, int length ) {
+  int dest = get_ring_source(); 
+  if (DEBUG)
+    printf("Dest = %d \n", dest);
+  MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
+}
+
+
+void Ring_Reverse_Recv(int *buffer, int length ) {
+  int src = get_ring_destination()   ;
+  if (DEBUG)
+    printf("Source = %d \n", src);
+  MPI_Status status ;
+  MPI_Recv(buffer  , length, MPI_INT, src, 0, MPI_COMM_WORLD, &status);
+
+}
+
+
 
 void Ring_Isend(int *buffer, int length, MPI_Request *request) {
     int rank, nprocs, dest;
