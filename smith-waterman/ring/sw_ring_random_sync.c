@@ -324,7 +324,7 @@ int  main(int argc,char *argv[]) {
   
   } 
   if (rank == ROOT) { 
-     printf("align1 = %s\n", align1);
+     printf("Rank iS ROOT = %s\n", align1);
 
      char *align1, *align2  ;
      align1 = (char *) calloc(seq1_length,sizeof(char) )  ;
