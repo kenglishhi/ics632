@@ -233,10 +233,10 @@ printf("%f Doing Back Trace of the sequence \n", get_time_diff(&start, &finish) 
 if (DEBUG) 
   printf("align1_index = %d, align2_index = %d\n", align1_index, align2_index); 
 
-output1_length = &align1_index; 
-output2_length = &align2_index; 
+*output1_length = align1_index; 
+*output2_length = align2_index; 
 
-printf("Returning \n" ) ;
+// printf("Returning \n" ) ;
 
 /*
  

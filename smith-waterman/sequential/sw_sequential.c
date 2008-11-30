@@ -67,12 +67,14 @@ int  main(int argc,char *argv[]) {
         seq2_arr[i] = j;
 
   do_sw(&seq1_arr[0],  seq1_length, &seq2_arr[0], seq2_length, &align1_arr[0], &align1_length, &align2_arr[0], &align2_length);  
+  printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
 
   char *align1, *align2  ;
   align1 = (char *) calloc(seq1_length,sizeof(char) )  ;
   align2 = (char *) calloc(seq2_length,sizeof(char) )  ;
-
+  printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
   for(i=0;i<align1_length;i++){
+     
     align1[align1_length-i-1] =  alphabet[align1_arr[i]] ;
   }
   for(i=0;i<align2_length;i++){
