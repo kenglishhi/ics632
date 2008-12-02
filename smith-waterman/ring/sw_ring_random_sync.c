@@ -323,8 +323,8 @@ int  main(int argc,char *argv[]) {
      } 
   
   } 
+
   if (rank == ROOT) { 
-     printf("Rank iS ROOT = %s\n", align1);
 
      char *align1, *align2  ;
      align1 = (char *) calloc(seq1_length,sizeof(char) )  ;
@@ -349,9 +349,6 @@ int  main(int argc,char *argv[]) {
   printf("%s, %d, %f seconds to complete work\n", program_name, rank, get_time_diff(&total_start, &total_finish) ) ;
   printf("-----------------------------------------\n" ) ;
 
-
-
-  
   MPI_Finalize(); 
     
   return 1; 
