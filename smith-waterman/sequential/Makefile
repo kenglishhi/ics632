@@ -1,7 +1,7 @@
 main: clean  
 #	gcc -Wall sw_test.c  -o sw_test
 #	gcc -Wall sw_sequential.c  -o sw_sequential
-	gcc -Wall sw_sequential_old.c -o sw_sequential_old
+#	gcc -Wall sw_sequential_old.c -o sw_sequential_old
 	gcc -Wall sw_seq_lib.c sw_sequential_random.c  -o sw_sequential_random
 	gcc -Wall sw_seq_lib.c sw_sequential.c  -o sw_sequential
 #	gcc -Wall sw_simple.c  -o sw_simple

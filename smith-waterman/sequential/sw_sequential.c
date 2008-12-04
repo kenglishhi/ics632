@@ -9,7 +9,7 @@
 
 #define STRLEN     8
 #define ITER       1
-#define DEBUG       0
+#define DEBUG       1
 #define GAP   -1
 #define MATCH 1
 #define MISMATCH -1
