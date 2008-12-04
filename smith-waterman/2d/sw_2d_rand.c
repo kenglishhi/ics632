@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <mpi.h>
+#include <math.h>
 
 #define DEBUG    1
 #define STRLEN     8
@@ -33,13 +34,20 @@ void Ring_Reverse_Recv(int *buffer, int length ) ;
 
 double get_time_diff(struct timeval *, struct timeval *);
 
-void calculate_chunk(int *, int *, int *, int *, int *, int ,int , int , int , int *, int *, int *) ; 
+//void calculate_chunk(int *, int *, int *, int *, int *, int ,int , int , int , int *, int *, int *) ; 
 void generate_random_array(int *, int, int); 
 void print_score_matrix(int *, int , int ) ; 
-void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_matrix, int *top_i, int *top_j, int ncols,int nrows, int *align1_arr, int *align2_arr,int *align1_length,int *align2_length, int *completion_flag ) ; 
+//void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_matrix, int *top_i, int *top_j, int ncols,int nrows, int *align1_arr, int *align2_arr,int *align1_length,int *align2_length, int *completion_flag ) ; 
 
 int get_right_destination() ;
 int get_bottom_destination() ;
+
+void Bottom_Send(int *buffer, int length )  ;
+void Right_Send(int *buffer, int length ) ;
+
+void Top_Recv(int *buffer, int length ) ;
+void Left_Recv(int *buffer, int length ) ;
+
 
 int  main(int argc,char *argv[]) { 
   /* Initialize MPI */ 
@@ -56,35 +64,27 @@ int  main(int argc,char *argv[]) {
   gettimeofday(&total_start,NULL);
 
   char  alphabet[21] = "acdefghiklmnpqrstvwy"; 
-  char *program_name; 
-
-  program_name = "sw_ring_2d";
+  char *program_name = "sw_2d_rand";
   /* Parse Command Line Args */ 
 
-  int nrows, ncols, chunk_size ; 
+  int ncols_total, ncols_per_cel, ncols_grid ; 
 
-  if (argc < 3) {
+  if (argc < 2) {
      printf("[%s] You need 2 arguments\n", program_name);
      return 0 ;
   } else {
-    if ((sscanf(argv[1],"%d",&ncols) != 1) ||
-        (sscanf(argv[2],"%d",&chunk_size) != 1)) {
-      fprintf(stderr,"Usage: %s <ncols> <chunk_size>\n", argv[0] );
+    if (sscanf(argv[1],"%d",&ncols_total) != 1)  {
+      fprintf(stderr,"Usage: %s <ncols> \n", argv[0] );
       exit(1);
     }
   }
 
-  int seq1_length = ncols - 1; 
-  int seq2_length = seq1_length ; 
+  ncols_grid =  sqrt(nprocs);
 
+  int seq1_length = ncols_total - 1; 
+  int seq2_length = seq1_length ; 
   /*  Check for current constraints of the program */ 
 
-  nrows =  ncols/nprocs;
-  
-  printf("%s, RANK%d, nrows = %d, ncols = %d, chunk_size = %d, seq1_length = %d \n", program_name, rank, nrows, ncols, chunk_size, seq1_length); 
-
-  if (DEBUG)  
-    printf("%s, RANK%d, nrows = %d, ncols = %d\n", program_name, rank, nrows, ncols); 
 
   if (seq1_length != seq2_length) {
     printf("Current program limitation, seq1_length != seq2_length \n");
@@ -96,14 +96,14 @@ int  main(int argc,char *argv[]) {
     return 1;
   }
 
-  if (((ncols) % nprocs) != 0 ) {
-    printf("Current program limitation, ncols (%d) must be divisible by nprocs (%d)  \n", (ncols), nprocs );
+  if (((ncols_total) % nprocs) != 0 ) {
+    printf("Current program limitation, ncols (%d) must be divisible by nprocs (%d)  \n", (ncols_total), nprocs );
     return 1;
   }
 
-  chunk_size = ncols/nprocs ; 
-  printf("%s,%d, Chunk Size : %d  \n", program_name, rank,  chunk_size );
+  printf("%s,%d, nCols Total: %d  \n", program_name, rank,  ncols_total );
 
+  return 0 ; 
   /*  Set the Chunk Length */ 
 
   srand(time(0)) ;
@@ -140,9 +140,6 @@ int  main(int argc,char *argv[]) {
      } 
   } 
 
-  if (DEBUG) 
-    printf("%s,%d, seq2_length: %d, ncols: %d, nrows: %d \n", program_name, rank,  seq2_length, ncols, nrows   );
-
   if (MPI_Bcast(seq1_arr, seq1_length, MPI_INT, ROOT, MPI_COMM_WORLD) ) {
     printf("Error while calling MPI_Bcast()\n"); 
     exit(0); 
@@ -155,13 +152,19 @@ int  main(int argc,char *argv[]) {
 
 //  int test_right_array[2] = {1,2} ;   
 //  int test_bottom_array[2] = {3,4} ;   
-
-  printf("%s, RANK%d, bottom destination = %d\n", program_name, rank, get_bottom_destination() ) ; 
-  printf("%s, RANK%d, right destination = %d\n", program_name, rank, get_right_destination() ) ; 
-
+  int *score_matrix; 
+  
 
   return 0 ; 
   /* CURRENT END OF THE PROGRAM */ 
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+/*
+
   int *score_matrix , *direction_matrix ; 
   score_matrix = (int *) malloc(nrows  * ncols * sizeof(int) )  ;
   direction_matrix = (int *) malloc(nrows  * ncols * sizeof(int) )  ;
@@ -349,9 +352,6 @@ int  main(int argc,char *argv[]) {
    
      printf("align1 = %s\n", align1);
      printf("align2 = %s\n", align1);
-
-
-
   } 
 
   gettimeofday(&total_finish,NULL);
@@ -359,6 +359,6 @@ int  main(int argc,char *argv[]) {
   printf("-----------------------------------------\n" ) ;
   
   MPI_Finalize(); 
-    
+*/    
   return 1; 
 }
