@@ -8,7 +8,7 @@
 #include <sys/time.h>
 
 
-#define DEBUG   1
+#define DEBUG   0
 #define STRLEN     8
 #define   ITER       1
 #define GAP   -1

@@ -75,16 +75,19 @@ int main(int argc,char *argv[]) {
   align2_arr = (int *) malloc(seq2_length * sizeof(int) )  ; 
 
   generate_random_array(seq1_arr, seq1_length,  20);   
-  generate_random_array(seq2_arr, seq2_length,  20);   
+
+  if (argc == 4)
+     seq2_arr = seq1_arr;
+  else
+     generate_random_array(seq2_arr, seq2_length,  20);   
 
   printf("%s, seq1_length  = %d\n", program_name, seq1_length); 
   printf("%s, seq2_length  = %d\n", program_name, seq2_length); 
 
-  printf("%s, alphabet[%d] = %c \n", 20, program_name, alphabet[20]  ); 
-
   for(i=0;i < seq1_length;i++){ 
     seq1[i] =  alphabet[seq1_arr[i]] ; 
   } 
+  printf("%s, Alphabet 1\n", program_name); 
   for(i=0;i < seq2_length; i++){ 
     seq2[i] =  alphabet[seq2_arr[i]] ; 
   } 
@@ -100,25 +103,13 @@ int main(int argc,char *argv[]) {
   int align1_length,align2_length;
 
 
+  printf("%s, %f seconds to complete work. \n", program_name, get_time_diff(&total_start, &total_finish)) ; 
   do_sw(seq1_arr, seq1_length, seq2_arr, seq2_length, 
         align1_arr, &align1_length, align2_arr, &align2_length ); 
 
   gettimeofday(&total_finish,NULL); 
 
   printf("%s, %f seconds to complete work. \n", program_name, get_time_diff(&total_start, &total_finish)) ; 
-//  char *align1, *align2  ; 
-//  align1 = (char *) calloc(seq1_length,sizeof(char) )  ; 
-//  align2 = (char *) calloc(seq2_length,sizeof(char) )  ; 
-
-//  for(i=0;i<align1_length;i++){ 
-//    align1[align1_length-i-1] =  alphabet[align1_arr[i]] ; 
-//  } 
-//  for(i=0;i<align2_length;i++){ 
-//    align2[align2_length-i-1] =  alphabet[align2_arr[i]] ; 
-//  } 
-
-//  printf("align1 = %s\n", align1); 
-//  printf("align2 = %s\n", align1); 
 
 
 /*
