@@ -17,8 +17,8 @@ export P4_GLOBMEMSIZE
 
 ### Specify the number of NODES for your jobs. 
 ### ** ALWAYS USE "ppn=2" **
-### using 4 nodes is done as
-#PBS -l nodes=4:ppn=2
+### using 1 nodes is done as
+#PBS -l nodes=1:ppn=2
 
 ### You can override the default 1 hour time limit.  -l walltime=HH:MM:SS
 #PBS -l walltime=99:00:00
@@ -62,22 +62,17 @@ cleanup()
 
 #### YOUR PROGRAM: modivy only the last two items on the line
 
+
 PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/sequential/sw_sequential_random"
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  1000 100
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  2000 200
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  3000 400
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  4000 400
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  5000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  6000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  7000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  8000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  9000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  10000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  11000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  12000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  13000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  14000 500
-mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  15000 500
+NP=1
+#mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  1000 50
+
+
+#for ((j=100;j<=500;j+=100)); do
+  for ((i=1000;i<=15000;i+=1000)); do
+    mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i 100
+  done
+#done
 
 ## DO NOT CHANGE ANYTHING BELOW ###############
 
