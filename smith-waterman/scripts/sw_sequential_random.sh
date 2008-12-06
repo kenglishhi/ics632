@@ -62,8 +62,22 @@ cleanup()
 
 #### YOUR PROGRAM: modivy only the last two items on the line
 
-PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/sequential/sw_sequential_random_sync "
+PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/sequential/sw_sequential_random"
 mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  1000 100
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  2000 200
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  3000 400
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  4000 400
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  5000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  6000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  7000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  8000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  9000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  10000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  11000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  12000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  13000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  14000 500
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np 1 $PROGRAM_EXE  15000 500
 
 ## DO NOT CHANGE ANYTHING BELOW ###############
 
