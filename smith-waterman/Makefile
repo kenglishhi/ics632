@@ -7,3 +7,5 @@ compile:
 clean: 
 	cd sequential && make clean
 	cd ring && make clean
+install:
+	cd scripts && make install
