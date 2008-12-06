@@ -76,10 +76,11 @@ int  main(int argc,char *argv[]) {
   nrows =  ncols/nprocs;
 //  int ncols =  (seq1_length+1);
   
-  printf("%s, RANK%d, nrows = %d, ncols = %d, chunk_size = %d, seq1_length = %d \n", program_name, rank, nrows, ncols, chunk_size, seq1_length); 
 
-  if (DEBUG)  
+  if (DEBUG)   { 
+    printf("%s, RANK%d, nrows = %d, ncols = %d, chunk_size = %d, seq1_length = %d \n", program_name, rank, nrows, ncols, chunk_size, seq1_length); 
     printf("%s, RANK%d, nrows = %d, ncols = %d\n", program_name, rank, nrows, ncols); 
+  } 
   if (seq1_length != seq2_length) {
     printf("Current program limitation, seq1_length != seq2_length \n");
     return 1;
@@ -126,7 +127,7 @@ int  main(int argc,char *argv[]) {
      seq1 = (char *) malloc(seq1_length * sizeof(char) )  ;
      seq2 = (char *) malloc(seq2_length * sizeof(char) )  ;
 
-//     if (DEBUG) { 
+     if (DEBUG) { 
        for(i=0; i < seq1_length; i++){
          seq1[i] =  alphabet[seq1_arr[i]] ;
        }
@@ -136,7 +137,7 @@ int  main(int argc,char *argv[]) {
        }
        printf("seq1 = %s --\n", seq1);
        printf("seq2 = %s --\n", seq2);
-//     } 
+     } 
   } 
 
   if (DEBUG) 
@@ -209,22 +210,19 @@ int  main(int argc,char *argv[]) {
     Ring_Send(my_results_arr, 3); 
   } else if (rank == (nprocs-1))  { 
     Ring_Recv(global_results_arr, 3); 
-    printf("%s, RANK%d, Compare %d > %d \n",program_name, rank, my_results_arr[0], global_results_arr[0] );
+    if (DEBUG) 
+      printf("%s, RANK%d, Compare %d > %d \n",program_name, rank, my_results_arr[0], global_results_arr[0] );
     if (*my_results_arr >= *global_results_arr  ) { 
-       printf("%s, RANK%d, My Results are higher \n",program_name, rank);
-//       global_results_arr[0] = my_results_arr[0]; 
-//       global_results_arr[1] = my_results_arr[1]; 
-//       global_results_arr[2] = my_results_arr[2]; 
+       if (DEBUG) 
+         printf("%s, RANK%d, My Results are higher \n",program_name, rank);
        global_results_arr = my_results_arr; 
     } 
 
   } else { 
     Ring_Recv(global_results_arr, 3); 
     if (*my_results_arr >= *global_results_arr ) { 
-       printf("%s, RANK%d, My Results are higher \n",program_name, rank);
-//       global_results_arr[0] = my_results_arr[0]; 
-//       global_results_arr[1] = my_results_arr[1]; 
-//       global_results_arr[2] = my_results_arr[2]; 
+       if (DEBUG) 
+         printf("%s, RANK%d, My Results are higher \n",program_name, rank);
        global_results_arr = my_results_arr; 
     } 
     Ring_Send(global_results_arr, 3); 
@@ -236,7 +234,6 @@ int  main(int argc,char *argv[]) {
   global_max_rownum  = global_results_arr[1]; 
   max_colnum  = global_results_arr[2]; 
 
-  printf("%s, RANK%d, Global Max_score: %d,max_rownum:%d, max_colnum: %d\n",program_name, rank,  max_score, global_max_rownum, max_colnum  );
 
   int lower = (rank * nrows) ; 
   int upper = ((rank+1) * nrows) ; 
@@ -247,7 +244,6 @@ int  main(int argc,char *argv[]) {
 
   int *output_meta_data; 
   output_meta_data = (int *) malloc(5 * sizeof(int) )  ;
-  printf("%s, RANK%d, max_rownum: %d Lower: %d, Upper: %d \n",program_name, rank, global_max_rownum, lower, upper  );
 
   if (global_max_rownum >= lower && global_max_rownum < upper ) { 
      if (DEBUG ) 
@@ -329,7 +325,7 @@ int  main(int argc,char *argv[]) {
      char *align1, *align2  ;
      align1 = (char *) calloc(seq1_length,sizeof(char) )  ;
      align2 = (char *) calloc(seq2_length,sizeof(char) )  ;
-     printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
+//     printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
      for(i=0;i<align1_length;i++){
    
        align1[align1_length-i-1] =  alphabet[align1_arr[i]] ;
@@ -338,16 +334,16 @@ int  main(int argc,char *argv[]) {
        align2[align2_length-i-1] =  alphabet[align2_arr[i]] ;
      }
    
-     printf("align1 = %s\n", align1);
-     printf("align2 = %s\n", align1);
+//     printf("align1 = %s\n", align1);
+//     printf("align2 = %s\n", align1);
 
 
 
   } 
 
   gettimeofday(&total_finish,NULL);
-  printf("%s, %d, %f seconds to complete work\n", program_name, rank, get_time_diff(&total_start, &total_finish) ) ;
-  printf("-----------------------------------------\n" ) ;
+  printf("%s, Time, Columns, Chunk\n", program_name) ;
+  printf("%s, %f, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols, chunk_size ) ;
 
   MPI_Finalize(); 
     
