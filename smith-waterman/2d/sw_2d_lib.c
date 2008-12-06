@@ -27,19 +27,21 @@ double get_time_diff(struct timeval *start, struct timeval *finish);
 void print_score_matrix(int *matrix, int nrows, int ncols); 
 void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int width)  ;
 
-
 void Bottom_Send(int *buffer, int length )  ; 
 void Right_Send(int *buffer, int length ) ; 
 
 void Top_Recv(int *buffer, int length ) ; 
 void Left_Recv(int *buffer, int length ) ; 
 
-int get_right_destination() ;
-int get_bottom_destination() ;
+int getRightDestination() ;
+int getBottomDestination() ;
 
-int get_left_source() ;
-int get_top_source() ;
+int getLeftSource() ;
+int getTopSource() ;
 
+
+int isTopRowChunk() ; 
+int isLeftColumnChunk() ; 
 
 void generate_random_array(int *arr, int size, int rand_max) { 
    int i; 
@@ -51,14 +53,14 @@ void generate_random_array(int *arr, int size, int rand_max) {
 } 
 
 void Right_Send(int *buffer, int length ) { 
-    int dest = get_right_destination()  ;
+    int dest = getRightDestination()  ;
     if (DEBUG)
       printf("Dest = %d \n", dest);
     MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
 } 
 
 void Bottom_Send(int *buffer, int length ) { 
-    int dest = get_bottom_destination()  ;
+    int dest = getBottomDestination()  ;
     if (DEBUG)
       printf("Dest = %d \n", dest);
 
@@ -66,23 +68,65 @@ void Bottom_Send(int *buffer, int length ) {
 } 
 
 void Left_Recv(int *buffer, int length )  { 
-    int src = get_left_source()  ;
+    int src = getLeftSource()  ;
     if (DEBUG)
       printf("Source = %d \n", src);
     MPI_Status status ;
     MPI_Recv(buffer, length, MPI_INT, src, 0, MPI_COMM_WORLD, &status);
 
+} 
+
+int isTopRowChunk() { 
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    int width  =  sqrt(nprocs);
+    if ( rank < width)  {
+       return  1 ;
+    }  else {
+       return 0 ;
+    }
+} 
+
+int isLeftColumnChunk() {
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    int width  =  sqrt(nprocs);
+    if ( rank % width == 0 )  {
+       return  1 ;
+    }  else {
+       return 0 ;
+    }
+}
+
+int global_row(int i, int chunk_size) {
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    int width  =  sqrt(nprocs); 
+//    int row = rank/width ; 
+    return ((rank) / (width)) * (chunk_size) +(i) ;   
+} 
+
+int global_column(int j, int chunk_size) {
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    int width  =  sqrt(nprocs); 
+//    int column = rank%width ; 
+    return ((rank) % (width))*(chunk_size) + (j) ;   
 } 
 
 void Top_Recv(int *buffer, int length )  {
-    int src = get_top_source()  ;
+    int src = getTopSource()  ;
     if (DEBUG)
       printf("Source = %d \n", src);
     MPI_Status status ;
     MPI_Recv(buffer, length, MPI_INT, src, 0, MPI_COMM_WORLD, &status);
 } 
 
-int get_right_destination() {
+int getRightDestination() {
     int rank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -95,7 +139,7 @@ int get_right_destination() {
     return 0;
 }
 
-int get_bottom_destination() {
+int getBottomDestination() {
     int rank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -107,7 +151,7 @@ int get_bottom_destination() {
     }
 }
 
-int get_left_source() {
+int getLeftSource() {
     int rank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -119,7 +163,7 @@ int get_left_source() {
     }
 }
 
-int get_top_source() {
+int getTopSource() {
     int rank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);

@@ -6,8 +6,10 @@ main: clean
 #	gcc -Wall sw_basic.c  -o sw_basic
 #	gcc -Wall sw_small.c  -o sw_small
 	mpicc -Wall sw_2d_lib.c 2d_test.c -o 2d_test
-	mpicc -Wall sw_2d_lib.c sw_2d_rand.c -o sw_2d
+	mpicc -Wall sw_2d_lib.c 2d_test2.c -o 2d_test2
+	mpicc -Wall sw_2d_lib.c 2d_test3.c -o 2d_test3
+	mpicc -Wall sw_2d_lib.c sw_2d.c -o sw_2d
 clean:
 #	/bin/rm -f sw_test sw_sequential sw_simple
 #	/bin/rm -f sw_basic sw_small sw  sw_parallel
-	/bin/rm -f q sw_2d
+	/bin/rm -f q 2d_test 2d_test2 2d_test3 sw_2d 
