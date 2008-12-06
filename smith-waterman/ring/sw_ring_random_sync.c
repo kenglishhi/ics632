@@ -342,8 +342,8 @@ int  main(int argc,char *argv[]) {
   } 
 
   gettimeofday(&total_finish,NULL);
-  printf("%s, Time, Columns, Chunk\n", program_name) ;
-  printf("%s, %f, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols, chunk_size ) ;
+  printf("%s, Time, Columns, Chunk, nprocs\n", program_name) ;
+  printf("%s, %f, %d, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols, chunk_size,nprocs ) ;
 
   MPI_Finalize(); 
     
