@@ -166,6 +166,7 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
      }
    } 
 }
+
 void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_matrix, int *top_i, int *top_j,int ncols,int nrows, int *output1_arr, int *output2_arr,int *align1_index,int *align2_index, int *completion_flag ) {
   int rank;
 

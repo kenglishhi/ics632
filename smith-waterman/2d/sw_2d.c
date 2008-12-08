@@ -28,6 +28,8 @@
 void generate_random_array(int *arr, int size, int rand_max);
 double get_time_diff(struct timeval *start, struct timeval *finish);
 void print_score_matrix(int *matrix, int nrows, int ncols);
+void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int ncols_chunk) ;
+
 
 
 int get_right_destination() ;
@@ -65,7 +67,7 @@ int  main(int argc,char *argv[]) {
   int ncols_matrix, ncols_chunk, seq1_length, seq2_length; 
   int i,j;
   int *seq1_arr, *seq2_arr, *align1_arr, *align2_arr;
-  int *score_matrix , *direction_matrix ;
+  int *score_matrix , *direction_matrix, *prev_row, *prev_col ;
   char *seq1, *seq2;
 
   if (argc < 2) {
@@ -85,8 +87,8 @@ int  main(int argc,char *argv[]) {
   seq1_length = ncols_matrix - 1;
   seq2_length = seq1_length ;
   if (DEBUG) { 
-    printf("[%s] ncols_matrix: %d, nprocs:%d, ncols_chunk: %d\n",program_name, ncols_matrix, nprocs,    ncols_chunk) ;    
-    printf("[%s] seq1_length: %d, seq2_length:%d, \n",program_name, seq1_length, seq2_length) ;    
+//    printf("[%s] ncols_matrix: %d, nprocs:%d, ncols_chunk: %d\n",program_name, ncols_matrix, nprocs,    ncols_chunk) ;    
+//    printf("[%s] seq1_length: %d, seq2_length:%d, \n",program_name, seq1_length, seq2_length) ;    
   } 
   
   seq1_arr = (int *) malloc(seq1_length * sizeof(int) )  ;
@@ -136,27 +138,30 @@ int  main(int argc,char *argv[]) {
   score_matrix = (int *) calloc(ncols_chunk  * ncols_chunk , sizeof(int) )  ;
   direction_matrix = (int *) calloc(ncols_chunk  * ncols_chunk , sizeof(int) )  ;
 
+  prev_row = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+  prev_col = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
 
   if (isTopRowChunk() ) {
-    for (j=0; j <= ncols_chunk ; j++) {
-      score_matrix[j] = 99;
+    for (j=0; j < ncols_chunk ; j++) {
+      score_matrix[j] = 0;
       direction_matrix[j]   = DIRECTION_NONE;
     }
   }
+
   if (isLeftColumnChunk() ) { 
     for (i=0; i < ncols_chunk; i++ ) {
-      score_matrix[i * ncols_chunk ] = 99;
+      score_matrix[i * ncols_chunk ] = 0;
       direction_matrix[i * ncols_chunk ]   = DIRECTION_NONE;
     }
   } 
-
-
-  print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
-
-
-
-
+  
+  if ((rank == 0 ) || (rank ==1 ) )  {
+    calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk ) ;
+  } 
+//  printf("%s, RANK%d, global_row() = %d ---- global_column() = %d  \n", program_name, rank, global_row(0,ncols_chunk) , global_column(0,ncols_chunk) ) ;
+//  print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
 //  printf("%s, RANK%d, Got from the Top of me :  %d\n", program_name, rank, recv_arr[0] ) ; 
+
   gettimeofday(&total_finish,NULL);
   if (DEBUG) { 
 //    printf("%s, Time, Columns, Chunk, nprocs,rank\n", program_name) ;

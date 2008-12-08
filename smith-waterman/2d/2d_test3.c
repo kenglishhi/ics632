@@ -54,7 +54,7 @@ int  main(int argc,char *argv[]) {
   int recv_arr[1] ; 
   recv_arr[0] = rank; 
 
-  printf("%s, RANK%d, global_row() = %d ---- global_column() = %d  \n", program_name, rank, global_row(1,3) , global_column(1,3) ) ; 
+  printf("%s, RANK%d, global_row() = %d ---- global_column() = %d  \n", program_name, rank, global_row(0,2) , global_column(0,2) ) ; 
 
   return 0 ; 
 

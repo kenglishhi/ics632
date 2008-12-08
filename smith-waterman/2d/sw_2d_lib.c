@@ -8,7 +8,8 @@
 #include <mpi.h>
 #include <math.h> 
 
-#define GLOBAL_ROW_NUMBER(I,RANK,ROW_SIZE) ( (RANK)*(ROW_SIZE)+(I) )
+#define GLOBAL_ROW(I,RANK,NPROCS,CHUNK_SIZE) ( ((RANK) / ((int) sqrt(NPROCS) )) * (CHUNK_SIZE) +(I)    )
+#define GLOBAL_COLUMN(J,RANK,NPROCS,CHUNK_SIZE) ( ((RANK) % ((int) sqrt(NPROCS)))*(CHUNK_SIZE) + (J)     )
 #define ARRAY_OFFSET(I,J,NROWS)  ((I)*(NROWS) + (J))
 #define DEBUG   0
 #define STRLEN  8
@@ -100,22 +101,20 @@ int isLeftColumnChunk() {
     }
 }
 
+// for testing only, inside this library we should use the macros
 int global_row(int i, int chunk_size) {
     int rank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-    int width  =  sqrt(nprocs); 
-//    int row = rank/width ; 
-    return ((rank) / (width)) * (chunk_size) +(i) ;   
+    return GLOBAL_ROW(i,rank,nprocs,chunk_size);    
 } 
 
+// for testing only, inside this library we should use the macros
 int global_column(int j, int chunk_size) {
     int rank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-    int width  =  sqrt(nprocs); 
-//    int column = rank%width ; 
-    return ((rank) % (width))*(chunk_size) + (j) ;   
+    return GLOBAL_COLUMN(j,rank,nprocs,chunk_size) ;
 } 
 
 void Top_Recv(int *buffer, int length )  {
@@ -183,19 +182,18 @@ double get_time_diff(struct timeval *start, struct timeval *finish) {
 }
 
 void print_score_matrix(int *matrix, int nrows, int ncols) {
-   int rank;
+   int rank, nprocs;
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
    int *current_value;
    int i,j;
 
-   if (DEBUG) 
-     printf("nrows , col_size = [%d,%d]  \n\n", nrows, ncols );
    for (i = 0; i < nrows; i++) {
         printf(" [" );
         for (j = 0; j < ncols; j++){
             current_value = matrix + (i * ncols) + j;
-            printf("(%d,%d)=%d ", GLOBAL_ROW_NUMBER(i,rank,nrows), j, *current_value  );
+            printf("RANK%d, (%d,%d)=%d ", rank , GLOBAL_ROW(i, rank, nprocs, nrows), GLOBAL_COLUMN(j, rank, nprocs, ncols) , *current_value  );
         }
         printf("] " );
 
@@ -204,21 +202,68 @@ void print_score_matrix(int *matrix, int nrows, int ncols) {
 }
 
 
-void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int ncols) {
+void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int ncols_chunk) {
    int rank, nprocs;  
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 //   printf("Calculating chunk= %d, col_start\n", col_start);  
+   int row_start=0, col_start=0, row_end=ncols_chunk, col_end=ncols_chunk, i, j ;
+   int letter1, letter2 ;
+   int diagonal_score, left_score, up_score;
+   int diagonal_value, left_value, up_value;
+   char alphabet[21] = "acdefghiklmnpqrstvwy";
 
+   if (GLOBAL_ROW(0,rank,nprocs,ncols_chunk)  == 0 ) {
+      row_start=1;
+      prev_row[0] = 0 ;
+   }
+
+   if (GLOBAL_COLUMN(0,rank,nprocs,ncols_chunk) == 0 ) {
+     col_start=1;
+     prev_col[0] = 0 ;
+   } 
+
+
+   for (i = row_start; i < row_end;  i++ ) {
+     for (j = col_start; j < col_end; j++ ) {
+       // WRONG! 
+       if (i==0) { 
+//         up_value = *(prev_row + j+1) 
+       } else {
+//         up_value = *(matrix_score + i*ncols_chunk + j );
+       } 
+       if (j==0) { 
+ //        left_value = prev_row[j-1];
+       } else {
+//         _value = *(matrix_score + i*ncols_chunk + j );
+       } 
+
+       diagonal_score=0; left_score=0; up_score=0;
+       letter1 = *(seq1_arr + GLOBAL_ROW((i-1), rank, nprocs, ncols_chunk) ) ;
+       letter2 = *(seq2_arr + GLOBAL_COLUMN(j-1, rank, nprocs, ncols_chunk ) );
+       printf(" RANK%d, score(%d,%d)\n ", rank , GLOBAL_ROW(i, rank, nprocs, ncols_chunk), GLOBAL_COLUMN(j, rank, nprocs, ncols_chunk));
+       printf(" RANK%d, score[%d,%d] letter1 = %c letter2 = %c\n ", rank , GLOBAL_ROW(i, rank, nprocs, ncols_chunk), GLOBAL_COLUMN(j, rank, nprocs, ncols_chunk),  alphabet[letter1], alphabet[letter2]); 
+       if (letter1 == letter2)  {
+         diagonal_score = *diagscore_matrix[SEQ_INDEX(i-1,j-1,matrix_width) ] + MATCH;
+       }
+       else {
+         diagonal_score = score_matrix[ SEQ_INDEX(i-1, j-1, matrix_width) ] + MISMATCH;
+       }
+
+
+     } 
+   } 
 
    return ; 
 }
 void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_matrix, int *top_i, int *top_j,int ncols,int nrows, int *output1_arr, int *output2_arr,int *align1_index,int *align2_index, int *completion_flag ) {
-  int rank;
 
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  char *program_name;
-  char  alphabet[21] = "acdefghiklmnpqrstvwy";
+   int rank, nprocs;  
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+   char *program_name;
+   char  alphabet[21] = "acdefghiklmnpqrstvwy";
   program_name = "sw_ring_random_sync";
   int *diagonal_ptr; 
   int i, j; 
@@ -239,7 +284,7 @@ void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_mat
             completion_flag = &done_flag; 
             break ;
         }
-        if (GLOBAL_ROW_NUMBER(i,rank,nrows) == 0 ) {
+        if (GLOBAL_ROW(i,rank,nprocs, nrows) == 0 ) {
             if (DEBUG)  
               printf("%s, RANK%d, i == 0 !!!!!\n", program_name, rank  ) ;
             completion_flag = &done_flag; 
@@ -249,11 +294,11 @@ void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_mat
 
         if (*diagonal_ptr ==  DIRECTION_DIAGONAL ) {
             if (DEBUG)  
-              printf("%s, RANK%d, [%d,%d] DIRECTION_DIAGONAL !!!!!\n", program_name, rank, GLOBAL_ROW_NUMBER(i,rank,nrows), j   ) ;
+              printf("%s, RANK%d, [%d,%d] DIRECTION_DIAGONAL !!!!!\n", program_name, rank, GLOBAL_ROW(i,rank,nprocs, nrows), j   ) ;
             output1_arr[*align1_index] = seq1_arr[j-1]  ;
             output2_arr[*align2_index] = seq2_arr[i-1]  ;
             if (DEBUG)  
-              printf("%s, RANK%d, [%d,%d] output1_arr = %c !!!!!\n", program_name, rank, GLOBAL_ROW_NUMBER(i,rank,nrows), j,alphabet[output1_arr[*align1_index]]    ) ;
+              printf("%s, RANK%d, [%d,%d] output1_arr = %c !!!!!\n", program_name, rank, GLOBAL_ROW(i,rank,nprocs, nrows), j,alphabet[output1_arr[*align1_index]]    ) ;
             i--; j--;
         }
         else if (*diagonal_ptr ==  DIRECTION_LEFT  ) {
