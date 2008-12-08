@@ -19,17 +19,17 @@
 #define DIRECTION_LEFT     2
 #define DIRECTION_DIAGONAL 3
 
-int do_sw(int *, int , int *, int , int *, int *, int *, int *); 
+int do_sw(int *, int, int *, int, int *, int *, int *, int *);
 int  main(int argc,char *argv[]) {
-  char  alphabet[21] = "acdefghiklmnpqrstvwy";
+  char alphabet[21] = "acdefghiklmnpqrstvwy";
   char *seq1;
   char *seq2;
   if (argc < 3) {
-     printf("You need 2 arguments\n");
-     return 0 ;
+    printf("You need 2 arguments\n");
+    return 0 ;
   } else {
-     seq1 = argv[1] ;
-     seq2 = argv[2] ;
+    seq1 = argv[1] ;
+    seq2 = argv[2] ;
   }
 
   printf("seq1 = %s\n", seq1);
@@ -59,30 +59,30 @@ int  main(int argc,char *argv[]) {
   for (i=0; i < seq1_length; i++)
     for (j=0; j<20; j++)
       if (seq1[i] == alphabet[j])
-        seq1_arr[i] = j;
+	seq1_arr[i] = j;
 
   for (i=0; i < seq2_length; i++)
     for (j=0; j<20; j++)
       if (seq2[i] == alphabet[j])
-        seq2_arr[i] = j;
+	seq2_arr[i] = j;
 
-  do_sw(&seq1_arr[0],  seq1_length, &seq2_arr[0], seq2_length, &align1_arr[0], &align1_length, &align2_arr[0], &align2_length);  
+  do_sw(&seq1_arr[0],  seq1_length, &seq2_arr[0], seq2_length, &align1_arr[0], &align1_length, &align2_arr[0], &align2_length);
   printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
 
   char *align1, *align2  ;
   align1 = (char *) calloc(seq1_length,sizeof(char) )  ;
   align2 = (char *) calloc(seq2_length,sizeof(char) )  ;
   printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
-  for(i=0;i<align1_length;i++){
-     
+  for(i=0; i<align1_length; i++){
+
     align1[align1_length-i-1] =  alphabet[align1_arr[i]] ;
   }
-  for(i=0;i<align2_length;i++){
+  for(i=0; i<align2_length; i++){
     align2[align2_length-i-1] =  alphabet[align2_arr[i]] ;
   }
 
   printf("align1 = %s\n", align1);
   printf("align2 = %s\n", align1);
 
-  return 0; 
+  return 0;
 }
