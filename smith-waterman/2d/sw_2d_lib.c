@@ -85,7 +85,7 @@ int isTopRowChunk() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if ( rank < width)  {
     return 1 ;
   }  else {
@@ -96,7 +96,7 @@ int isBottomRowChunk() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if ( (rank + width ) >= nprocs ) {
     return 1;
   }  else {
@@ -108,7 +108,7 @@ int isLeftColumnChunk() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if ( rank % width == 0 )  {
     return 1 ;
   }  else {
@@ -119,7 +119,7 @@ int isRightColumnChunk() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if ( rank % width == (width -1)  )  {
     return 1 ;
   }  else {
@@ -155,7 +155,7 @@ int getRightDestination() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if (rank%width == (width -1)) {
     return (rank - width) + 1  ;
   }  else {
@@ -168,7 +168,7 @@ int getBottomDestination() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if ( (rank + width ) >= nprocs ) {
     return rank % width ;
   }  else {
@@ -180,7 +180,7 @@ int getLeftSource() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if (rank%width == 0 ) {
     return (rank + width) - 1  ;
   }  else {
@@ -192,7 +192,7 @@ int getTopSource() {
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  int width  =  sqrt(nprocs);
+  int width  = (int) sqrt(nprocs);
   if ( rank  < width ) {
     return nprocs  - width + rank ;
   }  else {
