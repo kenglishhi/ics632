@@ -10,7 +10,7 @@
 #include <math.h>
 
 
-#define DEBUG    1
+#define DEBUG    0
 #define STRLEN     8
 #define ITER       1
 #define GAP   -1
@@ -198,7 +198,7 @@ int  main(int argc,char *argv[]) {
   calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
 //  if (rank == 3 || rank==0 || rank ==1 || rank == 4 ) { 
 //  if (rank == 0 || rank==1  || rank == 4  || rank == 1) { 
-    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+//    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
 //  } 
   if (0 ) { 
 //  if (rank && 0 || rank == 3 || rank == 4 || rank == 1) { 
@@ -262,10 +262,13 @@ int  main(int argc,char *argv[]) {
 */
 //  } 
   gettimeofday(&total_finish,NULL);
-  if (DEBUG) {
-//    printf("%s, Time, Columns, Chunk, nprocs,rank\n", program_name) ;
-//    printf("%s, %f, %d, %d, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols_matrix, ncols_chunk,nprocs, rank ) ;
-  }
+//  if (DEBUG) {
+    printf("%s, Time, Columns, Chunk, nprocs,rank\n", program_name) ;
+    printf("%s, %f, %d, %d, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols_matrix, ncols_chunk,nprocs, rank ) ;
+//  }
+
+//  printf("%s, Time, Columns, Chunk, nprocs\n", program_name) ;
+//  printf("%s, %f, %d, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols, chunk_size,nprocs ) ;
 
   return 0 ;
 
