@@ -88,6 +88,7 @@ int  main(int argc,char *argv[]) {
       exit(1);
     }
   }
+
   if (ncols_matrix%nprocs != 0 ) {
     printf("[%s] Number of Columns (%d) must be divisible by number of procs (%d)\n", program_name, ncols_matrix, nprocs );
   }
@@ -147,6 +148,12 @@ int  main(int argc,char *argv[]) {
 
   prev_row = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
   prev_col = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+  for (i =0; i < ncols_chunk+1; i ++ ) {
+    prev_row[i] = 999;
+  } 
+  for (i =0; i < ncols_chunk+1; i ++ ) {
+    prev_col[i] = 888;
+  } 
 
   if (isTopRowChunk() ) {
     for (j=0; j < ncols_chunk ; j++) {
@@ -169,17 +176,48 @@ int  main(int argc,char *argv[]) {
   if (!isLeftColumnChunk() ) { 
     Left_Recv(prev_col, ncols_chunk+1 ) ; 
   } 
-  if (rank == 4) { 
+
+  if (0 ) { 
+//  if ( rank == 0 || rank == 3 || rank == 4 || rank == 1) { 
+
+    printf("RANK%d PRE prev_row[] =", rank, j, prev_row[j] ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
-      printf("RANK%d prev_col[%d] = %d\n", rank, j, prev_col[j] ); 
+      printf("%d, ", prev_row[j] ); 
     } 
+    printf("\n");
+
+    printf("RANK%d PRE prev_col[] =", rank, j, prev_col[j] ); 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("%d, ", prev_col[j] ); 
+    } 
+    printf("\n");
   } 
 
+
+
   calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
-  if (rank == 0 || rank ==1 || rank == 4 ) { 
+//  if (rank == 3 || rank==0 || rank ==1 || rank == 4 ) { 
+//  if (rank == 0 || rank==1  || rank == 4  || rank == 1) { 
     print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+//  } 
+  if (0 ) { 
+//  if (rank && 0 || rank == 3 || rank == 4 || rank == 1) { 
+
+    printf("RANK%d POST prev_row[] =", rank, j, prev_row[j] ); 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("%d, ", prev_row[j] ); 
+    } 
+    printf("\n");
+
+    printf("RANK%d POST prev_col[] =", rank, j, prev_col[j] ); 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("%d, ", prev_col[j] ); 
+    } 
+    printf("\n");
   } 
-  
+
+
+ 
   if (!isBottomRowChunk() ) { 
     Bottom_Send(prev_row, ncols_chunk+1 ) ;
   } 

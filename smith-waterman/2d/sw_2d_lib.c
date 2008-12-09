@@ -241,23 +241,27 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
 
   if (GLOBAL_ROW(0,rank,nprocs,ncols_chunk)  == 0 ) {
     row_start=1;
-    printf("RANK%d Is first row \n", rank);
     for (i = 0; i < row_end+1;  i++ ) {
       prev_row[i] = 0 ;
     }
   }
-  int last_prev_row_value = *(prev_row+row_end-1); 
-  int last_prev_col_value = *(prev_col+col_end-1); 
+
+  int last_prev_row_value = prev_row[col_end]; 
+  int last_prev_col_value = prev_col[col_end]; 
+  if (rank == -1) { 
+    printf("RANK%d last_prev_row_value = %d, last_prev_col_value : %d \n", rank, last_prev_row_value, last_prev_col_value);
+  }
   if (GLOBAL_COLUMN(0,rank,nprocs,ncols_chunk) == 0 ) {
     col_start=1;
-    printf("RANK%d Is first column \n", rank);
+//    printf("RANK%d Is first column \n", rank);
     for (i = 0; i < col_end+1;  i++ ) {
       prev_col[i] = 0 ;
     }
+    prev_row[0] = 0 ;
   }
 
   if (prev_col[0] != prev_row[0] ) {
-    printf("Assertion: prev_col[0] != prev_row[0] \n");
+    printf("RANK%d Assertion: prev_col[0] (%d) != prev_row[0] (%d)  \n", rank, prev_col[0], prev_row[0] );
   }
 
 
@@ -276,17 +280,14 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
 	left_value_ptr = (prev_col + i + 1);
         if (DEBUG ) 
         printf(" RANK%d,j=%d  left_value_ptr = %d \n ", rank, j, *left_value_ptr );
-        if (rank == 4) { 
-          printf(" RANK%d,j=%d,i=%d, up_value_ptr = %d,left_value_ptr = %d \n ", rank, j,i, *up_value_ptr, *left_value_ptr );
-        } 
       } else {
 	left_value_ptr = (score_matrix + i * ncols_chunk + (j-1) );
       }
 
 
       if (j==0 && i==0) {
-	diagonal_value_ptr = (prev_col) ;  // or prev_row, they should have the same value, see assertion above.
-        if (rank ==4 ) 
+	diagonal_value_ptr = (prev_row) ;  // or prev_row, they should have the same value, see assertion above.
+        if (DEBUG ) 
         printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
       } else if (i==0) {
 	diagonal_value_ptr = (prev_row + j);
@@ -373,8 +374,8 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
     }
   }
   
-  prev_row[0] = last_prev_row_value; 
-  prev_col[0] = last_prev_col_value; 
+  prev_row[0] = last_prev_col_value; 
+  prev_col[0] = last_prev_row_value; 
 
   return ;
 }
