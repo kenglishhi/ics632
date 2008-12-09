@@ -18,6 +18,8 @@
 ### using 4 nodes is done as
 #PBS -l nodes=4:ppn=2
 
+P4_GLOBMEMSIZE=33554432
+
 ### You can override the default 1 hour time limit.  -l walltime=HH:MM:SS
 #PBS -l walltime=99:00:00
 
@@ -61,9 +63,8 @@ cleanup()
 #### YOUR PROGRAM: modivy only the last two items on the line
 
 PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/ring/sw_ring_random_async"
-#mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS /home/kenglish/workspace/ics632/hw2/exercise_1/question_1/simple_broadcast.exe 1000 
 
-for ((j=100;j<=500;j+=100)); do
+for ((j=400;j<=400;j+=100)); do
   for ((i=1000;i<=15000;i+=1000)); do
     mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
   done

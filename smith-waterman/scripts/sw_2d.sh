@@ -2,7 +2,7 @@
 ### VERSION 0.1
 
 ### Set the job name
-#PBS -N sw_ring_random_sync
+#PBS -N sw_2d
 
 
 ### Uncomment to send email when the job is completed:
@@ -15,8 +15,10 @@
 
 ### Specify the number of NODES for your jobs. 
 ### ** ALWAYS USE "ppn=2" **
-### using 4 nodes is done as
-#PBS -l nodes=4:ppn=2
+### using 9 nodes is done as
+#PBS -l nodes=9:ppn=2
+
+P4_GLOBMEMSIZE=33554432
 
 ### You can override the default 1 hour time limit.  -l walltime=HH:MM:SS
 #PBS -l walltime=99:00:00
@@ -26,7 +28,6 @@
 ### Set the queue to "default".
 #PBS -q default
 
-P4_GLOBMEMSIZE=33554432
 
 ### Switch to the working directory; by default Torque launches processes from your home directory.
 ### Jobs should only be run from /home or a lower directory
@@ -61,18 +62,13 @@ cleanup()
 
 #### YOUR PROGRAM: modivy only the last two items on the line
 
-PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/ring/sw_ring_random_sync"
+PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/2d/sw_2d"
 
 for ((j=400;j<=400;j+=100)); do
- for ((i=1000;i<=15000;i+=1000)); do
-   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
- done
+  for ((i=1000;i<=15000;i+=1000)); do
+    mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
+  done
 done
-#   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
-#   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
-#   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
-#   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
-#   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
 
 ## DO NOT CHANGE ANYTHING BELOW ###############
 
