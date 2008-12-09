@@ -98,7 +98,7 @@ int  main(int argc,char *argv[]) {
 
 //  int chunk_size = 10; // (ncols)/2;
   if (((ncols) % chunk_size) != 0 ) {
-    printf("Current program limitation, ncols (%d) must be 2 (%d)  \n", (ncols), nprocs );
+    printf("Current program limitation, ncols (%d) must be divisible by chunk size (%d)  \n", (ncols), chunk_size );
     return 1;
   }
 
