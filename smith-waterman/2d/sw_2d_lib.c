@@ -44,7 +44,9 @@ int getTopSource() ;
 
 
 int isTopRowChunk() ;
+int isBottomRowChunk() ;
 int isLeftColumnChunk() ;
+int isRightColumnChunk() ;
 
 void generate_random_array(int *arr, int size, int rand_max) {
   int i;
@@ -90,6 +92,17 @@ int isTopRowChunk() {
     return 0 ;
   }
 }
+int isBottomRowChunk() { 
+  int rank, nprocs;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+  int width  =  sqrt(nprocs);
+  if ( (rank + width ) >= nprocs ) {
+    return 1;
+  }  else {
+    return 0 ;
+  }
+} 
 
 int isLeftColumnChunk() {
   int rank, nprocs;
@@ -97,6 +110,17 @@ int isLeftColumnChunk() {
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
   int width  =  sqrt(nprocs);
   if ( rank % width == 0 )  {
+    return 1 ;
+  }  else {
+    return 0 ;
+  }
+}
+int isRightColumnChunk() {
+  int rank, nprocs;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+  int width  =  sqrt(nprocs);
+  if ( rank % width == (width -1)  )  {
     return 1 ;
   }  else {
     return 0 ;
@@ -217,13 +241,16 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
 
   if (GLOBAL_ROW(0,rank,nprocs,ncols_chunk)  == 0 ) {
     row_start=1;
+    printf("RANK%d Is first row \n", rank);
     for (i = 0; i < row_end+1;  i++ ) {
       prev_row[i] = 0 ;
     }
   }
-
+  int last_prev_row_value = *(prev_row+row_end-1); 
+  int last_prev_col_value = *(prev_col+col_end-1); 
   if (GLOBAL_COLUMN(0,rank,nprocs,ncols_chunk) == 0 ) {
     col_start=1;
+    printf("RANK%d Is first column \n", rank);
     for (i = 0; i < col_end+1;  i++ ) {
       prev_col[i] = 0 ;
     }
@@ -239,22 +266,36 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
       // WRONG!
       if ( i==0 ) {
 	up_value_ptr = (prev_row + j+1)  ;
+        if (DEBUG) 
+        printf(" RANK%d,  up_value_ptr = %d \n ", rank, *up_value_ptr );
       } else {
 	up_value_ptr = (score_matrix + (i-1) * ncols_chunk + j );
       }
 
       if (j==0) {
-	left_value_ptr = (prev_col + j + 1);
+	left_value_ptr = (prev_col + i + 1);
+        if (DEBUG ) 
+        printf(" RANK%d,j=%d  left_value_ptr = %d \n ", rank, j, *left_value_ptr );
+        if (rank == 4) { 
+          printf(" RANK%d,j=%d,i=%d, up_value_ptr = %d,left_value_ptr = %d \n ", rank, j,i, *up_value_ptr, *left_value_ptr );
+        } 
       } else {
 	left_value_ptr = (score_matrix + i * ncols_chunk + (j-1) );
       }
 
+
       if (j==0 && i==0) {
 	diagonal_value_ptr = (prev_col) ;  // or prev_row, they should have the same value, see assertion above.
+        if (rank ==4 ) 
+        printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
       } else if (i==0) {
 	diagonal_value_ptr = (prev_row + j);
+        if (DEBUG) 
+        printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
       } else if (j==0) {
 	diagonal_value_ptr = (prev_col + i);
+        if (DEBUG) 
+        printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
       } else {
 	diagonal_value_ptr = (score_matrix + (i-1) * (ncols_chunk + (j-1) ) );
       }
@@ -264,8 +305,9 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
       letter1 = *(seq1_arr + GLOBAL_ROW((i-1), rank, nprocs, ncols_chunk) ) ;
       letter2 = *(seq2_arr + GLOBAL_COLUMN(j-1, rank, nprocs, ncols_chunk ) );
 
-      printf(" RANK%d, score(%d,%d)\n ", rank, GLOBAL_ROW(i, rank, nprocs, ncols_chunk), GLOBAL_COLUMN(j, rank, nprocs, ncols_chunk));
-      printf(" RANK%d, score[%d,%d] letter1 = %c letter2 = %c\n ", rank, GLOBAL_ROW(i, rank, nprocs, ncols_chunk), GLOBAL_COLUMN(j, rank, nprocs, ncols_chunk),  alphabet[letter1], alphabet[letter2]);
+//      printf(" RANK%d, score[%d,%d] letter1 = %c letter2 = %c\n ", rank, GLOBAL_ROW(i, rank, nprocs, ncols_chunk), GLOBAL_COLUMN(j, rank, nprocs, ncols_chunk),  alphabet[letter1], alphabet[letter2]);
+
+      if (DEBUG) 
       printf(" RANK%d, diagonal_value_ptr = %d\n ", rank, *diagonal_value_ptr );
 
       if (letter1 == letter2)  {
@@ -276,26 +318,28 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
       }
       up_score   = *up_value_ptr + GAP;
       left_score = *left_value_ptr + GAP;
-      printf(" RANK%d, diagonal_score = %d, left_score = %d, up_score = %d \n ", rank, diagonal_score, left_score, up_score );
-      printf(" RANK%d, i= %d, i = %d, seq_index = %d \n ", rank, i, j, SEQ_INDEX(i,j,ncols_chunk)  );
+      if (DEBUG)  { 
+        printf(" RANK%d, diagonal_score = %d, left_score = %d, up_score = %d \n ", rank, diagonal_score, left_score, up_score );
+        printf(" RANK%d, i= %d, j = %d, seq_index = %d \n ", rank, i, j, SEQ_INDEX(i,j,ncols_chunk)  );
+      } 
 
 
       if ((diagonal_score <= 0) && (up_score <= 0) && (left_score <= 0)) {
 	score_matrix[  SEQ_INDEX(i,j,ncols_chunk) ]   = 0;
 	direction_matrix[ SEQ_INDEX(i,j,ncols_chunk) ]   = DIRECTION_NONE;
 
-	if (i ==  (row_end -1) ) {
-	  prev_row[j-1] = 0 ;
+	if (i ==  (row_end- 1) ) {
+	  prev_row[j+1] = 0 ;
 	}
 	if (j ==  (col_end -1) ) {
-	  prev_col[i-1] = 0 ;
+	  prev_col[i+1] = 0 ;
 	}
 	continue ;
       }
 
       // choose best score
       if (diagonal_score >= up_score) {
-	printf(" RANK%d, score_matrix= %d, direction_matrix = %d\n ", rank, score_matrix[ SEQ_INDEX(i,j,ncols_chunk)], direction_matrix[SEQ_INDEX(i,j,ncols_chunk)]   );
+//	printf(" RANK%d, score_matrix= %d, direction_matrix = %d\n ", rank, score_matrix[ SEQ_INDEX(i,j,ncols_chunk)], direction_matrix[SEQ_INDEX(i,j,ncols_chunk)]   );
 	if (diagonal_score >= left_score) {
 	  score_matrix[ SEQ_INDEX(i,j,ncols_chunk) ]   = diagonal_score;
 	  direction_matrix[ SEQ_INDEX(i,j,ncols_chunk) ]   = DIRECTION_DIAGONAL;
@@ -315,23 +359,22 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
 	}
       }
 
-      printf(" Going to see RANK%d, score_matrix= %d, direction_matrix = %d\n ", rank, score_matrix[ SEQ_INDEX(i,j,ncols_chunk)], direction_matrix[SEQ_INDEX(i,j,ncols_chunk)]   );
       if (score_matrix[SEQ_INDEX(i,j,ncols_chunk)] > *max_score) {
 	*max_i     = i;
 	*max_j     = j;
 	*max_score = score_matrix[ SEQ_INDEX(i,j,ncols_chunk) ] ;
       }
       if (i ==  (row_end -1) ) {
-	prev_row[j-1] = 0 ;
+	prev_row[j+1] = score_matrix[ SEQ_INDEX(i,j,ncols_chunk) ] ;
       }
       if (j ==  (col_end -1) ) {
-	prev_col[i-1] = 0 ;
+	prev_col[i+1] = score_matrix[ SEQ_INDEX(i,j,ncols_chunk) ]  ;
       }
-
-
-
     }
   }
+  
+  prev_row[0] = last_prev_row_value; 
+  prev_col[0] = last_prev_col_value; 
 
   return ;
 }

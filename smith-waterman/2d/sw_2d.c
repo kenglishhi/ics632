@@ -7,6 +7,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <mpi.h>
+#include <math.h>
+
 
 #define DEBUG    1
 #define STRLEN     8
@@ -42,8 +44,13 @@ void Right_Send(int *buffer, int length ) ;
 void Top_Recv(int *buffer, int length ) ;
 void Left_Recv(int *buffer, int length ) ;
 
+
 int isTopRowChunk() ;
+int isBottomRowChunk() ;
+
 int isLeftColumnChunk() ;
+int isRightColumnChunk() ;
+
 
 int  main(int argc,char *argv[]) {
   /* Initialize MPI */
@@ -85,7 +92,7 @@ int  main(int argc,char *argv[]) {
     printf("[%s] Number of Columns (%d) must be divisible by number of procs (%d)\n", program_name, ncols_matrix, nprocs );
   }
 
-  ncols_chunk = ncols_matrix/nprocs ;
+  ncols_chunk = ncols_matrix/ (int) sqrt(nprocs) ;
   seq1_length = ncols_matrix - 1;
   seq2_length = seq1_length ;
   if (DEBUG) {
@@ -155,15 +162,67 @@ int  main(int argc,char *argv[]) {
     }
   }
 
+  if (!isTopRowChunk() ) { 
+    Top_Recv(prev_row, ncols_chunk+1 ) ; 
+  } 
+
+  if (!isLeftColumnChunk() ) { 
+    Left_Recv(prev_col, ncols_chunk+1 ) ; 
+  } 
+  if (rank == 4) { 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("RANK%d prev_col[%d] = %d\n", rank, j, prev_col[j] ); 
+    } 
+  } 
+
+  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
+  if (rank == 0 || rank ==1 || rank == 4 ) { 
+    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+  } 
+  
+  if (!isBottomRowChunk() ) { 
+    Bottom_Send(prev_row, ncols_chunk+1 ) ;
+  } 
+  if (!isRightColumnChunk() ) { 
+    Right_Send(prev_col, ncols_chunk+1 ) ;
+  } 
+ 
+//    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+/*
+    Bottom_Send(prev_row, ncols_chunk+1 ) ;
+    Right_Send(prev_col, ncols_chunk+1 ) ;
+    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+  } else if (
+*/
+
+/*
   //if ((rank == 0 ) || (rank ==1 ) )  {
   if ((rank == 0 ) )  {
     calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
-    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
-  }
-//  printf("%s, RANK%d, global_row() = %d ---- global_column() = %d  \n", program_name, rank, global_row(0,ncols_chunk) , global_column(0,ncols_chunk) ) ;
-//  print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
-//  printf("%s, RANK%d, Got from the Top of me :  %d\n", program_name, rank, recv_arr[0] ) ;
-
+    Bottom_Send(prev_row, ncols_chunk+1 ) ;
+    Right_Send(prev_col, ncols_chunk+1 ) ;
+//    for (j=0; j<=ncols_chunk ; j++ ) { 
+////      printf("RANK%d prev_col[%d] = %d\n", rank, j, prev_col[j] ); 
+//    } 
+  } else if(rank == 1) {
+   Left_Recv(prev_col, ncols_chunk+1 ) ; 
+//   for (j=0; j<=ncols_chunk ; j++ ) { 
+//      printf("RANK%d prev_col[%d] = %d\n", rank, j, prev_col[j] ); 
+//    } 
+    calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
+  } else if(rank == 3) {
+    Top_Recv(prev_row, ncols_chunk+1 ) ; 
+//    for (i=0; i<=ncols_chunk ; i++ ) { 
+//      printf("RANK%d prev_row[%d] = %d\n", rank, i, prev_row[i] ); 
+//    }
+    calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
+  } 
+*/
+// if ((rank ==0)  || (rank == 1) || (rank == 3) ) { 
+//    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+/*
+*/
+//  } 
   gettimeofday(&total_finish,NULL);
   if (DEBUG) {
 //    printf("%s, Time, Columns, Chunk, nprocs,rank\n", program_name) ;
