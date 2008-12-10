@@ -12,4 +12,5 @@ main: clean
 clean:
 #	/bin/rm -f sw_test sw_sequential sw_simple
 #	/bin/rm -f sw_basic sw_small sw  sw_parallel
-	/bin/rm -f q 2d_test 2d_test2 2d_test3 sw_2d 
+	/bin/rm -f q 2d_test 2d_test2 2d_test3 sw_2d 2d_test2  2d_test3  sw_2d     
+
