@@ -69,10 +69,16 @@ NP=1
 
 
 #for ((j=100;j<=500;j+=100)); do
-  for ((i=1000;i<=15000;i+=1000)); do
-    mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i 100
-  done
+#  for ((i=1000;i<=15000;i+=1000)); do
+#    mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i 100
+#  done
 #done
+
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  200 100
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  400 100
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  800 100
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  1000 100
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  2000 100
 
 ## DO NOT CHANGE ANYTHING BELOW ###############
 
