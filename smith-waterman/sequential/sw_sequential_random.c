@@ -103,7 +103,7 @@ int main(int argc,char *argv[]) {
   int align1_length,align2_length;
 
 
-  printf("%s, %f seconds to complete work. \n", program_name, get_time_diff(&total_start, &total_finish)) ;
+//  printf("%s, %f seconds to complete work. \n", program_name, get_time_diff(&total_start, &total_finish)) ;
   do_sw(seq1_arr, seq1_length, seq2_arr, seq2_length,
         align1_arr, &align1_length, align2_arr, &align2_length );
 
