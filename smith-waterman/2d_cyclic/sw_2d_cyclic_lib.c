@@ -61,14 +61,16 @@ void Right_Send(int *buffer, int length ) {
   int dest = getRightDestination()  ;
   if (DEBUG)
     printf("Dest = %d \n", dest);
-  MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
+  MPI_Buffer_attach(buffer,length*sizeof(int) + MPI_BSEND_OVERHEAD ); 
+  MPI_Bsend(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
 }
 
 void Bottom_Send(int *buffer, int length ) {
   int dest = getBottomDestination()  ;
   if (DEBUG)
     printf("Dest = %d \n", dest);
-  MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
+  MPI_Buffer_attach(buffer,length*sizeof(int) + MPI_BSEND_OVERHEAD ); 
+  MPI_Bsend(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
 }
 
 void Left_Recv(int *buffer, int length )  {
@@ -236,6 +238,7 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
   int letter1, letter2 ;
   int diagonal_score, left_score, up_score;
   int *diagonal_value_ptr, *left_value_ptr, *up_value_ptr;
+  char alphabet[21] = "acdefghiklmnpqrstvwy";
 
   if (GLOBAL_ROW(0,rank,nprocs,ncols_chunk)  == 0 ) {
     row_start=1;

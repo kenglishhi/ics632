@@ -177,18 +177,39 @@ int  main(int argc,char *argv[]) {
     Left_Recv(prev_col, ncols_chunk+1 ) ; 
   } 
 
-
-  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
   if (0 ) { 
-//  if (rank && 0 || rank == 3 || rank == 4 || rank == 1) { 
+//  if ( rank == 0 || rank == 3 || rank == 4 || rank == 1) { 
 
-    printf("RANK%d POST prev_row[%d] = %d", rank, j, prev_row[j] ); 
+    printf("RANK%d PRE prev_row[] =", rank, j, prev_row[j] ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_row[j] ); 
     } 
     printf("\n");
 
-    printf("RANK%d POST prev_col[%d] = %d", rank, j, prev_col[j] ); 
+    printf("RANK%d PRE prev_col[] =", rank, j, prev_col[j] ); 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("%d, ", prev_col[j] ); 
+    } 
+    printf("\n");
+  } 
+
+
+
+  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
+//  if (rank == 3 || rank==0 || rank ==1 || rank == 4 ) { 
+//  if (rank == 0 || rank==1  || rank == 4  || rank == 1) { 
+//    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+//  } 
+  if (0 ) { 
+//  if (rank && 0 || rank == 3 || rank == 4 || rank == 1) { 
+
+    printf("RANK%d POST prev_row[] =", rank, j, prev_row[j] ); 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("%d, ", prev_row[j] ); 
+    } 
+    printf("\n");
+
+    printf("RANK%d POST prev_col[] =", rank, j, prev_col[j] ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_col[j] ); 
     } 

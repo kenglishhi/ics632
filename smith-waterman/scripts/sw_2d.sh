@@ -15,8 +15,8 @@
 
 ### Specify the number of NODES for your jobs. 
 ### ** ALWAYS USE "ppn=2" **
-### using 9 nodes is done as
-#PBS -l nodes=9:ppn=2
+### using 4 nodes is done as
+#PBS -l nodes=4:ppn=2
 
 P4_GLOBMEMSIZE=33554432
 
@@ -64,11 +64,33 @@ cleanup()
 
 PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/2d/sw_2d"
 
-for ((j=400;j<=400;j+=100)); do
-  for ((i=1000;i<=15000;i+=1000)); do
-    mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
-  done
-done
+#for ((j=100;j<=100;j+=100)); do
+#  for ((i=1000;i<=15000;i+=1000)); do
+#    mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
+#  done
+#done
+
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  100 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  200 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  400 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  800 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  1000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  1000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  2000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  3000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  4000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  5000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  6000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  7000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  8000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  9000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  10000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  11000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  12000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  13000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  14000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  15000 
+mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  16000 
 
 ## DO NOT CHANGE ANYTHING BELOW ###############
 
