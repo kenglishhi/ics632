@@ -11,7 +11,7 @@
 #define GLOBAL_ROW(I,RANK,NPROCS,CHUNK_SIZE) ( ((RANK) / ((int) sqrt(NPROCS) )) * (CHUNK_SIZE) +(I)    )
 #define GLOBAL_COLUMN(J,RANK,NPROCS,CHUNK_SIZE) ( ((RANK) % ((int) sqrt(NPROCS)))*(CHUNK_SIZE) + (J)     )
 #define ARRAY_OFFSET(I,J,NROWS)  ((I)*(NROWS) + (J))
-#define DEBUG   1
+#define DEBUG   0
 #define STRLEN  8
 #define ITER    1
 #define GAP    -1
