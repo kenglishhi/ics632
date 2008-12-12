@@ -29,7 +29,7 @@
 void generate_random_array(int *arr, int size, int rand_max);
 double get_time_diff(struct timeval *start, struct timeval *finish);
 void print_score_matrix(int *matrix, int nrows, int ncols);
-void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int ncols_chunk, int *max_score, int *max_i, int *max_j)  ;
+void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int *new_prev_row, int *new_prev_col, int ncols_chunk, int *max_score, int *max_i, int *max_j); 
 
 int get_right_destination() ;
 int get_bottom_destination() ;
@@ -71,7 +71,7 @@ int  main(int argc,char *argv[]) {
   int ncols_matrix, ncols_chunk, seq1_length, seq2_length;
   int i,j;
   int *seq1_arr, *seq2_arr, *align1_arr, *align2_arr;
-  int *score_matrix, *direction_matrix, *prev_row, *prev_col ;
+  int *score_matrix, *direction_matrix, *prev_row, *prev_col, *new_prev_row,*new_prev_col ;
   char *seq1, *seq2;
   int max_i=-1, max_j=-1, max_score=-1;
 
@@ -106,7 +106,7 @@ int  main(int argc,char *argv[]) {
     srand(time(0)) ;
     generate_random_array(seq1_arr, seq1_length,  20);
     
-    if (1) {
+    if (0) {
         seq1_arr[0] = 17;  
         seq1_arr[1] = 17;  
         seq1_arr[2] = 14;  
@@ -116,10 +116,10 @@ int  main(int argc,char *argv[]) {
         seq1_arr[6] = 12;  
         seq1_arr[7] = 12;   
     } 
-//    if (argc == 3)
+    if (argc == 3)
       seq2_arr = seq1_arr;
-//    else
-//      generate_random_array(seq2_arr, seq1_length,  20);
+    else
+      generate_random_array(seq2_arr, seq1_length,  20);
     
 
     if (DEBUG) {
@@ -130,16 +130,18 @@ int  main(int argc,char *argv[]) {
       printf("RANK%d [%s] seq1_arr = ", rank, program_name);
       for(i=0; i < seq1_length; i++){
 	seq1[i] =  alphabet[seq1_arr[i]] ;
-        printf("%d,  ", seq1_arr[i] );
+        printf("%c", seq1[i] );
+//        printf("%d,  ", seq1_arr[i] );
       }
-      printf("\n "); 
+      printf("\n"); 
       printf("RANK%d [%s] seq2_arr =  ",rank,  program_name );
 
       for(i=0; i < seq2_length; i++){
 	seq2[i] =  alphabet[seq2_arr[i]] ;
-        printf("%d, ", seq1_arr[i] );
+        printf("%c", seq2[i] );
+//        printf("%d, ", seq1_arr[i] );
       }
-      printf("\n "); 
+      printf("\n"); 
 
       printf("[%s] RANK%d seq1 = %s --\n", program_name, rank,seq1);
       printf("[%s] RANK%d seq2 = %s --\n", program_name,rank, seq2);
@@ -162,6 +164,9 @@ int  main(int argc,char *argv[]) {
 
   prev_row = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
   prev_col = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+
+  new_prev_row = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+  new_prev_col = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
 
   for (i =0; i < ncols_chunk+1; i ++ ) {
     prev_row[i] = rank* 1000 ;
@@ -209,7 +214,9 @@ int  main(int argc,char *argv[]) {
 
 
 
-  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
+  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col,new_prev_row, new_prev_col,  ncols_chunk, &max_score, &max_i, &max_j ) ;
+  prev_row = new_prev_row ;
+  prev_col = new_prev_col ;
   if (DEBUG ) { 
     printf("RANK%d POST prev_row[] = ", rank ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
