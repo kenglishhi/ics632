@@ -10,7 +10,7 @@
 #include <math.h>
 
 
-#define DEBUG    0
+#define DEBUG    1
 #define STRLEN     8
 #define ITER       1
 #define GAP   -1
@@ -31,9 +31,6 @@ void generate_random_array(int *arr, int size, int rand_max);
 double get_time_diff(struct timeval *start, struct timeval *finish);
 void print_score_matrix(int *matrix, int nrows, int ncols);
 void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int ncols_chunk, int *max_score, int *max_i, int *max_j)  ;
-
-
-
 
 int get_right_destination() ;
 int get_bottom_destination() ;
@@ -72,19 +69,20 @@ int  main(int argc,char *argv[]) {
   gettimeofday(&total_start,NULL);
 
   char alphabet[21] = "acdefghiklmnpqrstvwy";
-  int ncols_matrix, ncols_chunk, seq1_length, seq2_length;
+  int ncols_matrix, ncols_chunk, seq1_length, seq2_length,number_of_cycles;
   int i,j;
   int *seq1_arr, *seq2_arr, *align1_arr, *align2_arr;
   int *score_matrix, *direction_matrix, *prev_row, *prev_col ;
   char *seq1, *seq2;
+
   int max_i=-1, max_j=-1, max_score=-1;
 
-  if (argc < 2) {
+  if (argc < 3) {
     printf("[%s] You need 2 arguments\n", program_name);
     return 0 ;
   } else {
-    if (sscanf(argv[1],"%d",&ncols_matrix) != 1)  {
-      fprintf(stderr,"Usage: %s <ncols> \n", argv[0] );
+    if ((sscanf(argv[1],"%d",&ncols_matrix) != 1) || (sscanf(argv[2],"%d",&number_of_cycles) != 1) )  {
+      fprintf(stderr,"Usage: %s <ncols> <number of cycles>\n", argv[0] );
       exit(1);
     }
   }
@@ -92,14 +90,22 @@ int  main(int argc,char *argv[]) {
   if (ncols_matrix%nprocs != 0 ) {
     printf("[%s] Number of Columns (%d) must be divisible by number of procs (%d)\n", program_name, ncols_matrix, nprocs );
   }
+/*
+  if (DEBUG) {
+    printf("[%s] ncols_matrix: %d, number_of_cycles: %d, nprocs:%d \n",program_name, ncols_matrix, number_of_cycles, nprocs) ;
+  }
+*/
 
-  ncols_chunk = ncols_matrix/ (int) sqrt(nprocs) ;
+
+  ncols_chunk = ncols_matrix / ((int) sqrt(nprocs) * number_of_cycles ) ;
   seq1_length = ncols_matrix - 1;
   seq2_length = seq1_length ;
-  if (DEBUG) {
-//    printf("[%s] ncols_matrix: %d, nprocs:%d, ncols_chunk: %d\n",program_name, ncols_matrix, nprocs,    ncols_chunk) ;
-//    printf("[%s] seq1_length: %d, seq2_length:%d, \n",program_name, seq1_length, seq2_length) ;
+
+/*  if (DEBUG) {
+    printf("[%s] ncols_matrix: %d, nprocs:%d, ncols_chunk: %d\n",program_name, ncols_matrix, nprocs,    ncols_chunk) ;
+    printf("[%s] seq1_length: %d, seq2_length:%d, \n",program_name, seq1_length, seq2_length) ;
   }
+*/
 
   seq1_arr = (int *) malloc(seq1_length * sizeof(int) )  ;
   seq2_arr = (int *) malloc(seq2_length * sizeof(int) )  ;
@@ -180,13 +186,13 @@ int  main(int argc,char *argv[]) {
   if (0 ) { 
 //  if ( rank == 0 || rank == 3 || rank == 4 || rank == 1) { 
 
-    printf("RANK%d PRE prev_row[] =", rank, j, prev_row[j] ); 
+    printf("RANK%d PRE prev_row[%d] =%d", rank, j, prev_row[j] ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_row[j] ); 
     } 
     printf("\n");
 
-    printf("RANK%d PRE prev_col[] =", rank, j, prev_col[j] ); 
+    printf("RANK%d PRE prev_col[%d] =%d", rank, j, prev_col[j] ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_col[j] ); 
     } 
@@ -203,13 +209,13 @@ int  main(int argc,char *argv[]) {
   if (0 ) { 
 //  if (rank && 0 || rank == 3 || rank == 4 || rank == 1) { 
 
-    printf("RANK%d POST prev_row[] =", rank, j, prev_row[j] ); 
+    printf("RANK%d POST prev_row[%d] =%d", rank, j, prev_row[j] ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_row[j] ); 
     } 
     printf("\n");
 
-    printf("RANK%d POST prev_col[] =", rank, j, prev_col[j] ); 
+    printf("RANK%d POST prev_col[%d] =%d", rank, j, prev_col[j] ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_col[j] ); 
     } 
@@ -225,7 +231,7 @@ int  main(int argc,char *argv[]) {
     Right_Send(prev_col, ncols_chunk+1 ) ;
   } 
  
-//    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
 /*
     Bottom_Send(prev_row, ncols_chunk+1 ) ;
     Right_Send(prev_col, ncols_chunk+1 ) ;

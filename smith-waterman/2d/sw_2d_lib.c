@@ -249,6 +249,7 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
   if (rank == -1) { 
     printf("RANK%d last_prev_row_value = %d, last_prev_col_value : %d \n", rank, last_prev_row_value, last_prev_col_value);
   }
+
   if (GLOBAL_COLUMN(0,rank,nprocs,ncols_chunk) == 0 ) {
     col_start=1;
 //    printf("RANK%d Is first column \n", rank);
@@ -269,7 +270,7 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
       if ( i==0 ) {
 	up_value_ptr = (prev_row + j+1)  ;
         if (DEBUG) 
-        printf(" RANK%d,  up_value_ptr = %d \n ", rank, *up_value_ptr );
+          printf(" RANK%d, [i,k] : [%d,%d]  up_value_ptr = %d \n ", rank, i,j, *up_value_ptr );
       } else {
 	up_value_ptr = (score_matrix + (i-1) * ncols_chunk + j );
       }
@@ -277,7 +278,7 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
       if (j==0) {
 	left_value_ptr = (prev_col + i + 1);
         if (DEBUG ) 
-        printf(" RANK%d,j=%d  left_value_ptr = %d \n ", rank, j, *left_value_ptr );
+          printf(" RANK%d, [i,k] : [%d,%d]  left_value_ptr = %d \n ", rank, i,j, *left_value_ptr );
       } else {
 	left_value_ptr = (score_matrix + i * ncols_chunk + (j-1) );
       }
@@ -285,19 +286,21 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
 
       if (j==0 && i==0) {
 	diagonal_value_ptr = (prev_row) ;  // or prev_row, they should have the same value, see assertion above.
-        if (DEBUG ) 
-        printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
+//        if (DEBUG ) 
+//          printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
       } else if (i==0) {
 	diagonal_value_ptr = (prev_row + j);
-        if (DEBUG) 
-        printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
+//        if (DEBUG) 
+//          printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
       } else if (j==0) {
 	diagonal_value_ptr = (prev_col + i);
-        if (DEBUG) 
-        printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
+//        if (DEBUG) 
+//          printf(" RANK%d,  diagonal_value_ptr = %d \n ", rank, *diagonal_value_ptr );
       } else {
 	diagonal_value_ptr = (score_matrix + (i-1) * (ncols_chunk + (j-1) ) );
       }
+      if (DEBUG) 
+      printf(" RANK%d, [i,k] : [%d,%d]  diagonal_value_ptr = %d \n ", rank, i,j, *diagonal_value_ptr);
 
       diagonal_score=0; left_score=0; up_score=0;
 

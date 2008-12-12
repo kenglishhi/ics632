@@ -9,8 +9,7 @@
 #include <mpi.h>
 #include <math.h>
 
-
-#define DEBUG    0
+#define DEBUG    1
 #define STRLEN     8
 #define ITER       1
 #define GAP   -1
@@ -31,9 +30,6 @@ void generate_random_array(int *arr, int size, int rand_max);
 double get_time_diff(struct timeval *start, struct timeval *finish);
 void print_score_matrix(int *matrix, int nrows, int ncols);
 void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int ncols_chunk, int *max_score, int *max_i, int *max_j)  ;
-
-
-
 
 int get_right_destination() ;
 int get_bottom_destination() ;
@@ -98,7 +94,6 @@ int  main(int argc,char *argv[]) {
   seq2_length = seq1_length ;
   if (DEBUG) {
 //    printf("[%s] ncols_matrix: %d, nprocs:%d, ncols_chunk: %d\n",program_name, ncols_matrix, nprocs,    ncols_chunk) ;
-//    printf("[%s] seq1_length: %d, seq2_length:%d, \n",program_name, seq1_length, seq2_length) ;
   }
 
   seq1_arr = (int *) malloc(seq1_length * sizeof(int) )  ;
@@ -107,28 +102,47 @@ int  main(int argc,char *argv[]) {
   align2_arr = (int *) malloc(seq2_length * sizeof(int) )  ;
 
   if (rank == 0 ) {
+    printf("RANK%d [%s] seq1_length: %d, seq2_length:%d, \n",rank, program_name, seq1_length, seq2_length) ;
     srand(time(0)) ;
     generate_random_array(seq1_arr, seq1_length,  20);
-    if (argc == 3)
+    
+    if (1) {
+        seq1_arr[0] = 17;  
+        seq1_arr[1] = 17;  
+        seq1_arr[2] = 14;  
+        seq1_arr[3] = 3;  
+        seq1_arr[4] = 10;  
+        seq1_arr[5] = 3;  
+        seq1_arr[6] = 12;  
+        seq1_arr[7] = 12;   
+    } 
+//    if (argc == 3)
       seq2_arr = seq1_arr;
-    else
-      generate_random_array(seq2_arr, seq1_length,  20);
+//    else
+//      generate_random_array(seq2_arr, seq1_length,  20);
+    
 
     if (DEBUG) {
 
       seq1 = (char *) malloc(seq1_length * sizeof(char) )  ;
       seq2 = (char *) malloc(seq2_length * sizeof(char) )  ;
 
+      printf("RANK%d [%s] seq1_arr = ", rank, program_name);
       for(i=0; i < seq1_length; i++){
 	seq1[i] =  alphabet[seq1_arr[i]] ;
+        printf("%d,  ", seq1_arr[i] );
       }
+      printf("\n "); 
+      printf("RANK%d [%s] seq2_arr =  ",rank,  program_name );
 
       for(i=0; i < seq2_length; i++){
 	seq2[i] =  alphabet[seq2_arr[i]] ;
+        printf("%d, ", seq1_arr[i] );
       }
+      printf("\n "); 
 
-      printf("[%s] seq1 = %s --\n", program_name, seq1);
-      printf("[%s] seq2 = %s --\n", program_name, seq2);
+      printf("[%s] RANK%d seq1 = %s --\n", program_name, rank,seq1);
+      printf("[%s] RANK%d seq2 = %s --\n", program_name,rank, seq2);
     }
   }
 
@@ -148,11 +162,13 @@ int  main(int argc,char *argv[]) {
 
   prev_row = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
   prev_col = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+
   for (i =0; i < ncols_chunk+1; i ++ ) {
-    prev_row[i] = 999;
+    prev_row[i] = rank* 1000 ;
   } 
+
   for (i =0; i < ncols_chunk+1; i ++ ) {
-    prev_col[i] = 888;
+    prev_col[i] = rank * 2000 ;
   } 
 
   if (isTopRowChunk() ) {
@@ -177,18 +193,31 @@ int  main(int argc,char *argv[]) {
     Left_Recv(prev_col, ncols_chunk+1 ) ; 
   } 
 
-
-  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
-  if (0 ) { 
-//  if (rank && 0 || rank == 3 || rank == 4 || rank == 1) { 
-
-    printf("RANK%d POST prev_row[%d] = %d", rank, j, prev_row[j] ); 
+  if (DEBUG ) { 
+    printf("RANK%d PRE prev_row[] = ", rank  ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_row[j] ); 
     } 
     printf("\n");
 
-    printf("RANK%d POST prev_col[%d] = %d", rank, j, prev_col[j] ); 
+    printf("RANK%d PRE prev_col[] = ", rank  ); 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("%d, ", prev_col[j] ); 
+    } 
+    printf("\n");
+  } 
+
+
+
+  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
+  if (DEBUG ) { 
+    printf("RANK%d POST prev_row[] = ", rank ); 
+    for (j=0; j<=ncols_chunk ; j++ ) { 
+      printf("%d, ", prev_row[j] ); 
+    } 
+    printf("\n");
+
+    printf("RANK%d POST prev_col[] = ", rank  ); 
     for (j=0; j<=ncols_chunk ; j++ ) { 
       printf("%d, ", prev_col[j] ); 
     } 
@@ -204,46 +233,12 @@ int  main(int argc,char *argv[]) {
     Right_Send(prev_col, ncols_chunk+1 ) ;
   } 
  
-//    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
-/*
-    Bottom_Send(prev_row, ncols_chunk+1 ) ;
-    Right_Send(prev_col, ncols_chunk+1 ) ;
-    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
-  } else if (
-*/
+  print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
 
-/*
-  //if ((rank == 0 ) || (rank ==1 ) )  {
-  if ((rank == 0 ) )  {
-    calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
-    Bottom_Send(prev_row, ncols_chunk+1 ) ;
-    Right_Send(prev_col, ncols_chunk+1 ) ;
-//    for (j=0; j<=ncols_chunk ; j++ ) { 
-////      printf("RANK%d prev_col[%d] = %d\n", rank, j, prev_col[j] ); 
-//    } 
-  } else if(rank == 1) {
-   Left_Recv(prev_col, ncols_chunk+1 ) ; 
-//   for (j=0; j<=ncols_chunk ; j++ ) { 
-//      printf("RANK%d prev_col[%d] = %d\n", rank, j, prev_col[j] ); 
-//    } 
-    calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
-  } else if(rank == 3) {
-    Top_Recv(prev_row, ncols_chunk+1 ) ; 
-//    for (i=0; i<=ncols_chunk ; i++ ) { 
-//      printf("RANK%d prev_row[%d] = %d\n", rank, i, prev_row[i] ); 
-//    }
-    calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
-  } 
-*/
-// if ((rank ==0)  || (rank == 1) || (rank == 3) ) { 
-//    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
-/*
-*/
-//  } 
   gettimeofday(&total_finish,NULL);
 //  if (DEBUG) {
-    printf("%s, Time, Columns, Chunk, nprocs,rank\n", program_name) ;
-    printf("%s, %f, %d, %d, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols_matrix, ncols_chunk,nprocs, rank ) ;
+//    printf("%s, Time, Columns, Chunk, nprocs,rank\n", program_name) ;
+//    printf("%s, %f, %d, %d, %d, %d, result \n", program_name, get_time_diff(&total_start, &total_finish), ncols_matrix, ncols_chunk,nprocs, rank ) ;
 //  }
 
 //  printf("%s, Time, Columns, Chunk, nprocs\n", program_name) ;
