@@ -69,6 +69,7 @@ void Bottom_Send(int *buffer, int length ) {
   int dest = getBottomDestination()  ;
   if (DEBUG)
     printf("Dest = %d \n", dest);
+    printf("Bytes = %d \n", length * sizeof(int));
   MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
 }
 

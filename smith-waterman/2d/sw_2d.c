@@ -9,7 +9,7 @@
 #include <mpi.h>
 #include <math.h>
 
-#define DEBUG    0
+#define DEBUG    1
 #define STRLEN     8
 #define ITER       1
 #define GAP   -1
@@ -130,16 +130,16 @@ int  main(int argc,char *argv[]) {
       printf("RANK%d [%s] seq1_arr = ", rank, program_name);
       for(i=0; i < seq1_length; i++){
 	seq1[i] =  alphabet[seq1_arr[i]] ;
-        printf("%c", seq1[i] );
-//        printf("%d,  ", seq1_arr[i] );
+//        printf("%c", seq1[i] );
+        printf("%d,  ", seq1_arr[i] );
       }
       printf("\n"); 
       printf("RANK%d [%s] seq2_arr =  ",rank,  program_name );
 
       for(i=0; i < seq2_length; i++){
 	seq2[i] =  alphabet[seq2_arr[i]] ;
-        printf("%c", seq2[i] );
-//        printf("%d, ", seq1_arr[i] );
+//        printf("%c", seq2[i] );
+        printf("%d, ", seq1_arr[i] );
       }
       printf("\n"); 
 
@@ -247,8 +247,8 @@ int  main(int argc,char *argv[]) {
   if (!isRightColumnChunk() ) { 
     Right_Send(prev_col, ncols_chunk+1 ) ;
   } 
- 
-//  print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
+  if (DEBUG)  
+    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);
 
   gettimeofday(&total_finish,NULL);
 //  if (DEBUG) {
