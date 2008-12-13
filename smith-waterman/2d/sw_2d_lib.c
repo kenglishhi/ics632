@@ -1,4 +1,15 @@
-/* sw_sequential.c */
+/*************************************
+ *
+ * sw_2d_lib.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This is library of functions used for our 2d implementation of Smith-Waterman
+ * This includes our 2d communication functions as well as our function to calculate chunks of the matrix.
+ **/
+
+
 
 #include <stdio.h>
 #include <unistd.h>

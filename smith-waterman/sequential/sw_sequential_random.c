@@ -1,4 +1,16 @@
-/* sw_sequential.c */
+/*************************************
+ *
+ * sw_sequential_random.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This program takes a length and from that generates 2 random strings. 
+ * It then runs the Smith-Waterman algorithm on them and determines the optimal local alignment.
+ * An extra flag may be sent to program so that it generates one random string and then runs SW on itself.
+ * This is useful to find the worst case of the backtrace algorithm.
+ **/
+
 
 #include <stdio.h>
 #include <unistd.h>
@@ -44,12 +56,7 @@ int main(int argc,char *argv[]) {
   int seq1_length = ncols - 1;
   int seq2_length = seq1_length ;
 
-  /*  Check for current constraints of the program */
-
-
-
   srand(time(0)) ;
-
 
   struct timeval total_start;
   struct timeval total_finish;
@@ -74,8 +81,10 @@ int main(int argc,char *argv[]) {
   align1_arr = (int *) malloc(seq1_length * sizeof(int) )  ;
   align2_arr = (int *) malloc(seq2_length * sizeof(int) )  ;
 
+  // generate a random array
   generate_random_array(seq1_arr, seq1_length,  20);
 
+  // an extra flag may be sent 
   if (argc == 4)
     seq2_arr = seq1_arr;
   else
@@ -97,13 +106,9 @@ int main(int argc,char *argv[]) {
     printf("%s, seq2 = %s\n", program_name, seq2);
   }
 
-
-
-//  char  alphabet[21] = "acdefghiklmnpqrstvwy";
   int align1_length,align2_length;
 
 
-//  printf("%s, %f seconds to complete work. \n", program_name, get_time_diff(&total_start, &total_finish)) ;
   do_sw(seq1_arr, seq1_length, seq2_arr, seq2_length,
         align1_arr, &align1_length, align2_arr, &align2_length );
 
@@ -112,14 +117,6 @@ int main(int argc,char *argv[]) {
   printf("%s, Time, Columns\n", program_name) ;
   printf("%s, %f, %d,result \n", program_name, get_time_diff(&total_start, &total_finish), ncols) ;
 
-
-/*
-   $align1 = reverse $align1;
-   $align2 = reverse $align2;
-   print "$align1\n";
-   print "$align2\n"
-
- */
   return 1;
 }
 

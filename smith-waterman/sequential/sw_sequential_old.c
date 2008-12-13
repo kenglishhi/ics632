@@ -1,4 +1,13 @@
-/* sw_sequential.c */
+/*************************************
+ *
+ * sw_sequential_old.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This was the original program written for smith waterman sequential implementation. Most of it has been extracted into a library. 
+ **/
+
 
 #include <stdio.h>
 #include <unistd.h>

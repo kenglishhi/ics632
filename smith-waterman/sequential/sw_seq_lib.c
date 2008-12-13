@@ -1,4 +1,12 @@
-/* sw_sequential.c */
+/*************************************
+ *
+ * sw_seq_lib.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This is library of functions used for our sequential implementation of Smith-Waterman
+ **/
 
 #include <stdio.h>
 #include <unistd.h>

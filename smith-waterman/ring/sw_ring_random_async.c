@@ -1,4 +1,18 @@
-/* sw_paralle.c */
+/*************************************
+ *
+ * sw_ring_random_async.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This program takes a length and a chunk size from that generates 2 random strings. 
+ * It then runs the Smith-Waterman algorithm on the two strings  and determines the optimal local alignment.
+ * An extra flag may be sent to program so that it generates one random string and then runs SW on itself.
+ * This is useful to find the worst case of the backtrace algorithm.
+ * This program uses blocking sends and receives.
+ **/
+
+
 
 #include  <stdio.h>
 #include <unistd.h>

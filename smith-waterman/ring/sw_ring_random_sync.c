@@ -1,4 +1,16 @@
-/* sw_paralle.c */
+/*************************************
+ *
+ * sw_ring_random_sync.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This program takes a length and a chunk size from that generates 2 random strings. 
+ * It then runs the Smith-Waterman algorithm on the two strings  and determines the optimal local alignment.
+ * An extra flag may be sent to program so that it generates one random string and then runs SW on itself.
+ * This is useful to find the worst case of the backtrace algorithm.
+ * This program uses blocking sends and receives.
+ **/
 
 #include  <stdio.h>
 #include <unistd.h>
@@ -177,22 +189,17 @@ int  main(int argc,char *argv[]) {
 
   for (chunk = 0; chunk < number_of_chucks; chunk++ ) {
     if (rank != ROOT ) {
-//      if (DEBUG)
-//        printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ;
+      if (DEBUG)
+        printf("{%d} Receiving columns %d \n", rank, chunk*chunk_size) ;
       Ring_Recv((prev_row_buffer + chunk*chunk_size), chunk_size );
     }
     calculate_chunk(seq1_arr, seq2_arr, score_matrix, direction_matrix, prev_row_buffer,  nrows, ncols, chunk*chunk_size, chunk_size, &max_score, &global_max_rownum, &max_colnum);
     if (rank != (nprocs-1))  {
-//      if (DEBUG)
-//        printf("{%d} Sending columns %d \n", rank, chunk*chunk_size) ;
+      if (DEBUG)
+         printf("{%d} Sending columns %d \n", rank, chunk*chunk_size) ;
       Ring_Send((score_matrix + CHUNK_OFFSET(nrows, ncols, chunk, chunk_size)), chunk_size) ;
     }
-//       MPI_Send((score_matrix + CHUNK_OFFSET(nrows, ncols, chunk, chunk_size)), chunk_size, MPI_INT,  dest, 0, MPI_COMM_WORLD);
   }
-//  if (DEBUG) {
-//    print_score_matrix(score_matrix,  nrows, ncols  );
-//    printf("%s, RANK%d, Max_score: %d, score: %d,  max_colnum: %d \n",program_name, rank,  max_score,  global_max_rownum, max_colnum);
-//  }
   int *my_results_arr;
   int *global_results_arr;
   global_results_arr = (int *) malloc(3 * sizeof(int) )  ;
@@ -204,6 +211,8 @@ int  main(int argc,char *argv[]) {
   if (DEBUG) {
     printf("%s, RANK%d, My Max_score: %d, i=%d, j=%d \n",program_name, rank,  *my_results_arr, *(my_results_arr+1),*(my_results_arr+2) );
   }
+
+  // begin the backtrace...
 
   if (rank == ROOT ) {
     global_results_arr = my_results_arr ;
@@ -228,6 +237,7 @@ int  main(int argc,char *argv[]) {
     Ring_Send(global_results_arr, 3);
   }
 
+  // broadcast the maximum score 
   MPI_Bcast(global_results_arr, 3, MPI_INT, (nprocs-1),  MPI_COMM_WORLD);
 
   max_score = global_results_arr[0];
@@ -239,7 +249,6 @@ int  main(int argc,char *argv[]) {
   int upper = ((rank+1) * nrows) ;
   int align1_length=0;
   int align2_length=0;
-//  int *diagonal_ptr ;
   int completion_flag=0 ;
 
   int *output_meta_data;
@@ -325,7 +334,6 @@ int  main(int argc,char *argv[]) {
     char *align1, *align2  ;
     align1 = (char *) calloc(seq1_length,sizeof(char) )  ;
     align2 = (char *) calloc(seq2_length,sizeof(char) )  ;
-//     printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
     for(i=0; i<align1_length; i++){
 
       align1[align1_length-i-1] =  alphabet[align1_arr[i]] ;
@@ -333,12 +341,6 @@ int  main(int argc,char *argv[]) {
     for(i=0; i<align2_length; i++){
       align2[align2_length-i-1] =  alphabet[align2_arr[i]] ;
     }
-
-//     printf("align1 = %s\n", align1);
-//     printf("align2 = %s\n", align1);
-
-
-
   }
 
   gettimeofday(&total_finish,NULL);
