@@ -63,12 +63,16 @@ cleanup()
 
 PROGRAM_EXE="/home/kenglish/workspace/ics632/smith-waterman/ring/sw_ring_random_sync"
 
-for ((j=400;j<=400;j+=100)); do
+for ((j=100;j<=300;j+=50)); do
  for ((i=1000;i<=15000;i+=1000)); do
    mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
  done
 done
-#   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
+#mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  10000 200 
+#mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  10000 200 
+#mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  10000 250 
+
+
 #   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
 #   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
 #   mpirun -v -machinefile /tmp/kenglish-nodefile.$PBS_JOBID -np $NPROCS $PROGRAM_EXE  $i $j
