@@ -30,7 +30,8 @@
 void generate_random_array(int *arr, int size, int rand_max);
 double get_time_diff(struct timeval *start, struct timeval *finish);
 void print_score_matrix(int *matrix, int nrows, int ncols);
-void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int ncols_chunk, int *max_score, int *max_i, int *max_j)  ;
+void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direction_matrix, int *prev_row, int *prev_col, int *new_prev_row, int *new_prev_col, int ncols_chunk, int *max_score, int *max_i, int *max_j) ;
+
 
 int get_right_destination() ;
 int get_bottom_destination() ;
@@ -69,35 +70,35 @@ int  main(int argc,char *argv[]) {
   gettimeofday(&total_start,NULL);
 
   char alphabet[21] = "acdefghiklmnpqrstvwy";
-  int ncols_matrix, ncols_chunk, seq1_length, seq2_length,number_of_cycles;
+  int ncols_matrix, ncols_chunk, seq1_length, seq2_length,ncycles;
   int i,j;
   int *seq1_arr, *seq2_arr, *align1_arr, *align2_arr;
-  int *score_matrix, *direction_matrix, *prev_row, *prev_col ;
+  int *score_matrix, *direction_matrix, *prev_row, *prev_col , *new_prev_row,*new_prev_col  ;
   char *seq1, *seq2;
 
   int max_i=-1, max_j=-1, max_score=-1;
 
+/*
   if (argc < 3) {
     printf("[%s] You need 2 arguments\n", program_name);
     return 0 ;
   } else {
-    if ((sscanf(argv[1],"%d",&ncols_matrix) != 1) || (sscanf(argv[2],"%d",&number_of_cycles) != 1) )  {
+    if ((sscanf(argv[1],"%d",&ncols_matrix) != 1) || (sscanf(argv[2],"%d",&ncycles) != 1) )  {
       fprintf(stderr,"Usage: %s <ncols> <number of cycles>\n", argv[0] );
       exit(1);
     }
   }
+*/
+  ncols_matrix = 8 ; 
+  ncols_chunk = 2 ; 
+  ncycles = 4; 
+  
 
   if (ncols_matrix%nprocs != 0 ) {
     printf("[%s] Number of Columns (%d) must be divisible by number of procs (%d)\n", program_name, ncols_matrix, nprocs );
   }
-/*
-  if (DEBUG) {
-    printf("[%s] ncols_matrix: %d, number_of_cycles: %d, nprocs:%d \n",program_name, ncols_matrix, number_of_cycles, nprocs) ;
-  }
-*/
 
-
-  ncols_chunk = ncols_matrix / ((int) sqrt(nprocs) * number_of_cycles ) ;
+//  ncols_chunk = ncols_matrix / ((int) sqrt(nprocs) * ncycles ) ;
   seq1_length = ncols_matrix - 1;
   seq2_length = seq1_length ;
 
@@ -114,11 +115,19 @@ int  main(int argc,char *argv[]) {
 
   if (rank == 0 ) {
     srand(time(0)) ;
-    generate_random_array(seq1_arr, seq1_length,  20);
-    if (argc == 3)
+//    generate_random_array(seq1_arr, seq1_length,  20);
+
+    seq1_arr[0] = 13; 
+    seq1_arr[1] = 6;
+    seq1_arr[2] = 18; 
+    seq1_arr[3] = 4; 
+    seq1_arr[4] = 11;
+    seq1_arr[5] = 0; 
+    seq1_arr[6] = 16;
+//    if (argc == 4)
       seq2_arr = seq1_arr;
-    else
-      generate_random_array(seq2_arr, seq1_length,  20);
+//    else
+//      generate_random_array(seq2_arr, seq1_length,  20);
 
     if (DEBUG) {
 
@@ -138,7 +147,6 @@ int  main(int argc,char *argv[]) {
     }
   }
 
-
   if (MPI_Bcast(seq1_arr, seq1_length, MPI_INT, ROOT, MPI_COMM_WORLD) ) {
     printf("Error while calling MPI_Bcast()\n");
     exit(0);
@@ -149,11 +157,26 @@ int  main(int argc,char *argv[]) {
     exit(0);
   }
 
+  int matrix_of_matrix[ncycles]; 
+  int global_i, global_j;   
+  for (i=0 ; i < ncycles/2; i++) { 
+    global_i = i + ncycles/2 ; 
+    for (j=0 ; j < ncycles/2; j++) { 
+      global_j = j + ncycles/2; 
+      printf("RANK%d, section [%d, %d] \n", rank, global_i, global_j ); 
+    } 
+  } 
+  return 0; 
   score_matrix = (int *) calloc(ncols_chunk  * ncols_chunk, sizeof(int) )  ;
   direction_matrix = (int *) calloc(ncols_chunk  * ncols_chunk, sizeof(int) )  ;
 
   prev_row = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
   prev_col = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+
+  new_prev_row = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+  new_prev_col = (int *) calloc(ncols_chunk+1, sizeof(int) )  ;
+
+
   for (i =0; i < ncols_chunk+1; i ++ ) {
     prev_row[i] = 999;
   } 
@@ -199,9 +222,7 @@ int  main(int argc,char *argv[]) {
     printf("\n");
   } 
 
-
-
-  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
+  calculate_chunk(seq1_arr, seq1_arr, score_matrix, direction_matrix, prev_row, prev_col, new_prev_row, new_prev_col, ncols_chunk, &max_score, &max_i, &max_j ) ;
 //  if (rank == 3 || rank==0 || rank ==1 || rank == 4 ) { 
 //  if (rank == 0 || rank==1  || rank == 4  || rank == 1) { 
 //    print_score_matrix(score_matrix, ncols_chunk, ncols_chunk);

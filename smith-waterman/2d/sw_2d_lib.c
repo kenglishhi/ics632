@@ -1,4 +1,15 @@
-/* sw_sequential.c */
+/*************************************
+ *
+ * sw_2d_lib.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This is library of functions used for our 2d implementation of Smith-Waterman
+ * This includes our 2d communication functions as well as our function to calculate chunks of the matrix.
+ **/
+
+
 
 #include <stdio.h>
 #include <unistd.h>
@@ -69,6 +80,7 @@ void Bottom_Send(int *buffer, int length ) {
   int dest = getBottomDestination()  ;
   if (DEBUG)
     printf("Dest = %d \n", dest);
+    printf("Bytes = %d \n", length * sizeof(int));
   MPI_Send(buffer, length, MPI_INT,  dest, 0, MPI_COMM_WORLD);
 }
 

@@ -1,4 +1,13 @@
-/* sw_paralle.c */
+/*************************************
+ *
+ * sw_ring.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This program takes 2 strings and generates the optimal local alignment. It uses a ring to accomplish this.
+ **/
+
 
 #include  <stdio.h>
 #include <unistd.h>

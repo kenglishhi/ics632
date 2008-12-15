@@ -1,4 +1,14 @@
-/* sw_sequential.c */
+/*************************************
+ *
+ * sw_ring_lib.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This is library of functions used for our ring implementation of Smith-Waterman.
+ * This includes our ring communication functions as well as our function to calculate chunks of the matrix.
+ **/
+
 
 #include <stdio.h>
 #include <unistd.h>
@@ -78,27 +88,30 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
   int rank, nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-//   printf("Calculating chunk= %d, col_start\n", col_start);
 
   int row_start=0;
   int col_end;
-
+  // we always want to start row 1
   if (GLOBAL_ROW_NUMBER(0,rank,nrows) == 0 ) {
     row_start=1;
   }
 
+  // we always want to start column 1
   if (col_start ==0 ) {
     col_start=1;
     col_end = col_start+chunk_size - 1;
   } else {
     col_end = col_start+chunk_size  ;
   }
+
   if (DEBUG)
     printf("{%d} row_start: %d, row_end : %d,  col_start: %d,  col_end: %d \n", rank, row_start, nrows, col_start,  col_end);
+
   int i,j;
   int diagonal_score, left_score, up_score;
   int letter1, letter2 ;
   int *diagonal_ptr,  *up_ptr;
+
   for (i = row_start; i < nrows;  i++ ) {
     for (j = col_start; j < col_end; j++ ) {
       diagonal_score=0; left_score=0; up_score=0;
@@ -106,7 +119,7 @@ void calculate_chunk(int *seq1_arr, int *seq2_arr, int *score_matrix, int *direc
       letter2 = *(seq2_arr +(j-1) );
       // calculate match score
       //
-
+      // if it's the first local row, we use the previous row passed to this processor
       if (i==0) {
 	diagonal_ptr = (prev_row + (j-1)) ;
 	up_ptr =  (prev_row + j  ) ;
@@ -228,6 +241,7 @@ void backtrace_direciton_matrix(int *seq1_arr, int *seq2_arr, int *direction_mat
   }
   *top_i =i ;  *top_j = j  ;
 }
+
 void Ring_Send(int *buffer, int length ) {
   int dest = get_ring_destination()  ;
   if (DEBUG)

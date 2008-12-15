@@ -1,3 +1,16 @@
+
+/*************************************
+ *
+ * sw_sequential_old.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This was the original program written for smith waterman ring implementation. It is kept around for reference.
+ **/
+
+
+
 /* sw_paralle.c */
 
 #include  <stdio.h>
@@ -157,15 +170,5 @@ int  main(int argc,char *argv[]) {
      printf("Max_score: %d, max_i: %d, max_j: %d \n", max_score, max_i, max_j);
 
   }
-
-
-
-
-
-
-
-
   MPI_Finalize(); 
     
-  return 1; 
-}

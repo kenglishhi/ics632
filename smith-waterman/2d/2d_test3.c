@@ -1,4 +1,15 @@
-/* sw_paralle.c */
+/*************************************
+ *
+ * 2d_test3.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This program tests some of our 2d functions.
+ **/
+
+
+
 
 #include  <stdio.h>
 #include <unistd.h>

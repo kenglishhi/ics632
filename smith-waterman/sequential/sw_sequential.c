@@ -1,4 +1,13 @@
-/* sw_sequential.c */
+/*************************************
+ *
+ * sw_sequential.c
+ * Author: Kevin English
+ * University of Hawaii
+ * ICS 632
+ *
+ * This program takes 2 strings and generates the optimal local alignment.
+ **/
+
 
 #include <stdio.h>
 #include <unistd.h>
@@ -20,6 +29,7 @@
 #define DIRECTION_DIAGONAL 3
 
 int do_sw(int *, int, int *, int, int *, int *, int *, int *);
+
 int  main(int argc,char *argv[]) {
   char alphabet[21] = "acdefghiklmnpqrstvwy";
   char *seq1;
@@ -35,6 +45,7 @@ int  main(int argc,char *argv[]) {
   printf("seq1 = %s\n", seq1);
   printf("seq2 = %s\n", seq2);
 
+  // determine the sequence length.
   int seq1_length = 0 ;
   int seq2_length = 0;
   while (seq1[seq1_length] != '\0') {
@@ -66,9 +77,11 @@ int  main(int argc,char *argv[]) {
       if (seq2[i] == alphabet[j])
 	seq2_arr[i] = j;
 
+  // run the smith water man algorithm
   do_sw(&seq1_arr[0],  seq1_length, &seq2_arr[0], seq2_length, &align1_arr[0], &align1_length, &align2_arr[0], &align2_length);
   printf("align1_length = %d , align2_length = %d\n ", align1_length, align2_length ) ;
 
+  // get the final alignments
   char *align1, *align2  ;
   align1 = (char *) calloc(seq1_length,sizeof(char) )  ;
   align2 = (char *) calloc(seq2_length,sizeof(char) )  ;
