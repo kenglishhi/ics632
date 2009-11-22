@@ -1,48 +1,49 @@
->1 
-ATGGAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATATACGTA
->2 
-AAAACGTACTTATCAACCAAATAAACGTAAACACAGTAAAGTTCAT
->3 
-TCATGGTTTCAGAAAACGCATGAGCACTAAAAACGGACGTAAAGTATT
->4 
-GGAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
->5 
-GGTAAAACGTACTTATCAACCAAATAAACGTAAACACAG
->6 
-TCAACCAAATAAACGTAAACACAGTAAAGTTCATGGTTTCAG
->7 
-GAGCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCC
->8 
-GTCGTCGTCGTAAAGGCCGTAAAGTTTTATCAGCATAAGATCACTGACCT
->9 
-AGCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCCG
->10
-CGTAAAGGCCGTAAAGTTTTATCAGCATAAGATCACTGACCTATCAGTG
->11
-CACAGTAAAGTTCATGGTTTCAGAAAACGCATGAGCACTAAAAACGGACG
->12
-GGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
->13
-TGGTTTCAGAAAACGCATGAGCACTAAAAACGGACGTAAAGTATTAGCGC
->14
-CGCATGAGCACTAAAAACGGACGTAAAGTATTAGCGCGTC
->15
-GAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
->16
-GCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGC
->17
-AACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCCGAAAAGTTTT
->18
-GTTTTATCAGCATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTTT
->19
-ACACAGTAAAGTTCATGGTTTCAGAAAACGCATGAGCACTAAAAATGGAC
->20
-TTATCAGCATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTTTAAA
->21
-ATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTATAAATCATAAA
->22
-TTTTGCTTTAAATCATAAAAATGAAGATTG
+FINAL:
+1:  ATGGAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATATACGTA
+2:                       AAAACGTACTTATCAACCAAATAAACGTAAACACAGTAAAGTTCAT
+3:                                                                 TCATGGTTTCAGAAAACGCATGAGCACTAAAAACGGACGTAAAGTATT
+4:    GGAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
+5:                    GGTAAAACGTACTTATCAACCAAATAAACGTAAACACAG
+6:                                   TCAACCAAATAAACGTAAACACAGTAAAGTTCATGGTTTCAG
+7:                                                                                      GAGCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCC
+8:                                                                                                                      GTCGTCGTCGTAAAGGCCGTAAAGTTTTATCAGCATAAGATCACTGACCT
+9:                                                                                       AGCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCCG
+10:                                                                                                                             CGTAAAGGCCGTAAAGTTTTATCAGCATAAGATCACTGACCTATCAGTG
+11:                                                     CACAGTAAAGTTCATGGTTTCAGAAAACGCATGAGCACTAAAAACGGACG
+12:      GGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
+13:                                                                   TGGTTTCAGAAAACGCATGAGCACTAAAAACGGACGTAAAGTATTAGCGC
+14:                                                                                CGCATGAGCACTAAAAACGGACGTAAAGTATTAGCGCGTC
+15:    GAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
+16:                                                                                       GCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGC
+17:                                                                                               AACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCCGAAAAGTTTT
+18:                                                                                                                                            GTTTTATCAGCATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTTT
+19:                                                    ACACAGTAAAGTTCATGGTTTCAGAAAACGCATGAGCACTAAAAATGGAC
+20:                                                                                                                                               TTATCAGCATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTTTAAA
+21:                                                                                                                                                       ATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTATAAATCATAAA
+22:                                                                                                                                                                                     TTTTGCTTTAAATCATAAAAATGAAGATTG
 
-FINAL 
-ATGGAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATATACGTA
-                     AAAACGTACTTATCAACCAAATAAACGTAAACACAGTAAAGTTCAT
+
+
+FINAL:
+1:  ATGGAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATATACGTA
+4:    GGAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
+15:    GAGGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
+12:      GGTGTTTTTACATGGTAAAACGTACTTATCAACCAAATAAACGTAAA
+5:                    GGTAAAACGTACTTATCAACCAAATAAACGTAAACACAG
+2:                       AAAACGTACTTATCAACCAAATAAACGTAAACACAGTAAAGTTCAT
+6:                                   TCAACCAAATAAACGTAAACACAGTAAAGTTCATGGTTTCAG
+19:                                                    ACACAGTAAAGTTCATGGTTTCAGAAAACGCATGAGCACTAAAAATGGAC
+11:                                                     CACAGTAAAGTTCATGGTTTCAGAAAACGCATGAGCACTAAAAACGGACG
+3:                                                                 TCATGGTTTCAGAAAACGCATGAGCACTAAAAACGGACGTAAAGTATT
+13:                                                                   TGGTTTCAGAAAACGCATGAGCACTAAAAACGGACGTAAAGTATTAGCGC
+14:                                                                                CGCATGAGCACTAAAAACGGACGTAAAGTATTAGCGCGTC
+7:                                                                                      GAGCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCC
+9:                                                                                       AGCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCCG
+16:                                                                                       GCACTAAAAACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGC
+17:                                                                                               AACGGACGTAAAGTATTAGCGCGTCGTCGTCGTAAAGGCCGAAAAGTTTT
+8:                                                                                                                      GTCGTCGTCGTAAAGGCCGTAAAGTTTTATCAGCATAAGATCACTGACCT
+10:                                                                                                                             CGTAAAGGCCGTAAAGTTTTATCAGCATAAGATCACTGACCTATCAGTG
+18:                                                                                                                                            GTTTTATCAGCATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTTT
+20:                                                                                                                                               TTATCAGCATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTTTAAA
+21:                                                                                                                                                       ATAAGATCACTGACCTATCAGTGGTCTTTTTTTTGCTATAAATCATAAA
+22:                                                                                                                                                                                     TTTTGCTTTAAATCATAAAAATGAAGATTG

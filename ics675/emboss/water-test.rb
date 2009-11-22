@@ -2,12 +2,13 @@ require 'rubygems'
 require 'bio'
 require 'pp'
 SIMILARITY_MIN = 80.0 
+
 def my_similarity_report(data) 
 
 #   pp data 
   data.sort.each do |seq,records| 
     records.each do | row|
-       puts " #{seq} -> #{row[:target]}  [label=\"#{row[:similarity]}\"]  "
+       puts " #{seq} -> #{row[:target]}  [label=\"#{row[:similarity]}\"];  "
     end
 #    puts "#{key} ==>   0
   end
@@ -22,6 +23,7 @@ def my_similarity_report(data)
 end
 
 filename =  ARGV.shift || "fastas/frags.fasta"
+result_to_print = ARGV.shift || 0 
 exit if (filename.nil? || !File.exists?(filename))
 
 fasta = Bio::FastaFormat.open(filename)
@@ -70,11 +72,14 @@ newfilenames.each do | newfilename|
      end
 
    end
+   if current_seq_num == result_to_print.to_i
+     puts result
+   end
 
 #   exit if  newfilename == 'fastas/frags4.fasta'
 end
 
-   pp data.sort
+#pp data.sort
 
-   my_similarity_report(data)
+#my_similarity_report(data)
 
