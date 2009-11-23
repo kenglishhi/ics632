@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'bio'
 require 'pp'
-SIMILARITY_MIN = 80.0 
+SIMILARITY_MIN = 90.0 
 
 def my_similarity_report(data) 
 
